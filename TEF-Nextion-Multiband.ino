@@ -10,6 +10,7 @@
 #include "src/WiFiConnect.h"        // Included with this file
 #include "src/gui.h"
 #include "src/comms.h"
+#include "src/scanner.h"
 
 WiFiConnect wc;
 WiFiServer Server(7373);
