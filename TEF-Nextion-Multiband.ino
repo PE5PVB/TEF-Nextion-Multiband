@@ -692,7 +692,7 @@ void RF(byte RFset) {
     RFset ++;
   }
   if (RFset == 5 && !am) {
-    if (UHF == true) {
+    if (UHF) {
       band = 0;
       RFset = 0;
     } else {
@@ -711,7 +711,7 @@ void RF(byte RFset) {
       showrdsinfo = false;
     }
     if (!manfreq) Display.writeStr("vis m0,0");
-    if (!scopeview && manfreq == false) {
+    if (!scopeview && !manfreq) {
       Display.writeStr("vis U_disp,0");
       Display.writeStr("vis W_disp,0");
       Display.writeNum("tm4.en", 0);
@@ -835,9 +835,9 @@ void RF(byte RFset) {
 
     case 5:
       if (CoaxSwitch) {
-        if (coaxmode == 1 && UHF == false) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
+        if (coaxmode && !UHF) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
       } else {
-        if (coaxmode == 1 && UHF == false) digitalWrite(RFC, LOW); else digitalWrite(RFC, HIGH);
+        if (coaxmode && !UHF) digitalWrite(RFC, LOW); else digitalWrite(RFC, HIGH);
       }
       digitalWrite(RFA, HIGH);
       digitalWrite(RFB, HIGH);
@@ -849,9 +849,9 @@ void RF(byte RFset) {
 
     case 6:
       if (CoaxSwitch) {
-        if (coaxmode == 0) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
+        if (!coaxmode) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
       } else {
-        if (coaxmode == 0) digitalWrite(RFC, LOW); else digitalWrite(RFC, HIGH);
+        if (!coaxmode) digitalWrite(RFC, LOW); else digitalWrite(RFC, HIGH);
       }
       digitalWrite(RFA, HIGH);
       digitalWrite(RFB, HIGH);
@@ -890,7 +890,7 @@ void readRds() {
 
     if (RDSSPYRDS != RDSSPYRDSold) {
       RDSSPYRDSold = RDSSPYRDS;
-      if (wificonnect == true) RemoteClient.print(RDSSPYRDS); else Serial.print(RDSSPYRDS);
+      if (wificonnect) RemoteClient.print(RDSSPYRDS); else Serial.print(RDSSPYRDS);
     }
   }
 
@@ -1253,23 +1253,23 @@ void MemoryTune() {
       frequency0 = memory[memory_pos];
       RF(0);
       band = 0;
-    } else if (UHF == true && memory[memory_pos] >= LowEdgeSet1 * 100 && memory[memory_pos] <= HighEdgeSet1 * 100) {
+    } else if (UHF && memory[memory_pos] >= LowEdgeSet1 * 100 && memory[memory_pos] <= HighEdgeSet1 * 100) {
       frequency1 = memory[memory_pos];
       RF(1);
       band = 1;
-    } else if (UHF == true && memory[memory_pos] >= LowEdgeSet2 * 100 && memory[memory_pos] <= HighEdgeSet2 * 100) {
+    } else if (UHF && memory[memory_pos] >= LowEdgeSet2 * 100 && memory[memory_pos] <= HighEdgeSet2 * 100) {
       frequency2 = memory[memory_pos];
       RF(2);
       band = 2;
-    } else if (UHF == true && memory[memory_pos] >= LowEdgeSet3 * 100 && memory[memory_pos] <= HighEdgeSet3 * 100) {
+    } else if (UHF && memory[memory_pos] >= LowEdgeSet3 * 100 && memory[memory_pos] <= HighEdgeSet3 * 100) {
       frequency3 = memory[memory_pos];
       RF(3);
       band = 3;
-    } else if (UHF == true && memory[memory_pos] >= LowEdgeSet4 * 100 && memory[memory_pos] <= HighEdgeSet4 * 100) {
+    } else if (UHF && memory[memory_pos] >= LowEdgeSet4 * 100 && memory[memory_pos] <= HighEdgeSet4 * 100) {
       frequency4 = memory[memory_pos];
       RF(4);
       band = 4;
-    } else if (UHF == false && memory[memory_pos] >= LowEdgeSet6 * 100 && memory[memory_pos] <= HighEdgeSet6 * 100) {
+    } else if (!UHF && memory[memory_pos] >= LowEdgeSet6 * 100 && memory[memory_pos] <= HighEdgeSet6 * 100) {
       frequency6 = memory[memory_pos];
       RF(6);
       band = 6;
@@ -1443,7 +1443,7 @@ void doSquelch() {
     } else {
       if (Squelch != 920) {
         if (!seek && (Squelch < SStatus || Squelch == -100)) {
-          if (mutestatus == true) {
+          if (mutestatus) {
             radio.setUnMute();
             mutestatus = false;
           }
@@ -2001,7 +2001,7 @@ void FactoryDefaults() {
 void tryWiFi() {
   if (wc.autoConnect()) {
     Server.begin();
-    if (stationlist == 1) Udp.begin(9031);
+    if (stationlist) Udp.begin(9031);
   } else {
     wifiretry = true;
     Display.writeStr("page 26");
