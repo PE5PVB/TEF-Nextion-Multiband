@@ -13,7 +13,7 @@ void ShowRDS(void) {
     ShowErrors();
     ShowCT();
 
-    if (RDSstatusold != RDSstatus || displayreset == true) {
+    if (RDSstatusold != RDSstatus || displayreset) {
       if (band == 5) {
         Display.writeNum("rdslogo.pic", NEXTION_RDSLOGO_GREYOUT);
         Display.writeNum("m.pic", NEXTION_SPEECHLOGO_GREYOUT);
@@ -112,7 +112,7 @@ void ShowRDS(void) {
 }
 
 void ShowCT(void) {
-  if ((radio.rds.hasCT && !dropout) || displayreset == true) {
+  if ((radio.rds.hasCT && !dropout) || displayreset) {
     rds_clock = ((radio.rds.hour < 10 ? "0" : "") + String(radio.rds.hour) + ":" + (radio.rds.minute < 10 ? "0" : "") + String(radio.rds.minute));
   } else if (!radio.rds.hasCT || dropout) {
     rds_clock = ((rtc.getHour(true) < 10 ? "0" : "") + String(rtc.getHour(true)) + ":" + (rtc.getMinute() < 10 ? "0" : "") + String(rtc.getMinute()));
@@ -135,7 +135,7 @@ void ShowCT(void) {
 }
 
 void ShowPI(void) {
-  if (String(radio.rds.picode) != PIold || displayreset == true) {
+  if (String(radio.rds.picode) != PIold || displayreset) {
     Display.writeStr("PI.txt", radio.rds.picode);
     PIold = radio.rds.picode;
 
@@ -148,7 +148,7 @@ void ShowPI(void) {
 }
 
 void ShowPS(void) {
-  if (radio.rds.stationName != PSold || displayreset == true) {
+  if (radio.rds.stationName != PSold || displayreset) {
     Display.writeStr("PS.txt", radio.rds.stationName);
     PSold = radio.rds.stationName;
 
@@ -168,11 +168,11 @@ void ShowPS(void) {
 }
 
 void ShowRadiotext(void) {
-  if (RTold != (radio.rds.stationText + " " + radio.rds.stationText32) || displayreset == true) {
+  if (RTold != (radio.rds.stationText + " " + radio.rds.stationText32) || displayreset) {
     Display.writeStr("RT.txt", radio.rds.stationText + " " + radio.rds.stationText32);
     RTold = radio.rds.stationText + " " + radio.rds.stationText32;
 
-    if (radio.rds.hasRT == true) {
+    if (radio.rds.hasRT) {
       if (!radio.rds.rtAB) {
         Display.writeNum("a.pic", NEXTION_RT_A_PIC);
         delay(10);
@@ -205,7 +205,7 @@ void ShowRadiotext(void) {
 }
 
 void ShowPTY(void) {
-  if (strcmp(radio.rds.stationType, programTypePrevious) || displayreset == true) {
+  if (strcmp(radio.rds.stationType, programTypePrevious) || displayreset) {
     Display.writeStr("PTY.txt", radio.rds.stationType);
     strcpy(programTypePrevious, radio.rds.stationType);
     if (stationlist && wifienable == 2) {
@@ -296,7 +296,7 @@ void ShowFreq(void) {
   Display.writeNum("freq.val", freq);
   
   if (RDSSpy) {
-    if (wificonnect == true) RemoteClient.print("G:\r\nRESET-------\r\n\r\n"); else Serial.print("G:\r\nRESET-------\r\n\r\n");
+    if (wificonnect) RemoteClient.print("G:\r\nRESET-------\r\n\r\n"); else Serial.print("G:\r\nRESET-------\r\n\r\n");
   }
 
   if (stationlist && wifienable == 2) {

@@ -9,10 +9,10 @@ void Communication(void) {
     String data_str = swSer.readStringUntil('\n');
     if (data_str.substring(0, 3) == "CON") {
       btconnect = true;
-      if (menu == false) ShowBTstatus();
+      if (!menu) ShowBTstatus();
     } else if (data_str.substring(0, 3) == "DIS") {
       btconnect = false;
-      if (menu == false) ShowBTstatus();
+      if (!menu) ShowBTstatus();
     }
 
     if (data_str.charAt(11) == ':') {
@@ -21,7 +21,7 @@ void Communication(void) {
       NAME[number] = data_str.substring(data_str.indexOf(",Name:") + 6);
     }
 
-    if (btsetup == true) {
+    if (btsetup) {
       Display.writeStr("bt1.txt", NAME[1]);
       Display.writeStr("bt2.txt", NAME[2]);
       Display.writeStr("bt3.txt", NAME[3]);
@@ -50,8 +50,8 @@ void Communication(void) {
     }
   }
 
-  if (menu == false) {
-    if (manfreq == false && spec == false) {
+  if (!menu) {
+    if (!manfreq && !spec) {
       if (stationlist == 1 && wifienable == 2) {
         int packetSize = Udp.parsePacket();
         if (packetSize) {
@@ -107,7 +107,7 @@ void Communication(void) {
         if (Server.hasClient()) Server.available().stop();
       }
 
-      if (wificonnect == true && !RemoteClient.connected()) {
+      if (wificonnect && !RemoteClient.connected()) {
         wificonnect = false;
         RDSSpy = false;
         XDRGTKTCP = false;
@@ -116,7 +116,7 @@ void Communication(void) {
       }
 
 
-      if (XDRGTKTCP == false && wificonnect == true && RemoteClient.available()) {
+      if (!XDRGTKTCP && wificonnect && RemoteClient.available()) {
         String data_str = RemoteClient.readStringUntil('\n');
         int data = data_str.toInt();
         Serial.println(data_str);
@@ -130,10 +130,10 @@ void Communication(void) {
           XDRGTKTCP = true;
           RemoteClient.print("o1,0\n");
           store = true;
-        } else if (RDSSpy == false && XDRGTKTCP == false && data_str.length() < 5 && data_str == ("*R?F"))
+        } else if (!RDSSpy && !XDRGTKTCP && data_str.length() < 5 && data_str == ("*R?F"))
         {
           RDSSpy = true;
-        } else if (RDSSpy == true) {
+        } else if (RDSSpy) {
           int symPos = data_str.indexOf("*F");
           if (symPos >= 5) {
             String freq = data_str.substring(0, symPos);
@@ -153,7 +153,7 @@ void Communication(void) {
         }
       }
 
-      if (XDRGTK == false && Serial.available())
+      if (!XDRGTK && Serial.available())
       {
         String data_str = Serial.readStringUntil('\n');
         int data = data_str.toInt();
@@ -189,7 +189,6 @@ void Communication(void) {
       }
 
       if (XDRGTK || XDRGTKTCP) XDRGTKRoutine();
-      //if (XDRGTKTCP == true) XDRGTKRoutineTCP();
     }
   }
 }
@@ -461,9 +460,9 @@ void XDRGTKRoutine(void) {
   if (band == 5) {
     XDRGTKprint("Sm");
   } else {
-    if (StereoToggle == false) {
+    if (!StereoToggle ) {
       XDRGTKprint("SS");
-    } else if (Stereostatus == true) {
+    } else if (Stereostatus) {
       XDRGTKprint("Ss");
     } else {
       XDRGTKprint("Sm");
