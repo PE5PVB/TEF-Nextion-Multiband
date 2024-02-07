@@ -10,6 +10,7 @@
 #include <SoftwareSerial.h>
 #include "WiFiConnect.h"
 #include "ADF4351.h"
+#include "constants.h"
 
 extern EasyNex Display;
 extern TEF6686 radio;
@@ -55,13 +56,13 @@ extern byte IF;
 extern unsigned int converteroffset;
 extern byte lf;
 extern byte demp;
-extern bool usbmode;
+extern byte usbmode;
 extern byte wifienable;
 extern byte ip1;
 extern byte ip2;
 extern byte ip3;
 extern byte ip4;
-extern bool stationlist;
+extern byte stationlist;
 extern int VolSet;
 extern byte ContrastSet;
 extern int StereoLevel;
@@ -73,13 +74,13 @@ extern int NBLevel;
 extern int AM_Cochannel;
 extern int AM_NBLevel;
 extern int AM_att;
-extern bool fm;
-extern bool am;
-extern bool uhf1;
-extern bool uhf2;
-extern bool uhf3;
-extern bool uhf4;
-extern bool uhf6;
+extern byte fm;
+extern byte am;
+extern byte uhf1;
+extern byte uhf2;
+extern byte uhf3;
+extern byte uhf4;
+extern byte uhf6;
 extern byte coaxmode;
 extern byte fmsi;
 extern unsigned int fmsi_attack;
@@ -110,7 +111,7 @@ extern bool fullsearchrds;
 extern bool wificonnect;
 extern bool btsetup;
 extern bool btconnect;
-extern bool scopeview;
+extern byte scopeview;
 extern byte OStatusold;
 extern bool setoffset;
 extern int offset;
@@ -160,16 +161,16 @@ void trigger40(void);
 void trigger41(void);
 void trigger42(void);
 
-extern void doStereoToggle();
-extern void doBW();
+extern void doStereoToggle(void);
+extern void doBW(void);
 extern void ShowBW(void);
-extern void doFilter();
-extern void BandSet();
-extern void doTuneMode();
-extern void BuildScanScreen();
+extern void doFilter(void);
+extern void BandSet(void);
+extern void doTuneMode(void);
+extern void BuildScanScreen(void);
 extern void RF(byte RFset);
-extern void doExit();
-extern void EEpromReadData();
+extern void doExit(void);
+extern void EEpromReadData(void);
 extern void passwordgenerator(void);
 extern void ShowFreq(void);
 extern void ShowStereoStatus(void);
@@ -178,6 +179,6 @@ extern void ShowStepSize(void);
 extern void ShowTuneMode(void);
 extern void ShowUSBstatus(void);
 extern void ShowBTstatus(void);
-extern void tryWiFi();
+extern void tryWiFi(void);
 
 #endif

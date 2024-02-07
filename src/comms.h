@@ -7,6 +7,8 @@
 #include <WiFi.h>
 #include <SoftwareSerial.h>
 #include <Hash.h>
+#include <EEPROM.h>
+#include "WiFiConnect.h"
 
 extern EasyNex Display;
 extern TEF6686 radio;
@@ -14,6 +16,7 @@ extern WiFiUDP Udp;
 extern EspSoftwareSerial::UART swSer;
 extern WiFiServer Server;
 extern WiFiClient RemoteClient;
+extern WiFiConnect wc;
 
 extern bool btconnect;
 extern bool btsetup;
@@ -24,7 +27,7 @@ extern bool menu;
 extern bool RDSSpy;
 extern bool spec;
 extern bool SQ;
-extern bool stationlist;
+extern byte stationlist;
 extern bool Stereostatus;
 extern bool StereoToggle;
 extern bool store;
@@ -37,10 +40,9 @@ extern bool XDRMute;
 extern byte band;
 extern byte BWset;
 extern byte demp;
-extern bool EQset;
+extern byte EQset;
 extern byte iMSEQ;
-extern bool iMSset;
-extern byte SNR;
+extern byte iMSset;
 extern byte wifienable;
 extern char buff[16];
 extern int Squelch;
@@ -72,18 +74,24 @@ extern unsigned int XDRscanner_filter;
 extern unsigned int XDRscanner_old;
 extern unsigned int XDRscanner_start;
 extern unsigned int XDRscanner_step;
+extern unsigned long signalstatustimer;
+extern bool wifiretry;
 
 extern void RF(byte RFset);
-extern void ShowBTstatus();
-extern void ShowFreq();
+extern void ShowBTstatus(void);
+extern void ShowFreq(void);
 extern void Seek(bool mode);
-extern void doStereoToggle();
-extern void doBW();
-extern void doFilter();
+extern void doStereoToggle(void);
+extern void doBW(void);
+extern void doFilter(void);
+extern void ShowiMS(void);
+extern void ShowEQ(void);
+
 
 void Communication(void);
 void XDRGTKprint(String string);
 void XDRGTKRoutine(void);
 void passwordcrypt(void);
 void passwordgenerator(void);
+void tryWiFi(void);
 #endif

@@ -52,8 +52,8 @@ extern unsigned int frequency4;
 extern bool spec;
 
 extern void RF(byte RFset);
-extern void doExit();
-extern void RoundStep();
+extern void doExit(void);
+extern void RoundStep(void);
 
 void SpectrumAnalyser(void);
 void BuildScanScreen(void);

@@ -37,14 +37,13 @@ void Communication(void) {
           delay(250);
           swSer.print("AT+REST");
           Display.writeStr("page 15");
-          delay(100);
         } else if (number < 7) {
           swSer.print("AT+ADDLINKADD=0x" + MAC[number]);
-          delay(100);
+          delay(50);
           Display.writeNum("bt", 0);
-          delay(100);
+          delay(50);
           Display.writeStr("page 14");
-          delay(100);
+          delay(50);
         }
       }
     }
@@ -91,10 +90,8 @@ void Communication(void) {
         }
       }
 
-      if (Server.hasClient())
-      {
-        if (RemoteClient.connected())
-        {
+      if (Server.hasClient()) {
+        if (RemoteClient.connected()) {
           Server.available().stop();
         } else {
           wificonnect = true;
@@ -120,8 +117,7 @@ void Communication(void) {
         String data_str = RemoteClient.readStringUntil('\n');
         int data = data_str.toInt();
         Serial.println(data_str);
-        if (data_str.length() > 30 && data_str.equals(cryptedpassword))
-        {
+        if (data_str.length() > 30 && data_str.equals(cryptedpassword)) {
           radio.setFMABandw();
           if (band != 0) {
             band = 0;
@@ -130,8 +126,7 @@ void Communication(void) {
           XDRGTKTCP = true;
           RemoteClient.print("o1,0\n");
           store = true;
-        } else if (!RDSSpy && !XDRGTKTCP && data_str.length() < 5 && data_str == ("*R?F"))
-        {
+        } else if (!RDSSpy && !XDRGTKTCP && data_str.length() < 5 && data_str == ("*R?F")) {
           RDSSpy = true;
         } else if (RDSSpy) {
           int symPos = data_str.indexOf("*F");
@@ -153,12 +148,10 @@ void Communication(void) {
         }
       }
 
-      if (!XDRGTK && Serial.available())
-      {
+      if (!XDRGTK && Serial.available()) {
         String data_str = Serial.readStringUntil('\n');
         int data = data_str.toInt();
-        if (data_str.length() > 1 && data_str == ("*D*R?F"))
-        {
+        if (data_str.length() > 1 && data_str == ("*D*R?F")) {
           USBstatus = true;
           RDSSpy = true;
         }
@@ -200,11 +193,9 @@ void XDRGTKprint(String string) {
 
 void XDRGTKRoutine(void) {
   if (XDRGTK) {
-    if (Serial.available())
-    {
+    if (Serial.available()) {
       buff[buff_pos] = Serial.read();
-      if (buff[buff_pos] != '\n' && buff_pos != 16 - 1)
-      {
+      if (buff[buff_pos] != '\n' && buff_pos != 16 - 1) {
         buff_pos++;
       } else {
         buff[buff_pos] = 0;
@@ -284,25 +275,33 @@ void XDRGTKRoutine(void) {
         break;
 
       case 'G':
-        int g;
-        g =  atol(buff + 1);
-        XDRGTKprint("G");
-        if (g == 0) {
-          if (band == 5) radio.setSoftmuteAM(0); else radio.setSoftmuteFM(0);
-          XDRGTKprint("00\n");
+        byte offsetg;
+        offsetg = atol(buff + 1);
+        if (offsetg == 0) {
+          iMSset = 1;
+          EQset = 1;
+          XDRGTKprint("G00\n");
         }
-        if (g == 10) {
-          if (band == 5) radio.setSoftmuteAM(1); else radio.setSoftmuteFM(1);
-          XDRGTKprint("10\n");
+        if (offsetg == 10) {
+          iMSset = 1;
+          EQset = 0;
+          XDRGTKprint("G10\n");
         }
-        if (g == 1) {
-          radio.setFMSI(1);
-          XDRGTKprint("01\n");
+        if (offsetg == 1) {
+          iMSset = 0;
+          EQset = 1;
+          XDRGTKprint("G01\n");
         }
-        if (g == 11) {
-          radio.setFMSI(2);
-          XDRGTKprint("11\n");
+        if (offsetg == 11) {
+          iMSset = 0;
+          EQset = 0;
+          XDRGTKprint("G11\n");
         }
+        ShowiMS();
+        ShowEQ();
+        EEPROM.writeByte(44, iMSset);
+        EEPROM.writeByte(45, EQset);
+        EEPROM.commit();
         break;
 
       case 'M':
@@ -428,67 +427,65 @@ void XDRGTKRoutine(void) {
         break;
 
       case 'Z':
-        byte iMSEQX;
-        iMSEQX = atol(buff + 1);
-        XDRGTKprint("Z" + String(iMSEQX) + "\n");
-        if (iMSEQX == 0) {
-          iMSset = false;
-          EQset = false;
-          iMSEQ = 1;
+        byte ANT;
+        ANT = atol(buff + 1);
+        switch (ANT) {
+          case 0:
+            // Antenna A
+            break;
+
+          case 1:
+            // Antenna B
+            break;
+
+          case 2:
+            // Antenna C
+            break;
+
+          case 3:
+            // Antenna D
+            break;
         }
-        if (iMSEQX == 1) {
-          iMSset = false;
-          EQset = true;
-          iMSEQ = 3;
-        }
-        if (iMSEQX == 2) {
-          iMSset = true;
-          EQset = false;
-          iMSEQ = 4;
-        }
-        if (iMSEQX == 3) {
-          iMSset = true;
-          EQset = true;
-          iMSEQ = 2;
-        }
-        doFilter();
+        XDRGTKprint("Z" + String(ANT) + "\n");
         break;
     }
     XDRGTKdata = false;
   }
 
-  if (band == 5) {
-    XDRGTKprint("Sm");
-  } else {
-    if (!StereoToggle ) {
-      XDRGTKprint("SS");
-    } else if (Stereostatus) {
-      XDRGTKprint("Ss");
-    } else {
+  if (millis() >= signalstatustimer + 66) {
+    if (band == 5) {
       XDRGTKprint("Sm");
+    } else {
+      if (!StereoToggle ) {
+        XDRGTKprint("SS");
+      } else if (Stereostatus) {
+        XDRGTKprint("Ss");
+      } else {
+        XDRGTKprint("Sm");
+      }
     }
+    XDRGTKprint(String(((SStatus * 100) + 10875) / 1000) + "." + String(((SStatus * 100) + 10875) / 100 % 10) + "," + String(WAM / 10) + "," + String(CN) + "," + String(BW) + "\n\n");
+    signalstatustimer = millis();
   }
-  XDRGTKprint(String(((SStatus * 100) + 10875) / 1000) + "." + String(((SStatus * 100) + 10875) / 100 % 10) + "," + String(WAM / 10) + "," + String(SNR) + "\n");
 }
 
 void passwordcrypt(void) {
   int generated = 0;
-  while (generated < 16)
-  {
+  while (generated < 16) {
     byte randomValue = random(0, 26);
     char letter = randomValue + 'a';
     if (randomValue > 26) letter = (randomValue - 26);
     saltkey.setCharAt(generated, letter);
     generated ++;
   }
+
   salt = saltkey + password;
   cryptedpassword = String(sha1(salt));
 }
 
 void passwordgenerator(void) {
   int generated = 0;
-  while (generated < 5)
-  {
+  while (generated < 5) {
     byte randomValue = random(0, 26);
     char letter = randomValue + 'A';
     if (randomValue > 26) letter = (randomValue - 26);
@@ -497,4 +494,14 @@ void passwordgenerator(void) {
   }
 }
 
+void tryWiFi(void) {
+  if (wc.autoConnect()) {
+    Server.begin();
+    if (stationlist == 1) Udp.begin(9031);
+  } else {
+    wifiretry = true;
+    Display.writeStr("page 26");
+    while (wifiretry) Display.NextionListen();
+  }
+}
 #endif

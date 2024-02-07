@@ -12,6 +12,10 @@ void ShowRDS(void) {
     ShowPTY();
     ShowErrors();
     ShowCT();
+    ShowECC();
+    ShowAF();
+    ShowRDSPlus();
+    ShowEON();
 
     if (RDSstatusold != RDSstatus || displayreset) {
       if (band == 5) {
@@ -39,27 +43,16 @@ void ShowRDS(void) {
           Display.writeStr("vis BER,1");
         } else {
           Display.writeNum("rdslogo.pic", NEXTION_RDSLOGO_GREYOUT);
-          delay(10);
           Display.writeNum("m.pic", NEXTION_MUSICLOGO_GREYOUT);
-          delay(10);
           Display.writeNum("s.pic", NEXTION_SPEECHLOGO_GREYOUT);
-          delay(10);
           Display.writeNum("PTY.pco", NEXTION_COLOR_WHITE);
-          delay(10);
           Display.writeNum("RT.pco", NEXTION_COLOR_WHITE);
-          delay(10);
           Display.writeNum("PS.pco", NEXTION_COLOR_WHITE);
-          delay(10);
           Display.writeNum("PI.pco", NEXTION_COLOR_WHITE);
-          delay(10);
           Display.writeNum("CT.pco", NEXTION_COLOR_WHITE);
-          delay(10);
           Display.writeNum("rtshow", 0);
-          delay(10);
           Display.writeStr("vis BER,0");
-          delay(10);
           Display.writeNum("a.pic", NEXTION_RT_A_GREYOUT_PIC);
-          delay(10);
           Display.writeNum("b.pic", NEXTION_RT_B_GREYOUT_PIC);
           Display.writeNum("tm3.en", 0);
           Display.writeStr("vis CT,0");
@@ -111,6 +104,89 @@ void ShowRDS(void) {
   }
 }
 
+void ShowRDSPlus(void) {
+  if (showrdsinfo) {
+    if (radio.rds.RTContent1 != RTContent1old) {
+      Display.writeStr("rtplus1.txt", radio.rds.RTContent1);
+      RTContent1old = radio.rds.RTContent1;
+    }
+
+    if (radio.rds.RTContent2 != RTContent2old) {
+      Display.writeStr("rtplus2.txt", radio.rds.RTContent2);
+      RTContent2old = radio.rds.RTContent2;
+    }
+  }
+}
+
+void ShowEON(void) {
+  if (showrdsinfo) {
+    String eonstring;
+    if (radio.eon_counter > 0) for (byte i = 0; i < radio.eon_counter; i++) eonstring += String(radio.eon[i].picode) + (radio.eon[i].ps.length() > 0 ? String(": " + String(radio.eon[i].ps)) : "") + (radio.eon[i].mappedfreq > 0 ? String(" " + String(radio.eon[i].mappedfreq / 100) + "." + String((radio.eon[i].mappedfreq % 100) / 10))  : "") + (radio.eon[i].mappedfreq2 > 0 ? String(" / " + String(radio.eon[i].mappedfreq2 / 100) + "." + String((radio.eon[i].mappedfreq2 % 100) / 10))  : "") + (radio.eon[i].mappedfreq3 > 0 ? String(" /  " + String(radio.eon[i].mappedfreq3 / 100) + "." + String((radio.eon[i].mappedfreq3 % 100) / 10))  : "") + (i == radio.eon_counter - 1 ? "" : " | "); else eonstring = "";
+    if (eonstring != eonstringold) {
+      Display.writeStr("eontxt.txt", eonstring);
+      eonstringold = eonstring;
+    }
+
+  }
+}
+
+void ShowAF(void) {
+  if (radio.af_counter != af_counterold) {
+    af = "";
+    af2 = "";
+    af2show = false;
+    if (stationlist == 1 && wifienable == 2) {
+      Udp.beginPacket(remoteip, 9030);
+      Udp.print("AF=");
+    }
+
+    for (af_scan = 0; af_scan < radio.af_counter; af_scan++) {
+      if (stationlist == 1 && wifienable == 2) {
+        if ((radio.af[af_scan].frequency - 8750) / 10 < 0x10) {
+          Udp.print("0");
+        }
+        Udp.print((radio.af[af_scan].frequency - 8750) / 10, HEX);
+      }
+
+      if (radio.af[af_scan].frequency != frequency0) {
+        if (displaysize == 35) {
+          if (af_scan < 13) {
+            af += String(radio.af[af_scan].frequency / 100) + "." + (radio.af[af_scan].frequency % 100 < 10 ? "0" : "") + String(radio.af[af_scan].frequency % 100) + "\\r";
+            af2show = false;
+          } else {
+            af2 += String(radio.af[af_scan].frequency / 100) + "." + (radio.af[af_scan].frequency % 100 < 10 ? "0" : "") + String(radio.af[af_scan].frequency % 100) + "\\r";
+            af2show = true;
+          }
+        } else {
+          if (af_scan < 10) {
+            af += String(radio.af[af_scan].frequency / 100) + "." + (radio.af[af_scan].frequency % 100 < 10 ? "0" : "") + String(radio.af[af_scan].frequency % 100) + "\\r";
+            af2show = false;
+          } else {
+            af2 += String(radio.af[af_scan].frequency / 100) + "." + (radio.af[af_scan].frequency % 100 < 10 ? "0" : "") + String(radio.af[af_scan].frequency % 100) + "\\r";
+            af2show = true;
+          }
+        }
+      }
+    }
+    af_counterold = radio.af_counter;
+
+    if (showrdsinfo) {
+      Display.writeStr("AFLIST.txt", af);
+      if (af2show) {
+        Display.writeNum("tm0.en", 1);
+        Display.writeStr("AFLIST2.txt", af2);
+      } else {
+        Display.writeNum("tm0.en", 0);
+        Display.writeStr("vis AFLIST2,0");
+      }
+    }
+    if (stationlist == 1 && wifienable == 2) {
+      for (int i = 0; i < 25 - radio.af_counter; i++) Udp.print("00");
+      Udp.endPacket();
+    }
+  }
+}
+
 void ShowCT(void) {
   if ((radio.rds.hasCT && !dropout) || displayreset) {
     rds_clock = ((radio.rds.hour < 10 ? "0" : "") + String(radio.rds.hour) + ":" + (radio.rds.minute < 10 ? "0" : "") + String(radio.rds.minute));
@@ -126,7 +202,7 @@ void ShowCT(void) {
       rtcset = true;
       rtc.setTime(0, radio.rds.minute, radio.rds.hour, radio.rds.day, radio.rds.month, radio.rds.year);
       Display.writeNum("tm3.en", 1);
-      Display.writeStr("CT.txt", rds_clock);
+      Display.writeStr("CT.txt", String(radio.rds.day) + "-" + String(radio.rds.month) + "-" + String(radio.rds.year) + " " + rds_clock);
     }
     rds_clockold = rds_clock;
 
@@ -139,7 +215,7 @@ void ShowPI(void) {
     Display.writeStr("PI.txt", radio.rds.picode);
     PIold = radio.rds.picode;
 
-    if (stationlist && wifienable == 2) {
+    if (stationlist == 1 && wifienable == 2) {
       Udp.beginPacket(remoteip, 9030);
       Udp.print("from=TEF tuner " + showsoftwareversion + ";PI=" + String(radio.rds.picode, 4));
       Udp.endPacket();
@@ -152,7 +228,7 @@ void ShowPS(void) {
     Display.writeStr("PS.txt", radio.rds.stationName);
     PSold = radio.rds.stationName;
 
-    if (stationlist && wifienable == 2) {
+    if (stationlist == 1 && wifienable == 2) {
       Udp.beginPacket(remoteip, 9030);
       Udp.print("from=TEF tuner " + showsoftwareversion + ";PS=");
       char PShex[9];
@@ -175,20 +251,17 @@ void ShowRadiotext(void) {
     if (radio.rds.hasRT) {
       if (!radio.rds.rtAB) {
         Display.writeNum("a.pic", NEXTION_RT_A_PIC);
-        delay(10);
         Display.writeNum("b.pic", NEXTION_RT_B_GREYOUT_PIC);
       } else {
         Display.writeNum("a.pic", NEXTION_RT_A_GREYOUT_PIC);
-        delay(10);
         Display.writeNum("b.pic", NEXTION_RT_B_PIC);
       }
     } else {
       Display.writeNum("a.pic", NEXTION_RT_A_GREYOUT_PIC);
-      delay(10);
       Display.writeNum("b.pic", NEXTION_RT_B_GREYOUT_PIC);
     }
 
-    if (stationlist && wifienable == 2) {
+    if (stationlist == 1 && wifienable == 2) {
       Udp.beginPacket(remoteip, 9030);
       Udp.print("from=TEF tuner " + showsoftwareversion + ";RT1=");
       char RThex[65];
@@ -208,7 +281,7 @@ void ShowPTY(void) {
   if (strcmp(radio.rds.stationType, programTypePrevious) || displayreset) {
     Display.writeStr("PTY.txt", radio.rds.stationType);
     strcpy(programTypePrevious, radio.rds.stationType);
-    if (stationlist && wifienable == 2) {
+    if (stationlist == 1 && wifienable == 2) {
       Udp.beginPacket(remoteip, 9030);
       Udp.print("from=TEF tuner " + showsoftwareversion + ";PTY=");
       Udp.print(radio.rds.stationTypeCode, HEX);
@@ -223,30 +296,113 @@ void ShowErrors(void) {
   if (!radio.rds.rdsBerror) calc--;
   if (!radio.rds.rdsCerror) calc--;
   if (!radio.rds.rdsDerror) calc--;
+
+  SAvg3 = (((SAvg3 * 9) + 5) / 10) + calc;
+  calc = SAvg3 / 10;
+
   if (calc != RDSerrorsold || displayreset) {
-    switch (calc) {
-      case 0: Display.writeNum("ber.pic", NEXTION_RDSBAR_4); break;
-      case 1: Display.writeNum("ber.pic", NEXTION_RDSBAR_3); break;
-      case 2: Display.writeNum("ber.pic", NEXTION_RDSBAR_2); break;
-      case 3: Display.writeNum("ber.pic", NEXTION_RDSBAR_1); break;
-      case 4: Display.writeNum("ber.pic", NEXTION_RDSBAR_0); break;
+    if (RDSstatus) {
+      switch (calc) {
+        case 0: Display.writeNum("ber.pic", NEXTION_RDSBAR_4); break;
+        case 1: Display.writeNum("ber.pic", NEXTION_RDSBAR_3); break;
+        case 2: Display.writeNum("ber.pic", NEXTION_RDSBAR_2); break;
+        case 3: Display.writeNum("ber.pic", NEXTION_RDSBAR_1); break;
+        case 4: Display.writeNum("ber.pic", NEXTION_RDSBAR_0); break;
+      }
+    } else {
+      Display.writeNum("ber.pic", NEXTION_RDSBAR_0);
     }
     RDSerrorsold = calc;
   }
 }
 
 void ShowECC(void) {
-  if ((ECCold != radio.rds.ECC) || displayreset) {
-    if (stationlist && wifienable == 2 && radio.rds.hasECC) {
-      Udp.beginPacket(remoteip, 9030);
-      Udp.print("ECC=");
-      if (radio.rds.ECC < 0x10) Udp.print("0");
-      Udp.print(radio.rds.ECC, HEX);
-      Udp.endPacket();
-
-      ECCold = radio.rds.ECC;
-    }
+  if (stationlist == 1 && wifienable == 2) {
+    Udp.beginPacket(remoteip, 9030);
+    Udp.print("ECC=");
+    if (radio.rds.ECC < 0x10) Udp.print("0");
+    Udp.print(radio.rds.ECC, HEX);
+    Udp.endPacket();
   }
+  if (radio.rds.picode[0] == '1') {
+    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 55);
+    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 56);
+    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 57);
+    if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 58);
+  } else if (radio.rds.picode[0] == '2') {
+    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 59);
+    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 60);
+    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 61);
+    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 62);
+    if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 63);
+  } else if (radio.rds.picode[0] == '3') {
+    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 64);
+    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 65);
+    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 66);
+    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 67);
+  } else if (radio.rds.picode[0] == '4') {
+    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 68);
+    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 69);
+    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 70);
+    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 71);
+  } else if (radio.rds.picode[0] == '5') {
+    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 72);
+    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 73);
+    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 74);
+  } else if (radio.rds.picode[0] == '6') {
+    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 75);
+    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 76);
+    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 77);
+    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 78);
+    if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 79);
+  } else if (radio.rds.picode[0] == '7') {
+    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 80);
+    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 81);
+    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 82);
+  } else if (radio.rds.picode[0] == '8') {
+    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 83);
+    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 84);
+    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 85);
+    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 86);
+    if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 87);
+  } else if (radio.rds.picode[0] == '9') {
+    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 88);
+    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 89);
+    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 90);
+    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 91);
+    if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 92);
+  } else if (radio.rds.picode[0] == 'A') {
+    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 93);
+    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 94);
+    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 95);
+    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 96);
+  } else if (radio.rds.picode[0] == 'B') {
+    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 97);
+    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 98);
+    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 99);
+  } else if (radio.rds.picode[0] == 'C') {
+    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 100);
+    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 101);
+    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 102);
+    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 103);
+  } else if (radio.rds.picode[0] == 'D') {
+    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 104);
+    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 105);
+  } else if (radio.rds.picode[0] == 'E') {
+    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 106);
+    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 107);
+    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 108);
+    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 109);
+  } else if (radio.rds.picode[0] == 'F') {
+    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 110);
+    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 111);
+    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 112);
+    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 113);
+    if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 114);
+  } else {
+    Display.writeNum("ECC.pic", 115);
+  }
+  ECCold = radio.rds.ECC;
 }
 
 void ShowRSSI(void) {
@@ -271,17 +427,17 @@ void ShowRSSI(void) {
 void ShowFreq(void) {
   detachInterrupt(digitalPinToInterrupt(ROTARY_PIN_A));
   detachInterrupt(digitalPinToInterrupt(ROTARY_PIN_B));
-  
+
   switch (band) {
-	  case 0: freq = frequency0; break;
-	  case 1: freq = frequency1; break;
-	  case 2: freq = frequency2; break;
-	  case 3: freq = frequency3; break;
-	  case 4: freq = frequency4; break;
-	  case 5: freq = frequency5; break;
-	  case 6: freq = frequency6; break;
+    case 0: freq = frequency0; break;
+    case 1: freq = frequency1; break;
+    case 2: freq = frequency2; break;
+    case 3: freq = frequency3; break;
+    case 4: freq = frequency4; break;
+    case 5: freq = frequency5; break;
+    case 6: freq = frequency6; break;
   }
-  
+
   if (band == 5) {
     String count = String(frequency5, DEC);
     if (count.length() > 3) {
@@ -292,19 +448,29 @@ void ShowFreq(void) {
       Display.writeStr("t2.txt", "kHz");
     }
   }
-  
+
   Display.writeNum("freq.val", freq);
-  
+
   if (RDSSpy) {
     if (wificonnect) RemoteClient.print("G:\r\nRESET-------\r\n\r\n"); else Serial.print("G:\r\nRESET-------\r\n\r\n");
   }
 
-  if (stationlist && wifienable == 2) {
+  if (stationlist == 1 && wifienable == 2) {
     Udp.beginPacket(remoteip, 9030);
     Udp.print("from=TEF tuner " + showsoftwareversion + ";freq=");
     if (band == 5) Udp.print(String(frequency5) + "000;ClearRDS=1"); else Udp.print(String(frequency0) + "0000;ClearRDS=1");
     Udp.endPacket();
     stlmillis += 500;
+  }
+  radio.clearRDS(fullsearchrds);
+  if (showrdsinfo) {
+    af2show = false;
+    af = "";
+    af2 = "";
+    Display.writeStr("AFLIST.txt", af);
+    Display.writeStr("AFLIST2.txt", af2);
+    Display.writeNum("tm0.en", 0);
+    Display.writeStr("vis AFLIST2,0");
   }
 
   attachInterrupt(digitalPinToInterrupt(ROTARY_PIN_A), read_encoder, CHANGE);
@@ -342,7 +508,7 @@ void ShowBW(void) {
     Display.writeNum("BW.val", BW);
     BWOld = BW;
     BWreset = false;
-    if (stationlist && wifienable == 2) {
+    if (stationlist == 1 && wifienable == 2) {
       Udp.beginPacket(remoteip, 9030);
       Udp.print("from=TEF tuner " + showsoftwareversion + ";Bandwidth=");
       Udp.print(BW * 1000);
@@ -352,9 +518,8 @@ void ShowBW(void) {
 }
 
 void ShowSignalLevel(void) {
-  if (band != 5) SNR = int(0.46222375 * (float)(SStatus / 10) - 0.082495118 * (float)(USN)) + 10; else SNR = -((int8_t)(USN));
   SAvg = (((SAvg * 9) + 5) / 10) + SStatus;
-  SAvg2 = (((SAvg2 * 9) + 5) / 10) + SNR;
+  SAvg2 = (((SAvg2 * 9) + 5) / 10) + CN;
 
   float sval = 0;
   int16_t smeter = 0;
@@ -370,18 +535,18 @@ void ShowSignalLevel(void) {
 
   smeter = int16_t(sval);
   SStatus = SAvg / 10;
-  SNR = SAvg2 / 10;
+  CN = SAvg2 / 10;
 
   if (!showrdsinfo) {
     if (USN < 250 && WAM < 250 && OStatus > -250 && OStatus < 250) {
-      if (SNR > (SNRold + 1) || SNR < (SNRold - 1)) {
-        if (SNR < SStatus / 10) Display.writeNum("SNR.val", SNR);
+      if (CN > (CNold + 1) || CN < (CNold - 1)) {
+        if (CN < SStatus / 10) Display.writeNum("SNR.val", CN);
         if (!cnvis) {
           Display.writeStr("vis SNR,1");
           Display.writeStr("vis t12,1");
           Display.writeStr("vis t13,1");
         }
-        SNRold = SNR;
+        CNold = CN;
         cnvis = true;
       }
     } else {
@@ -390,7 +555,7 @@ void ShowSignalLevel(void) {
         Display.writeStr("vis SNR,0");
         Display.writeStr("vis t12,0");
         Display.writeStr("vis t13,0");
-        SNRold = 0;
+        CNold = 0;
       }
       cnvis = false;
     }
@@ -408,7 +573,7 @@ void ShowSignalLevel(void) {
         Display.writeNum("signaldec.val", SStatus % 10);
       }
       SStatusold = SStatus;
-      if (stationlist && wifienable == 2) {
+      if (stationlist == 1 && wifienable == 2) {
         Udp.beginPacket(remoteip, 9030);
         Udp.print("from=TEF tuner " + showsoftwareversion + ";RcvLevel=");
         Udp.print(SStatus / 10);
@@ -506,10 +671,10 @@ void ShowStepSize(void) {
   Display.writeNum("step1000.pic", NEXTION_STEPSIZEBAR_GREYOUT);
 
   switch (stepsize) {
-	  case 1: Display.writeNum("step001.pic", NEXTION_STEPSIZEBAR); break;
-	  case 2: Display.writeNum("step010.pic", NEXTION_STEPSIZEBAR); break;
-	  case 3: Display.writeNum("step100.pic", NEXTION_STEPSIZEBAR); break;
-	  case 4: Display.writeNum("step1000.pic", NEXTION_STEPSIZEBAR); break;
+    case 1: Display.writeNum("step001.pic", NEXTION_STEPSIZEBAR); break;
+    case 2: Display.writeNum("step010.pic", NEXTION_STEPSIZEBAR); break;
+    case 3: Display.writeNum("step100.pic", NEXTION_STEPSIZEBAR); break;
+    case 4: Display.writeNum("step1000.pic", NEXTION_STEPSIZEBAR); break;
   }
 }
 
@@ -556,7 +721,7 @@ void ShowUSBstatus(void) {
 
 void ShowiMS(void) {
   if (!showrdsinfo) {
-    if (!iMSset) {
+    if (iMSset == 0) {
       Display.writeNum("imslogo.pic", NEXTION_IMSLOGO);
       radio.setiMS(1);
     } else {
@@ -568,7 +733,7 @@ void ShowiMS(void) {
 
 void ShowEQ(void) {
   if (!showrdsinfo) {
-    if (!EQset) {
+    if (EQset == 0) {
       Display.writeNum("eqlogo.pic", NEXTION_EQLOGO);
       radio.setEQ(1);
     } else {
