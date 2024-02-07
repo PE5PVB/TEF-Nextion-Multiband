@@ -556,7 +556,7 @@ void ShowUSBstatus(void) {
 
 void ShowiMS(void) {
   if (!showrdsinfo) {
-    if (iMSset == 0) {
+    if (!iMSset) {
       Display.writeNum("imslogo.pic", NEXTION_IMSLOGO);
       radio.setiMS(1);
     } else {
@@ -568,7 +568,7 @@ void ShowiMS(void) {
 
 void ShowEQ(void) {
   if (!showrdsinfo) {
-    if (EQset == 0) {
+    if (!EQset) {
       Display.writeNum("eqlogo.pic", NEXTION_EQLOGO);
       radio.setEQ(1);
     } else {

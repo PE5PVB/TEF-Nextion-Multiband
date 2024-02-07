@@ -66,7 +66,7 @@ byte SNRold;
 byte SNR;
 byte btselect;
 byte TEF;
-byte scopeview;
+bool scopeview;
 byte softmutefm;
 byte softmuteam;
 bool af2show;
@@ -115,42 +115,42 @@ bool XDRMute;
 byte af_counterold;
 byte af_scan;
 byte band;
-byte CoaxSwitch;
+bool CoaxSwitch;
 byte BWset;
 byte BWsetAM = 2;
 byte ContrastSet;
 byte demp;
 byte displaysize;
 byte ECCold;
-byte EQset;
+bool EQset;
 byte change;
 byte IF;
 byte iMSEQ;
-byte iMSset;
+bool iMSset;
 byte ip1;
 byte ip2;
 byte ip3;
 byte ip4;
 byte lf;
-byte optrot;
-byte rotarymode;
+bool optrot;
+bool rotarymode;
 byte scanner_band;
 byte scanner_speed;
 byte scanner_th;
 byte scanner_thenable;
 byte scanstatus;
 byte stepsize;
-byte usbmode;
+bool usbmode;
 byte wifienable;
 byte wifienableold;
-byte am;
-byte fm;
+bool am;
+bool fm;
 byte fmsi;
-byte uhf1;
-byte uhf2;
-byte uhf3;
-byte uhf4;
-byte uhf6;
+bool uhf1;
+bool uhf2;
+bool uhf3;
+bool uhf4;
+bool uhf6;
 byte coaxmode;
 char buff[16];
 char musicArtistPrevious[48];
@@ -312,11 +312,11 @@ void setup() {
   if (digitalRead(ROTARY_BUTTON) == LOW && digitalRead(MODEBUTTON) == HIGH && digitalRead(BWBUTTON) == HIGH) {
     optrot = EEPROM.readByte(184);
     EEPROM.commit();
-    if (optrot == 1) {
-      optrot = 0;
+    if (optrot) {
+      optrot = false;
       Display.writeStr("version2.txt", "standard encoder");
     } else {
-      optrot = 1;
+      optrot = true;
       Display.writeStr("version2.txt", "optical encoder");
     }
     EEPROM.writeByte(184, optrot);
@@ -332,7 +332,7 @@ void setup() {
   if (digitalRead(MODEBUTTON) == LOW && digitalRead(ROTARY_BUTTON) == HIGH && digitalRead(BWBUTTON) == HIGH) {
     CoaxSwitch = EEPROM.readByte(157);
     EEPROM.commit();
-    if (CoaxSwitch == 1) CoaxSwitch = 0; else CoaxSwitch = 1;
+    if (CoaxSwitch) CoaxSwitch = false; else CoaxSwitch = true;
     EEPROM.writeByte(157, CoaxSwitch);
     EEPROM.commit();
     Display.writeStr("version.txt", "Coax switch");
@@ -346,7 +346,7 @@ void setup() {
   if (digitalRead(BWBUTTON) == LOW && digitalRead(ROTARY_BUTTON) == HIGH && digitalRead(MODEBUTTON) == HIGH) {
     rotarymode = EEPROM.readByte(163);
     EEPROM.commit();
-    if (rotarymode == 0) rotarymode = 1; else rotarymode = 0;
+    if (!rotarymode) rotarymode = true; else rotarymode = false;
     EEPROM.writeByte(163, rotarymode);
     EEPROM.commit();
     Display.writeStr("version.txt", "Rotary direc-");
@@ -484,14 +484,14 @@ void setup() {
 
   EEpromReadData();
 
-  if (usbmode == 1) Serial.begin(19200); else Serial.begin(115200);
+  if (usbmode) Serial.begin(19200); else Serial.begin(115200);
 
   Display.writeNum("smeterold", 0);
 
-  if (iMSset == 1 && EQset == 1) iMSEQ = 2;
-  if (iMSset == 0 && EQset == 1) iMSEQ = 3;
-  if (iMSset == 1 && EQset == 0) iMSEQ = 4;
-  if (iMSset == 0 && EQset == 0) iMSEQ = 1;
+  if (iMSset && EQset) iMSEQ = 2;
+  if (!iMSset && EQset) iMSEQ = 3;
+  if (iMSset && !EQset) iMSEQ = 4;
+  if (!iMSset && !EQset) iMSEQ = 1;
 
   if (wifienable == 2) tryWiFi(); else WiFi.mode(WIFI_OFF);
 
@@ -517,16 +517,19 @@ void setup() {
   radio.rds.filter = false;
   radio.rds.pierrors = true;
   radio.rds.sortaf = true;
-  radio.rds.fastps = true;  
+  radio.rds.fastps = true;
 
   Display.writeStr("page 1");
-  if (band == 0) RF(0);
-  if (band == 1) RF(1);
-  if (band == 2) RF(2);
-  if (band == 3) RF(3);
-  if (band == 4) RF(4);
-  if (band == 5) RF(5);
-  if (band == 6) RF(6);
+
+  switch (band) {
+    case 0: RF(0); break;
+    case 1: RF(1); break;
+    case 2: RF(2); break;
+    case 3: RF(3); break;
+    case 4: RF(4); break;
+    case 5: RF(5); break;
+    case 6: RF(6); break;
+  }
 
   ShowFreq();
   ShowStepSize();
@@ -539,34 +542,27 @@ void loop() {
   Display.NextionListen();
   Communication();
 
-  if (seek == true) Seek(direction);
+  if (seek) Seek(direction);
+  if (spec) scan_loop();
 
-  if (spec == true) scan_loop();
-
-  if (menu == true) {
+  if (menu) {
     radio.getProcessing(highcut, stereo, sthiblend, stband_1, stband_2, stband_3, stband_4);
     Display.writeNum("highcut", highcut);
-    delay(10);
     Display.writeNum("stereol", stereo);
-    delay(10);
     Display.writeNum("sthiblend", sthiblend);
-    delay(10);
     Display.writeNum("stband_1", stband_1);
-    delay(10);
     Display.writeNum("stband_2", stband_2);
-    delay(10);
     Display.writeNum("stband_3", stband_3);
-    delay(10);
     Display.writeNum("stband_4", stband_4);
   }
 
-  if (menu == false && manfreq == false && spec == false && setoffset == false) {
+  if (!menu && !manfreq && !spec && !setoffset) {
     if ((SStatus < 100) || (OStatus < -200 || OStatus > 200) || (USN > 200) && (WAM > 230)) {
       if (millis() >= showmillis + 250) {
         if (band == 5) radio.getStatusAM(SStatus, USN, WAM, OStatus, BW, MStatus, CN); else radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
         readRds();
         ShowStereoStatus();
-        showmillis += 250;
+        showmillis = millis();
       }
     } else {
       if (band == 5) radio.getStatusAM(SStatus, USN, WAM, OStatus, BW, MStatus, CN); else radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
@@ -574,7 +570,7 @@ void loop() {
       ShowStereoStatus();
     }
 
-    if (XDRGTKTCP == true || XDRGTK == true) {
+    if (XDRGTKTCP || XDRGTK) {
       if (millis() >= XDRshowmillis + 200) {
         ShowBW();
         ShowSignalLevel();
@@ -582,7 +578,7 @@ void loop() {
         ShowUSBstatus();
         ShowRSSI();
         doSquelch();
-        XDRshowmillis += 200;
+        XDRshowmillis = millis();
       }
     } else {
       ShowBW();
@@ -605,7 +601,7 @@ void loop() {
     if (digitalRead(BAND) == LOW) BandSet();
   }
 
-  if (setoffset == true) {
+  if (setoffset) {
     radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
     Display.writeNum("offsetvalue.val", OStatus);
     ShowOffset();
@@ -613,29 +609,34 @@ void loop() {
 }
 
 void BandSet() {
-  if (XDRGTK == false && XDRGTKTCP == false) {
+  if (!XDRGTK && !XDRGTKTCP) {
     unsigned long counterold = millis();
     unsigned long counter = millis();
 
     while (digitalRead(BAND) == LOW && counter - counterold <= 1000) counter = millis();
-    if (counter - counterold < 1000 || power == true) {
-      if (power == true) {
+
+    if (counter - counterold < 1000 || power) {
+      if (power) {
         Display.writeNum("sleep", 0);
         Display.writeStr("page 0");
         ESP.restart();
       }
+
       seek = false;
       tunemode = 0;
       ShowTuneMode();
-      if (UHF == true) {
+
+      if (UHF) {
         band ++;
         if (band > 5) band = 0;
-        if (band == 0) RF(0);
-        if (band == 1) RF(1);
-        if (band == 2) RF(2);
-        if (band == 3) RF(3);
-        if (band == 4) RF(4);
-        if (band == 5) RF(5);
+        switch (band) {
+          case 0: RF(0); break;
+          case 1: RF(1); break;
+          case 2: RF(2); break;
+          case 3: RF(3); break;
+          case 4: RF(4); break;
+          case 5: RF(5); break;
+        }
       } else {
         band ++;
         if (band > 6) band = 0;
@@ -665,29 +666,32 @@ void BandSet() {
 }
 
 void RF(byte RFset) {
-  if (spec == false && manfreq == false) Display.writeNum("outlimit.en", 0);
-  if (spec == false && manfreq == false) Display.writeStr("vis outoflimit,0");
-  if (RFset == 0 && fm == 0) {
+  if (!spec && !manfreq) {
+    Display.writeNum("outlimit.en", 0);
+    Display.writeStr("vis outoflimit,0");
+  }
+
+  if (RFset == 0 && !fm) {
     band ++;
     RFset ++;
   }
-  if (RFset == 1 && uhf1 == 0) {
+  if (RFset == 1 && !uhf1) {
     band ++;
     RFset ++;
   }
-  if (RFset == 2 && uhf2 == 0) {
+  if (RFset == 2 && !uhf2) {
     band ++;
     RFset ++;
   }
-  if (RFset == 3 && uhf3 == 0) {
+  if (RFset == 3 && !uhf3) {
     band ++;
     RFset ++;
   }
-  if (RFset == 4 && uhf4 == 0) {
+  if (RFset == 4 && !uhf4) {
     band ++;
     RFset ++;
   }
-  if (RFset == 5 && am == 0) {
+  if (RFset == 5 && !am) {
     if (UHF == true) {
       band = 0;
       RFset = 0;
@@ -696,18 +700,18 @@ void RF(byte RFset) {
       RFset ++;
     }
   }
-  if (RFset == 6 && uhf6 == 0) {
+  if (RFset == 6 && !uhf6) {
     band = 0;
     RFset = 0;
   }
 
   if (RFset == 5) {
-    if (showrdsinfo == true && manfreq == false) {
+    if (showrdsinfo && !manfreq) {
       Display.writeStr("page 1");
       showrdsinfo = false;
     }
-    if (manfreq == false) Display.writeStr("vis m0,0");
-    if (scopeview == 0 && manfreq == false) {
+    if (!manfreq) Display.writeStr("vis m0,0");
+    if (!scopeview && manfreq == false) {
       Display.writeStr("vis U_disp,0");
       Display.writeStr("vis W_disp,0");
       Display.writeNum("tm4.en", 0);
@@ -716,7 +720,7 @@ void RF(byte RFset) {
       Display.writeStr("vis modpos,1");
       Display.writeNum("scopeview", 1);
     }
-    if (manfreq == false) {
+    if (!manfreq) {
       Display.writeNum("BW.pco", 65504);
       Display.writeNum("autobwlogo.pic", 22);
       Display.writeNum("imslogo.pic", 28);
@@ -739,11 +743,11 @@ void RF(byte RFset) {
       }
     }
   } else {
-    if (spec == false && manfreq == false) {
+    if (!spec && !manfreq) {
       ShowiMS();
       ShowEQ();
       Display.writeStr("vis m0,1");
-      if (scopeview == 0) {
+      if (!scopeview) {
         Display.writeStr("vis U_disp,1");
         Display.writeStr("vis W_disp,1");
         Display.writeNum("tm4.en", 1);
@@ -762,92 +766,108 @@ void RF(byte RFset) {
       ShowBW();
     }
   }
-  if (RFset == 0) {
-    if (CoaxSwitch == 1) digitalWrite(RFC, LOW); else digitalWrite(RFC, HIGH);
-    digitalWrite(RFA, HIGH);
-    digitalWrite(RFB, HIGH);
-    radio.power(0);
-    delay(50);
-    radio.SetFreq(frequency0);
-    radio.setOffset(LevelOffset0);
-    Frontend.Power(0);
-    if (spec == false && manfreq == false) Display.writeNum("offsettouch", 0);
-  } else if (RFset == 1) {
-    if (CoaxSwitch == 1) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
-    digitalWrite(RFA, LOW);
-    digitalWrite(RFB, LOW);
-    radio.power(0);
-    delay(50);
-    radio.SetFreq(IF * 100);
-    radio.clearRDS(fullsearchrds);
-    radio.setOffset(LevelOffset1 - 7);
-    Frontend.Power(1);
-    Frontend.SetFreq(frequency1 - (IF * 100), offset);
-    Display.writeNum("offsettouch", 1);
-  } else if (RFset == 2) {
-    if (CoaxSwitch == 1) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
-    digitalWrite(RFA, HIGH);
-    digitalWrite(RFB, LOW);
-    radio.power(0);
-    delay(50);
-    radio.SetFreq(IF * 100);
-    radio.clearRDS(fullsearchrds);
-    radio.setOffset(LevelOffset2 - 4);
-    Frontend.SetFreq(frequency2 - (IF * 100), offset);
-    Display.writeNum("offsettouch", 1);
-  } else if (RFset == 3) {
-    if (CoaxSwitch == 1) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
-    digitalWrite(RFA, LOW);
-    digitalWrite(RFB, HIGH);
-    radio.power(0);
-    delay(50);
-    radio.SetFreq(IF * 100);
-    radio.clearRDS(fullsearchrds);
-    radio.setOffset(LevelOffset3);
-    Frontend.SetFreq(frequency3 - (IF * 100), offset);
-    Display.writeNum("offsettouch", 1);
-  } else if (RFset == 4) {
-    if (CoaxSwitch == 1) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
-    digitalWrite(RFA, HIGH);
-    digitalWrite(RFB, HIGH);
-    radio.power(0);
-    delay(50);
-    radio.SetFreq(IF * 100);
-    radio.clearRDS(fullsearchrds);
-    radio.setOffset(LevelOffset4 + 2);
-    Frontend.SetFreq(frequency4 - (IF * 100), offset);
-    Display.writeNum("offsettouch", 1);
-  } else if (RFset == 5) {
-    if (CoaxSwitch == 1) {
-      if (coaxmode == 1 && UHF == false) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
-    } else {
-      if (coaxmode == 1 && UHF == false) digitalWrite(RFC, LOW); else digitalWrite(RFC, HIGH);
-    }
-    digitalWrite(RFA, HIGH);
-    digitalWrite(RFB, HIGH);
-    radio.clearRDS(fullsearchrds);
-    radio.SetFreqAM(frequency5);
-    Frontend.Power(0);
-    Display.writeNum("offsettouch", 0);
-  } else if (RFset == 6) {
-    if (CoaxSwitch == 1) {
-      if (coaxmode == 0) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
-    } else {
-      if (coaxmode == 0) digitalWrite(RFC, LOW); else digitalWrite(RFC, HIGH);
-    }
-    digitalWrite(RFA, HIGH);
-    digitalWrite(RFB, HIGH);
-    radio.power(0);
-    delay(50);
-    radio.setOffset(LevelOffset6);
-    radio.SetFreq(frequency6 - converteroffset * 100);
-    Display.writeNum("offsettouch", 0);
-    Wire.beginTransmission(0x12);
-    Wire.write(converteroffset >> 8);
-    Wire.write(converteroffset & (0xFF));
-    Wire.endTransmission();
-    radio.clearRDS(fullsearchrds);
+
+  switch (RFset) {
+    case 0:
+      if (CoaxSwitch) digitalWrite(RFC, LOW); else digitalWrite(RFC, HIGH);
+      digitalWrite(RFA, HIGH);
+      digitalWrite(RFB, HIGH);
+      radio.power(0);
+      delay(50);
+      radio.SetFreq(frequency0);
+      radio.setOffset(LevelOffset0);
+      Frontend.Power(0);
+      if (!spec && !manfreq) Display.writeNum("offsettouch", 0);
+      break;
+
+    case 1:
+      if (CoaxSwitch) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
+      digitalWrite(RFA, LOW);
+      digitalWrite(RFB, LOW);
+      radio.power(0);
+      delay(50);
+      radio.SetFreq(IF * 100);
+      radio.clearRDS(fullsearchrds);
+      radio.setOffset(LevelOffset1 - 7);
+      Frontend.Power(1);
+      Frontend.SetFreq(frequency1 - (IF * 100), offset);
+      Display.writeNum("offsettouch", 1);
+      break;
+
+    case 2:
+      if (CoaxSwitch) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
+      digitalWrite(RFA, HIGH);
+      digitalWrite(RFB, LOW);
+      radio.power(0);
+      delay(50);
+      radio.SetFreq(IF * 100);
+      radio.clearRDS(fullsearchrds);
+      radio.setOffset(LevelOffset2 - 4);
+      Frontend.SetFreq(frequency2 - (IF * 100), offset);
+      Display.writeNum("offsettouch", 1);
+      break;
+
+    case 3:
+      if (CoaxSwitch) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
+      digitalWrite(RFA, LOW);
+      digitalWrite(RFB, HIGH);
+      radio.power(0);
+      delay(50);
+      radio.SetFreq(IF * 100);
+      radio.clearRDS(fullsearchrds);
+      radio.setOffset(LevelOffset3);
+      Frontend.SetFreq(frequency3 - (IF * 100), offset);
+      Display.writeNum("offsettouch", 1);
+      break;
+
+    case 4:
+      if (CoaxSwitch) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
+      digitalWrite(RFA, HIGH);
+      digitalWrite(RFB, HIGH);
+      radio.power(0);
+      delay(50);
+      radio.SetFreq(IF * 100);
+      radio.clearRDS(fullsearchrds);
+      radio.setOffset(LevelOffset4 + 2);
+      Frontend.SetFreq(frequency4 - (IF * 100), offset);
+      Display.writeNum("offsettouch", 1);
+      break;
+
+    case 5:
+      if (CoaxSwitch) {
+        if (coaxmode == 1 && UHF == false) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
+      } else {
+        if (coaxmode == 1 && UHF == false) digitalWrite(RFC, LOW); else digitalWrite(RFC, HIGH);
+      }
+      digitalWrite(RFA, HIGH);
+      digitalWrite(RFB, HIGH);
+      radio.clearRDS(fullsearchrds);
+      radio.SetFreqAM(frequency5);
+      Frontend.Power(0);
+      Display.writeNum("offsettouch", 0);
+      break;
+
+    case 6:
+      if (CoaxSwitch) {
+        if (coaxmode == 0) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
+      } else {
+        if (coaxmode == 0) digitalWrite(RFC, LOW); else digitalWrite(RFC, HIGH);
+      }
+      digitalWrite(RFA, HIGH);
+      digitalWrite(RFB, HIGH);
+      radio.power(0);
+      delay(50);
+      radio.setOffset(LevelOffset6);
+      radio.SetFreq(frequency6 - converteroffset * 100);
+      Display.writeNum("offsettouch", 0);
+      Wire.beginTransmission(0x12);
+      Wire.write(converteroffset >> 8);
+      Wire.write(converteroffset & (0xFF));
+      Wire.endTransmission();
+      radio.clearRDS(fullsearchrds);
+      break;
   }
+
   OStatusold = 0;
   BWreset = true;
 
@@ -858,57 +878,68 @@ void readRds() {
   if (band == 5) RDSstatus = false; else radio.readRDS(showrdserrors);
   RDSstatus = radio.rds.hasRDS;
   ShowRDS();
-  /*
-    if (RDSSpy == true && RDSstatus == true && band != 5) {
-      String RDSSPYRDS;
-      RDSSPYRDS = "G:\r\n";
-      RDSSPYRDS += String(((radio.rds.rdsA >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsA >> 8) & 0xF, HEX);
-      RDSSPYRDS += String(((radio.rds.rdsA) >> 4) & 0xF, HEX) + String((radio.rds.rdsA) & 0xF, HEX);
-      RDSSPYRDS += String(((radio.rds.rdsB >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsB >> 8) & 0xF, HEX);
-      RDSSPYRDS += String(((radio.rds.rdsB) >> 4) & 0xF, HEX) + String((radio.rds.rdsB) & 0xF, HEX);
-      RDSSPYRDS += String(((radio.rds.rdsC >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsC >> 8) & 0xF, HEX);
-      RDSSPYRDS += String(((radio.rds.rdsC) >> 4) & 0xF, HEX) + String((radio.rds.rdsC) & 0xF, HEX);
-      RDSSPYRDS += String(((radio.rds.rdsD >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsD >> 8) & 0xF, HEX);
-      RDSSPYRDS += String(((radio.rds.rdsD) >> 4) & 0xF, HEX) + String((radio.rds.rdsD) & 0xF, HEX);
-      RDSSPYRDS += "\r\n\r\n";
 
-      if (RDSSPYRDS != RDSSPYRDSold) {
-        RDSSPYRDSold = RDSSPYRDS;
-        if (wificonnect == true) RemoteClient.print(RDSSPYRDS); else Serial.print(RDSSPYRDS);
-      }
+  if (RDSSpy && RDSstatus && band != 5) {
+    String RDSSPYRDS;
+    RDSSPYRDS = "G:\r\n";
+    if (radio.rds.rdsAerror) RDSSPYRDS += "----"; else RDSSPYRDS += String(((radio.rds.rdsA >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsA >> 8) & 0xF, HEX) + String(((radio.rds.rdsA) >> 4) & 0xF, HEX) + String((radio.rds.rdsA) & 0xF, HEX);
+    if (radio.rds.rdsBerror) RDSSPYRDS += "----"; else RDSSPYRDS += String(((radio.rds.rdsB >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsB >> 8) & 0xF, HEX) + String(((radio.rds.rdsB) >> 4) & 0xF, HEX) + String((radio.rds.rdsB) & 0xF, HEX);
+    if (radio.rds.rdsCerror) RDSSPYRDS += "----"; else RDSSPYRDS += String(((radio.rds.rdsC >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsC >> 8) & 0xF, HEX) + String(((radio.rds.rdsC) >> 4) & 0xF, HEX) + String((radio.rds.rdsC) & 0xF, HEX);
+    if (radio.rds.rdsDerror) RDSSPYRDS += "----"; else RDSSPYRDS += String(((radio.rds.rdsD >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsD >> 8) & 0xF, HEX) + String(((radio.rds.rdsD) >> 4) & 0xF, HEX) + String((radio.rds.rdsD) & 0xF, HEX);
+    RDSSPYRDS += "\r\n\r\n";
+
+    if (RDSSPYRDS != RDSSPYRDSold) {
+      RDSSPYRDSold = RDSSPYRDS;
+      if (wificonnect == true) RemoteClient.print(RDSSPYRDS); else Serial.print(RDSSPYRDS);
     }
+  }
 
-    if ((XDRGTKTCP == true || XDRGTK == true) && RDSstatus == true && band != 5) {
-      String XDRGTKPI;
-      XDRGTKPI = "P";
-      XDRGTKPI += String(((radio.rds.rdsA >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsA >> 8) & 0xF, HEX);
-      XDRGTKPI += String(((radio.rds.rdsA) >> 4) & 0xF, HEX) + String((radio.rds.rdsA) & 0xF, HEX);
-      if (radio.rds.correct == false) XDRGTKPI += "?";
-      XDRGTKPI += "\n";
+  if ((XDRGTKTCP || XDRGTK) && RDSstatus && band != 5) {
+    String XDRGTKRDS;
+    XDRGTKRDS = "R";
+    XDRGTKRDS += String(((radio.rds.rdsA >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsA >> 8) & 0xF, HEX);
+    XDRGTKRDS += String(((radio.rds.rdsA) >> 4) & 0xF, HEX) + String((radio.rds.rdsA) & 0xF, HEX);
+    XDRGTKRDS += String(((radio.rds.rdsB >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsB >> 8) & 0xF, HEX);
+    XDRGTKRDS += String(((radio.rds.rdsB) >> 4) & 0xF, HEX) + String((radio.rds.rdsB) & 0xF, HEX);
+    XDRGTKRDS += String(((radio.rds.rdsC >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsC >> 8) & 0xF, HEX);
+    XDRGTKRDS += String(((radio.rds.rdsC) >> 4) & 0xF, HEX) + String((radio.rds.rdsC) & 0xF, HEX);
+    XDRGTKRDS += String(((radio.rds.rdsD >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsD >> 8) & 0xF, HEX);
+    XDRGTKRDS += String(((radio.rds.rdsD) >> 4) & 0xF, HEX) + String((radio.rds.rdsD) & 0xF, HEX);
 
-      String XDRGTKRDS;
-      XDRGTKRDS = "R";
-      XDRGTKRDS += String(((radio.rds.rdsB >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsB >> 8) & 0xF, HEX);
-      XDRGTKRDS += String(((radio.rds.rdsB) >> 4) & 0xF, HEX) + String((radio.rds.rdsB) & 0xF, HEX);
-      XDRGTKRDS += String(((radio.rds.rdsC >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsC >> 8) & 0xF, HEX);
-      XDRGTKRDS += String(((radio.rds.rdsC) >> 4) & 0xF, HEX) + String((radio.rds.rdsC) & 0xF, HEX);
-      XDRGTKRDS += String(((radio.rds.rdsD >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsD >> 8) & 0xF, HEX);
-      XDRGTKRDS += String(((radio.rds.rdsD) >> 4) & 0xF, HEX) + String((radio.rds.rdsD) & 0xF, HEX);
-      XDRGTKRDS += String(((radio.rds.errors >> 8) >> 4) & 0xF, HEX) + String((radio.rds.errors >> 8) & 0xF, HEX);
-      XDRGTKRDS += "\n";
+    uint8_t erroutput = 0;
+    erroutput |= ((radio.rds.rdsErr >> 8) & B00110000) >> 4;
+    erroutput |= ((radio.rds.rdsErr >> 8) & B00001100);
+    erroutput |= ((radio.rds.rdsErr >> 8) & B00000011) << 4;
 
-      if (XDRGTKTCP == true) RemoteClient.print(XDRGTKPI); else Serial.print(XDRGTKPI);
+    XDRGTKRDS += String((erroutput >> 4) & 0xF, HEX);
+    XDRGTKRDS += String(erroutput & 0xF, HEX);
+    XDRGTKRDS += "\n";
 
-      if (XDRGTKRDS != XDRGTKRDSold) {
-        XDRGTKRDSold = XDRGTKRDS;
-        if (XDRGTKTCP == true) RemoteClient.print(XDRGTKRDS); else Serial.print(XDRGTKRDS);
+    if (XDRGTKRDS != XDRGTKRDSold) {
+      uint8_t piError = radio.rds.rdsErr >> 14;
+      if (piError < 3) {
+        uint8_t piState = radio.rds.piBuffer.add(radio.rds.rdsA, piError);
+
+        if (piState != RdsPiBuffer::STATE_INVALID) {
+          if (XDRGTKTCP) RemoteClient.print("P"); else Serial.print("P");
+          String PIcodeToSend;
+          PIcodeToSend = String(((radio.rds.rdsA >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsA >> 8) & 0xF, HEX) + String(((radio.rds.rdsA) >> 4) & 0xF, HEX) + String((radio.rds.rdsA) & 0xF, HEX);
+          PIcodeToSend.toUpperCase();
+          if (XDRGTKTCP) RemoteClient.print(PIcodeToSend); else Serial.print(PIcodeToSend);
+          while (piState != 0) {
+            if (XDRGTKTCP) RemoteClient.print("?"); else Serial.print("?");
+            piState--;
+          }
+          if (XDRGTKTCP) RemoteClient.print("\n"); else Serial.print("\n");
+        }
       }
+
+      XDRGTKRDSold = XDRGTKRDS;
+      XDRGTKRDS.toUpperCase();
+      if (XDRGTKTCP) RemoteClient.print(XDRGTKRDS); else Serial.print(XDRGTKRDS);
     }
-  */
+  }
 }
-
-
-
 
 void doStepSize() {
   stepsize++;
@@ -937,34 +968,40 @@ void doTuneMode() {
 void doFilter() {
   if (iMSEQ == 0) iMSEQ = 1;
 
-  if (iMSEQ == 4) {
-    iMSset = 0;
-    EQset = 0;
-    ShowiMS();
-    ShowEQ();
-    iMSEQ = 0;
+  switch (iMSEQ) {
+    case 4:
+      iMSset = false;
+      EQset = false;
+      ShowiMS();
+      ShowEQ();
+      iMSEQ = 0;
+      break;
+
+    case 3:
+      iMSset = true;
+      EQset = false;
+      ShowiMS();
+      ShowEQ();
+      iMSEQ = 4;
+      break;
+
+    case 2:
+      iMSset = false;
+      EQset = true;
+      ShowiMS();
+      ShowEQ();
+      iMSEQ = 3;
+      break;
+
+    case 1:
+      iMSset = true;
+      EQset = true;
+      ShowiMS();
+      ShowEQ();
+      iMSEQ = 2;
+      break;
   }
-  if (iMSEQ == 3) {
-    iMSset = 1;
-    EQset = 0;
-    ShowiMS();
-    ShowEQ();
-    iMSEQ = 4;
-  }
-  if (iMSEQ == 2) {
-    iMSset = 0;
-    EQset = 1;
-    ShowiMS();
-    ShowEQ();
-    iMSEQ = 3;
-  }
-  if (iMSEQ == 1) {
-    iMSset = 1;
-    EQset = 1;
-    ShowiMS();
-    ShowEQ();
-    iMSEQ = 2;
-  }
+
   EEPROM.writeByte(44, iMSset);
   EEPROM.writeByte(45, EQset);
   EEPROM.commit();
@@ -972,10 +1009,10 @@ void doFilter() {
 
 
 void ButtonPress() {
-  if (power == false) {
-    if (seek == true) seek = false;
+  if (!power) {
+    if (seek) seek = false;
 
-    if (menu == false) {
+    if (!menu) {
       unsigned long counterold = millis();
       unsigned long counter = millis();
       while (digitalRead(ROTARY_BUTTON) == LOW && counter - counterold <= 1000) counter = millis();
@@ -984,7 +1021,7 @@ void ButtonPress() {
         if (tunemode == 0) doStepSize();
 
         if (tunemode == 2) {
-          if (memorystore == false) {
+          if (!memorystore) {
             memorystore = true;
             Display.writeNum("store.en", 1);
           } else {
@@ -1005,76 +1042,79 @@ void ButtonPress() {
 }
 
 void RoundStep() {
-  if (band == 0) {
-    unsigned int freq = frequency0;
-    if (freq % 10 < 3) {
-      frequency0 = (freq - freq % 10);
-    }
-    else if (freq % 10 > 2 && freq % 10 < 8) {
-      frequency0 = (freq - (freq % 10 - 5));
-    }
-    else if (freq % 10 > 7) {
-      frequency0 = (freq - (freq % 10) + 10);
-    }
-    radio.SetFreq(frequency0);
+  switch (band) {
+    case 0:
+      freq = frequency0;
+      if (freq % 10 < 3) {
+        frequency0 = (freq - freq % 10);
+      }
+      else if (freq % 10 > 2 && freq % 10 < 8) {
+        frequency0 = (freq - (freq % 10 - 5));
+      }
+      else if (freq % 10 > 7) {
+        frequency0 = (freq - (freq % 10) + 10);
+      }
+      radio.SetFreq(frequency0);
+      break;
+
+    case 1:
+      freq = frequency1;
+      if (freq % 10 < 3) {
+        frequency1 = (freq - freq % 10);
+      } else if (freq % 10 > 2 && freq % 10 < 8) {
+        frequency1 = (freq - (freq % 10 - 5));
+      } else if (freq % 10 > 7) {
+        frequency1 = (freq - (freq % 10) + 10);
+      }
+
+      Frontend.SetFreq(frequency1 - IF * 100, offset);
+      break;
+
+    case 2:
+      freq = frequency2;
+      if (freq % 10 < 3) {
+        frequency2 = (freq - freq % 10);
+      } else if (freq % 10 > 2 && freq % 10 < 8) {
+        frequency2 = (freq - (freq % 10 - 5));
+      } else if (freq % 10 > 7) {
+        frequency2 = (freq - (freq % 10) + 10);
+      }
+
+      Frontend.SetFreq(frequency2 - IF * 100, offset);
+      break;
+
+    case 3:
+      freq = frequency3;
+      if (freq % 10 < 3) {
+        frequency3 = (freq - freq % 10);
+      } else if (freq % 10 > 2 && freq % 10 < 8) {
+        frequency3 = (freq - (freq % 10 - 5));
+      } else if (freq % 10 > 7) {
+        frequency3 = (freq - (freq % 10) + 10);
+      }
+
+      Frontend.SetFreq(frequency3 - IF * 100, offset);
+      break;
+    case 4:
+      freq = frequency4;
+      if (freq % 10 < 3) {
+        frequency4 = (freq - freq % 10);
+      } else if (freq % 10 > 2 && freq % 10 < 8) {
+        frequency4 = (freq - (freq % 10 - 5));
+      } else if (freq % 10 > 7) {
+        frequency4 = (freq - (freq % 10) + 10);
+      }
+
+      Frontend.SetFreq(frequency4 - IF * 100, offset);
+      break;
+
+    case 5:
+      freq = frequency5 / 9;
+      frequency5 = freq * 9;
+      radio.SetFreqAM(frequency5);
+      break;
   }
-  if (band == 1) {
-    unsigned int freq = frequency1;
-    if (freq % 10 < 3) {
-      frequency1 = (freq - freq % 10);
-    }
-    else if (freq % 10 > 2 && freq % 10 < 8) {
-      frequency1 = (freq - (freq % 10 - 5));
-    }
-    else if (freq % 10 > 7) {
-      frequency1 = (freq - (freq % 10) + 10);
-    }
-    Frontend.SetFreq(frequency1 - IF * 100, offset);
-  }
-  if (band == 2) {
-    unsigned int freq = frequency2;
-    if (freq % 10 < 3) {
-      frequency2 = (freq - freq % 10);
-    }
-    else if (freq % 10 > 2 && freq % 10 < 8) {
-      frequency2 = (freq - (freq % 10 - 5));
-    }
-    else if (freq % 10 > 7) {
-      frequency2 = (freq - (freq % 10) + 10);
-    }
-    Frontend.SetFreq(frequency2 - IF * 100, offset);
-  }
-  if (band == 3) {
-    unsigned int freq = frequency3;
-    if (freq % 10 < 3) {
-      frequency3 = (freq - freq % 10);
-    }
-    else if (freq % 10 > 2 && freq % 10 < 8) {
-      frequency3 = (freq - (freq % 10 - 5));
-    }
-    else if (freq % 10 > 7) {
-      frequency3 = (freq - (freq % 10) + 10);
-    }
-    Frontend.SetFreq(frequency3 - IF * 100, offset);
-  }
-  if (band == 4) {
-    unsigned int freq = frequency4;
-    if (freq % 10 < 3) {
-      frequency4 = (freq - freq % 10);
-    }
-    else if (freq % 10 > 2 && freq % 10 < 8) {
-      frequency4 = (freq - (freq % 10 - 5));
-    }
-    else if (freq % 10 > 7) {
-      frequency4 = (freq - (freq % 10) + 10);
-    }
-    Frontend.SetFreq(frequency4 - IF * 100, offset);
-  }
-  if (band == 5) {
-    unsigned int freq = frequency5 / 9;
-    frequency5 = freq * 9;
-    radio.SetFreqAM(frequency5);
-  }
+
   while (digitalRead(ROTARY_BUTTON) == LOW) delay(50);
 
   EEPROM.writeUInt(0, frequency0);
@@ -1088,24 +1128,26 @@ void RoundStep() {
 }
 
 void ModeButtonPress() {
-  if (power == false) {
-    if (menu == false) {
+  if (!power) {
+    if (!menu) {
       unsigned long counterold = millis();
       unsigned long counter = millis();
+
       while (digitalRead(MODEBUTTON) == LOW && counter - counterold <= 1000) {
         counter = millis();
       }
+
       if (counter - counterold <= 1000) {
-        if (seek == true) seek = false;
+        if (seek) seek = false;
         if (band == 5 && tunemode == 0) tunemode = 1;
         doTuneMode();
       } else {
-        if (XDRGTKTCP == false && XDRGTK == false && wificonnect == false && manfreq == false && spec == false) {
-          if (RDSSpy == true)
-          {
+        if (!XDRGTKTCP && !XDRGTK && !wificonnect && !manfreq && !spec) {
+          if (RDSSpy) {
             RDSSpy = false;
             USBstatus = false;
           }
+
           menu = true;
           wifienableold = wifienable;
           Display.writeStr("page 5");
@@ -1119,10 +1161,10 @@ void ModeButtonPress() {
 }
 
 void BWButtonPress() {
-  if (power == false) {
-    if (seek == true) seek = false;
+  if (!power) {
+    if (seek) seek = false;
 
-    if (menu == false) {
+    if (!menu) {
       unsigned long counterold = millis();
       unsigned long counter = millis();
       while (digitalRead(BWBUTTON) == LOW && counter - counterold <= 1000) {
@@ -1141,8 +1183,8 @@ void BWButtonPress() {
 
 void KeyUp() {
   rotary = 0;
-  if (power == false) {
-    if (menu == false) {
+  if (!power) {
+    if (!menu) {
       if (tunemode == 0) TuneUp();
       if (tunemode == 1) {
         freqtemp = freq;
@@ -1155,11 +1197,11 @@ void KeyUp() {
         if (memory_pos > 29) memory_pos = 0;
         MemoryTune();
       }
-      if (XDRGTK == true) {
+      if (XDRGTK) {
         if (band == 5) Serial.print("T" + String(frequency5) + "\n"); else Serial.print("T" + String(frequency0 * 10) + "\n");
       }
 
-      if (XDRGTKTCP == true) {
+      if (XDRGTKTCP) {
         if (band == 5) RemoteClient.print("T" + String(frequency5) + "\n"); else RemoteClient.print("T" + String(frequency0 * 10) + "\n");
       }
       change = 0;
@@ -1171,8 +1213,8 @@ void KeyUp() {
 
 void KeyDown() {
   rotary = 0;
-  if (power == false) {
-    if (menu == false) {
+  if (!power) {
+    if (!menu) {
       if (tunemode == 0) TuneDown();
       if (tunemode == 1) {
         freqtemp = freq;
@@ -1185,11 +1227,11 @@ void KeyDown() {
         if (memory_pos > 29) memory_pos = 29;
         MemoryTune();
       }
-      if (XDRGTK == true) {
+      if (XDRGTK) {
         if (band == 5) Serial.print("T" + String(frequency5) + "\n"); else Serial.print("T" + String(frequency0 * 10) + "\n");
       }
 
-      if (XDRGTKTCP == true) {
+      if (XDRGTKTCP) {
         if (band == 5) RemoteClient.print("T" + String(frequency5) + "\n"); else RemoteClient.print("T" + String(frequency0 * 10) + "\n");
       }
       change = 0;
@@ -1205,7 +1247,8 @@ void MemoryTune() {
   Display.writeNum("memvis", 0);
   Display.writeNum("showmem.en", 1);
   Display.writeNum("channel.val", memory_pos + 1);
-  if (memorystore == false) {
+
+  if (!memorystore) {
     if (memory[memory_pos] >= LowEdgeSet0 * 100 && memory[memory_pos] <= HighEdgeSet0 * 100) {
       frequency0 = memory[memory_pos];
       RF(0);
@@ -1238,7 +1281,7 @@ void MemoryTune() {
       RF(5);
       band = 5;
     } else {
-      if (spec == false) Display.writeNum("outlimit.en", 1);
+      if (!spec) Display.writeNum("outlimit.en", 1);
     }
   }
   store = true;
@@ -1256,7 +1299,7 @@ void doExit() {
   BWreset = true;
   Display.writeNum("smeterold", 0);
   radio.clearRDS(fullsearchrds);
-  if (showrdsinfo == false) Display.writeStr("page 1"); else Display.writeStr("page 12");
+  if (!showrdsinfo) Display.writeStr("page 1"); else Display.writeStr("page 12");
   if (band == 5) {
     Display.writeStr("vis m0,0");
     Display.writeNum("freq.vvs1", 3);
@@ -1296,44 +1339,49 @@ void doBW() {
     if (BWsetAM > 4) BWsetAM = 1;
     ShowBW();
     BWreset = true;
-    if (BWsetAM == 1) radio.setAMBandw(3);
-    if (BWsetAM == 2) radio.setAMBandw(4);
-    if (BWsetAM == 3) radio.setAMBandw(6);
-    if (BWsetAM == 4) radio.setAMBandw(8);
+
+    switch (BWsetAM) {
+      case 1: radio.setAMBandw(3); break;
+      case 2: radio.setAMBandw(4); break;
+      case 3: radio.setAMBandw(6); break;
+      case 4: radio.setAMBandw(8); break;
+    }
   } else {
     if (BWset > 16) BWset = 0;
     ShowBW();
     BWreset = true;
 
-    if (BWset == 1) radio.setFMBandw(56);
-    if (BWset == 2) radio.setFMBandw(64);
-    if (BWset == 3) radio.setFMBandw(72);
-    if (BWset == 4) radio.setFMBandw(84);
-    if (BWset == 5) radio.setFMBandw(97);
-    if (BWset == 6) radio.setFMBandw(114);
-    if (BWset == 7) radio.setFMBandw(133);
-    if (BWset == 8) radio.setFMBandw(151);
-    if (BWset == 9) radio.setFMBandw(168);
-    if (BWset == 10) radio.setFMBandw(184);
-    if (BWset == 11) radio.setFMBandw(200);
-    if (BWset == 12) radio.setFMBandw(217);
-    if (BWset == 13) radio.setFMBandw(236);
-    if (BWset == 14) radio.setFMBandw(254);
-    if (BWset == 15) radio.setFMBandw(287);
-    if (BWset == 16) radio.setFMBandw(311);
+    switch (BWset) {
+      case 1: radio.setFMBandw(56); break;
+      case 2: radio.setFMBandw(64); break;
+      case 3: radio.setFMBandw(72); break;
+      case 4: radio.setFMBandw(84); break;
+      case 5: radio.setFMBandw(97); break;
+      case 6: radio.setFMBandw(114); break;
+      case 7: radio.setFMBandw(133); break;
+      case 8: radio.setFMBandw(151); break;
+      case 9: radio.setFMBandw(168); break;
+      case 10: radio.setFMBandw(184); break;
+      case 11: radio.setFMBandw(200); break;
+      case 12: radio.setFMBandw(217); break;
+      case 13: radio.setFMBandw(236); break;
+      case 14: radio.setFMBandw(254); break;
+      case 15: radio.setFMBandw(287); break;
+      case 16: radio.setFMBandw(311); break;
+    }
   }
 }
 
 void doSquelch() {
-  if (power == false) {
-    if (XDRGTK == false && XDRGTKTCP == false) {
+  if (!power) {
+    if (!XDRGTK && !XDRGTKTCP) {
       Squelch = analogRead(PIN_POT) / 4 - 100;
       if (Squelch > 920) Squelch = 920;
-      if (showrdsinfo == false && menu == false && Squelch != Squelchold) {
+      if (!showrdsinfo && !menu && Squelch != Squelchold) {
         if (Squelch == -100) {
-          if (spec == false) Display.writeStr("SQ.txt", "OFF");
+          if (!spec) Display.writeStr("SQ.txt", "OFF");
         } else if (Squelch == 920) {
-          if (spec == false) Display.writeStr("SQ.txt", "ST");
+          if (!spec) Display.writeStr("SQ.txt", "ST");
         } else {
           String SQVAL = String(Squelch / 10);
           Display.writeStr("SQ.txt", SQVAL);
@@ -1342,51 +1390,51 @@ void doSquelch() {
       }
 
     }
-    if (XDRGTK == true || XDRGTKTCP == true) {
-      if (XDRMute == false) {
+    if (XDRGTK || XDRGTKTCP) {
+      if (!XDRMute) {
         if (Squelch != -1) {
-          if (seek == false && (Squelch == 0)) {
-            if (mutestatus == true) {
+          if (!seek && (Squelch == 0)) {
+            if (mutestatus) {
               radio.setUnMute();
               mutestatus = false;
             }
-            if (showrdsinfo == false) if (spec == false) Display.writeStr("SQ.txt", "OFF");
+            if (!showrdsinfo) if (!spec) Display.writeStr("SQ.txt", "OFF");
             SQ = false;
-          } else if (seek == false && (Squelch < SStatus || Squelch == -100)) {
-            if (mutestatus == true) {
+          } else if (!seek && (Squelch < SStatus || Squelch == -100)) {
+            if (mutestatus) {
               radio.setUnMute();
               mutestatus = false;
             }
             SQ = false;
           } else {
-            if (mutestatus == false) {
+            if (!mutestatus) {
               radio.setMute();
               mutestatus = true;
             }
             SQ = true;
           }
         } else {
-          if (seek == false && Stereostatus == true) {
-            if (mutestatus == true) {
+          if (!seek && Stereostatus) {
+            if (mutestatus) {
               radio.setUnMute();
               mutestatus = false;
             }
             SQ = false;
           } else {
-            if (mutestatus == false) {
+            if (!mutestatus) {
               radio.setMute();
               mutestatus = true;
             }
             SQ = true;
           }
         }
-        if (showrdsinfo == false) {
+        if (!showrdsinfo) {
           if (Squelch != Squelchold) {
             if (Squelch == -1) {
-              if (spec == false) Display.writeStr("SQ.txt", "ST");
+              if (!spec) Display.writeStr("SQ.txt", "ST");
             } else {
               String SQVAL = String(Squelch / 10);
-              if (spec == false) Display.writeStr("SQ.txt", SQVAL);
+              if (!spec) Display.writeStr("SQ.txt", SQVAL);
             }
             Squelchold = Squelch;
           }
@@ -1394,28 +1442,28 @@ void doSquelch() {
       }
     } else {
       if (Squelch != 920) {
-        if (seek == false && (Squelch < SStatus || Squelch == -100)) {
+        if (!seek && (Squelch < SStatus || Squelch == -100)) {
           if (mutestatus == true) {
             radio.setUnMute();
             mutestatus = false;
           }
           SQ = false;
         } else {
-          if (mutestatus == false) {
+          if (!mutestatus) {
             radio.setMute();
             mutestatus = true;
           }
           SQ = true;
         }
       } else {
-        if (Stereostatus == true) {
-          if (mutestatus == true) {
+        if (Stereostatus) {
+          if (mutestatus) {
             radio.setUnMute();
             mutestatus = false;
           }
           SQ = false;
         } else {
-          if (mutestatus == false) {
+          if (!mutestatus) {
             radio.setMute();
             mutestatus = true;
           }
@@ -1428,7 +1476,7 @@ void doSquelch() {
 }
 
 void doStereoToggle() {
-  if (StereoToggle == true) {
+  if (StereoToggle) {
     Display.writeNum("stereo.pic", 11);
     radio.setMono(2);
     StereoToggle = false;
@@ -1534,7 +1582,7 @@ void EEpromReadData() {
   for (i = 0; i < 30; i++) memory[i] = EEPROM.readUInt((i * 4) + 230);
   EEPROM.commit();
 
-  if (UHF == false && band != 0 && band != 5 && band != 6) {
+  if (!UHF && band != 0 && band != 5 && band != 6) {
     band = 0;
     if (scanner_start > 10800) {
       scanner_band = 0;
@@ -1555,153 +1603,82 @@ void EEpromReadData() {
   delay(200);
 
   Display.writeNum("sstart", scanner_start / 100);
-  delay(50);
   Display.writeNum("sstop", scanner_end / 100);
-  delay(50);
   Display.writeNum("sbw", scanner_vbw);
-  delay(50);
   Display.writeNum("sth", scanner_th);
-  delay(50);
   Display.writeNum("sband", scanner_band);
-  delay(50);
   Display.writeNum("sspeed", scanner_speed);
-  delay(50);
   Display.writeNum("thenable", scanner_thenable);
-  delay(50);
   Display.writeNum("l0", LowEdgeSet0 / 2 * 2);
-  delay(50);
   Display.writeNum("l1", LowEdgeSet1 / 2 * 2);
-  delay(50);
   Display.writeNum("l2", LowEdgeSet2 / 2 * 2);
-  delay(50);
   Display.writeNum("l3", LowEdgeSet3 / 2 * 2);
-  delay(50);
   Display.writeNum("l4", LowEdgeSet4 / 2 * 2);
-  delay(50);
   Display.writeNum("l6", LowEdgeSet6 / 2 * 2);
-  delay(50);
   Display.writeNum("h0", HighEdgeSet0 / 2 * 2);
-  delay(50);
   Display.writeNum("h1", HighEdgeSet1 / 2 * 2);
-  delay(50);
   Display.writeNum("h2", HighEdgeSet2 / 2 * 2);
-  delay(50);
   Display.writeNum("h3", HighEdgeSet3 / 2 * 2);
-  delay(50);
   Display.writeNum("h4", HighEdgeSet4 / 2 * 2);
-  delay(50);
   Display.writeNum("h6", HighEdgeSet6 / 2 * 2);
-  delay(50);
   Display.writeNum("Volset", VolSet + 15);
-  delay(50);
   Display.writeNum("dim", ContrastSet);
-  delay(50);
   Display.writeNum("HighCutOffset", HighCutOffset);
-  delay(50);
   Display.writeNum("HighCutLevel", HighCutLevel * 100);
-  delay(50);
   Display.writeNum("StereoLevel", StereoLevel);
-  delay(50);
   Display.writeNum("o0", LevelOffset0 + 25);
-  delay(50);
   Display.writeNum("o1", LevelOffset1 + 25);
-  delay(50);
   Display.writeNum("o2", LevelOffset2 + 25);
-  delay(50);
   Display.writeNum("o3", LevelOffset3 + 25);
-  delay(50);
   Display.writeNum("o4", LevelOffset4 + 25);
-  delay(50);
   Display.writeNum("o6", LevelOffset6 + 25);
-  delay(50);
   Display.writeNum("iffreq", IF);
-  delay(50);
   Display.writeNum("demp", demp);
-  delay(50);
   Display.writeNum("lf", lf);
-  delay(50);
   Display.writeNum("usbmode", usbmode);
-  delay(50);
   Display.writeNum("wifienable", wifienable);
-  delay(50);
   Display.writeNum("pcip1", ip1);
-  delay(50);
   Display.writeNum("pcip2", ip2);
-  delay(50);
   Display.writeNum("pcip3", ip3);
-  delay(50);
   Display.writeNum("pcip4", ip4);
-  delay(50);
   Display.writeNum("stationlog", stationlist);
-  delay(50);
   Display.writeNum("BlendLevel", BlendLevel * 100);
-  delay(50);
   Display.writeNum("BlendOffset", BlendOffset);
-  delay(50);
   Display.writeNum("NBLevel", NBLevel);
-  delay(50);
   Display.writeNum("AMcochannel", AM_Cochannel);
-  delay(50);
   Display.writeNum("AMnb", AM_NBLevel);
-  delay(50);
   Display.writeNum("AMatt", AM_att);
-  delay(50);
   Display.writeNum("am", am);
-  delay(50);
   Display.writeNum("fm", fm);
-  delay(50);
   Display.writeNum("uhf1", uhf1);
-  delay(50);
   Display.writeNum("uhf2", uhf2);
-  delay(50);
   Display.writeNum("uhf3", uhf3);
-  delay(50);
   Display.writeNum("uhf4", uhf4);
-  delay(50);
   Display.writeNum("uhf6", uhf6);
-  delay(50);
   Display.writeNum("converterlo", converteroffset);
-  delay(50);
   Display.writeNum("coaxmode", coaxmode);
-  delay(50);
   Display.writeNum("fmsi", fmsi);
-  delay(50);
   Display.writeNum("scopeview", scopeview);
-  delay(50);
   Display.writeNum("fmsiattack", fmsi_attack);
-  delay(50);
   Display.writeNum("fmsirelease", fmsi_release);
-  delay(50);
   Display.writeNum("b1sens", fmsi_11);
-  delay(50);
   Display.writeNum("b1bias", fmsi_12);
-  delay(50);
   Display.writeNum("b2sens", fmsi_21);
-  delay(50);
   Display.writeNum("b2bias", fmsi_22);
-  delay(50);
   Display.writeNum("b3sens", fmsi_31);
-  delay(50);
   Display.writeNum("b3bias", fmsi_32);
-  delay(50);
   Display.writeNum("b4sens", fmsi_41);
-  delay(50);
   Display.writeNum("b4bias", fmsi_42);
-  delay(50);
   Display.writeNum("looffset", offset);
-  delay(50);
   Display.writeNum("softmutefm", softmutefm);
-  delay(50);
   Display.writeNum("softmuteam", softmuteam);
-  delay(50);
   Display.writeNum("showrdserrors", showrdserrors);
-  delay(50);
 }
 
 void doEEpromWrite() {
-  if (store == true) change++;
+  if (store) change++;
 
-  if (change > 200 && store == true) {
+  if (change > 200 && store) {
     detachInterrupt(digitalPinToInterrupt(ROTARY_PIN_A));
     detachInterrupt(digitalPinToInterrupt(ROTARY_PIN_B));
     EEPROM.writeUInt(0, frequency0);
@@ -1722,14 +1699,14 @@ void doEEpromWrite() {
 
 void Seek(bool mode) {
   radio.setMute();
-  if (mode == false) TuneDown(); else TuneUp();
+  if (!mode) TuneDown(); else TuneUp();
   delay(50);
   ShowFreq();
-  if (XDRGTK == true) {
+  if (XDRGTK) {
     if (band == 0) Serial.print("T" + String(frequency0 * 10) + "\n"); else Serial.print("T" + String(frequency5) + "\n");
   }
 
-  if (XDRGTKTCP == true) {
+  if (XDRGTKTCP) {
     if (band == 0) RemoteClient.print("T" + String(frequency0 * 10) + "\n"); else RemoteClient.print("T" + String(frequency5) + "\n");
   }
 
@@ -1759,59 +1736,70 @@ void TuneUp() {
       temp = 5;
     }
   }
-  if (stepsize == 1) temp = 1;
-  if (stepsize == 2) temp = 10;
-  if (stepsize == 3) temp = 100;
-  if (stepsize == 4) temp = 1000;
 
-  if (band == 0) {
-    frequency0 += temp;
-    if (frequency0 >= (HighEdgeSet0 * 100) + 1) {
-      frequency0 = LowEdgeSet0 * 100;
-    }
-    radio.SetFreq(frequency0);
+  switch (stepsize) {
+    case 1: temp = 1; break;
+    case 2: temp = 10; break;
+    case 3: temp = 100; break;
+    case 4: temp = 1000; break;
   }
-  if (band == 1) {
-    frequency1 += temp;
-    if (frequency1 >= (HighEdgeSet1 * 100) + 1) {
-      frequency1 = LowEdgeSet1 * 100;
-    }
-    Frontend.SetFreq(frequency1 - (IF * 100), offset);
-  }
-  if (band == 2) {
-    frequency2 += temp;
-    if (frequency2 >= (HighEdgeSet2 * 100) + 1) {
-      frequency2 = LowEdgeSet2 * 100;
-    }
-    Frontend.SetFreq(frequency2 - (IF * 100), offset);
-  }
-  if (band == 3) {
-    frequency3 += temp;
-    if (frequency3 >= (HighEdgeSet3 * 100) + 1) {
-      frequency3 = LowEdgeSet3 * 100;
-    }
-    Frontend.SetFreq(frequency3 - (IF * 100), offset);
-  }
-  if (band == 4) {
-    frequency4 += temp;
-    if (frequency4 >= (HighEdgeSet4 * 100) + 1) {
-      frequency4 = LowEdgeSet4 * 100;
-    }
-    Frontend.SetFreq(frequency4 - (IF * 100), offset);
-  }
-  if (band == 5) {
-    frequency5 += temp;
-    if (frequency5 > 27000) {
-      frequency5 = 144;
-    }
-    radio.SetFreqAM(frequency5);
-  }
-  if (band == 6) {
-    frequency6 += temp;
-    if (frequency6 >= (HighEdgeSet6 * 100) + 1) {
-      frequency6 = LowEdgeSet6 * 100;
-    }
-    radio.SetFreq(frequency6 - converteroffset * 100);
+
+  switch (band) {
+    case 0:
+      frequency0 += temp;
+      if (frequency0 >= (HighEdgeSet0 * 100) + 1) {
+        frequency0 = LowEdgeSet0 * 100;
+      }
+      radio.SetFreq(frequency0);
+      break;
+
+    case 1:
+      frequency1 += temp;
+      if (frequency1 >= (HighEdgeSet1 * 100) + 1) {
+        frequency1 = LowEdgeSet1 * 100;
+      }
+      Frontend.SetFreq(frequency1 - (IF * 100), offset);
+      break;
+
+    case 2:
+      frequency2 += temp;
+      if (frequency2 >= (HighEdgeSet2 * 100) + 1) {
+        frequency2 = LowEdgeSet2 * 100;
+      }
+      Frontend.SetFreq(frequency2 - (IF * 100), offset);
+      break;
+
+    case 3:
+      frequency3 += temp;
+      if (frequency3 >= (HighEdgeSet3 * 100) + 1) {
+        frequency3 = LowEdgeSet3 * 100;
+      }
+      Frontend.SetFreq(frequency3 - (IF * 100), offset);
+      break;
+
+    case 4:
+      frequency4 += temp;
+      if (frequency4 >= (HighEdgeSet4 * 100) + 1) {
+        frequency4 = LowEdgeSet4 * 100;
+      }
+      Frontend.SetFreq(frequency4 - (IF * 100), offset);
+      break;
+
+    case 5:
+      frequency5 += temp;
+      if (frequency5 > 27000) {
+        frequency5 = 144;
+      }
+      radio.SetFreqAM(frequency5);
+      break;
+
+    case 6:
+      frequency6 += temp;
+      if (frequency6 >= (HighEdgeSet6 * 100) + 1) {
+        frequency6 = LowEdgeSet6 * 100;
+      }
+      radio.SetFreq(frequency6 - converteroffset * 100);
+      break;
   }
 
   radio.clearRDS(fullsearchrds);
@@ -1837,56 +1825,60 @@ void TuneDown() {
       temp = 5;
     }
   }
-  if (stepsize == 1) temp = 1;
-  if (stepsize == 2) temp = 10;
-  if (stepsize == 3) temp = 100;
-  if (stepsize == 4) temp = 1000;
 
-  if (band == 0) {
-    frequency0 -= temp;
-    if (frequency0 < LowEdgeSet0 * 100) frequency0 = HighEdgeSet0 * 100;
-    radio.SetFreq(frequency0);
+  switch (stepsize) {
+    case 1: temp = 1; break;
+    case 2: temp = 10; break;
+    case 3: temp = 100; break;
+    case 4: temp = 1000; break;
   }
 
-  if (band == 1) {
-    frequency1 -= temp;
-    if (frequency1 < LowEdgeSet1 * 100) frequency1 = HighEdgeSet1 * 100;
-    Frontend.SetFreq(frequency1 - (IF * 100), offset);
-  }
+  switch (band) {
+    case 0:
+      frequency0 -= temp;
+      if (frequency0 < LowEdgeSet0 * 100) frequency0 = HighEdgeSet0 * 100;
+      radio.SetFreq(frequency0);
+      break;
 
-  if (band == 2) {
-    frequency2 -= temp;
-    if (frequency2 < LowEdgeSet2 * 100) frequency2 = HighEdgeSet2 * 100;
-    Frontend.SetFreq(frequency2 - (IF * 100), offset);
-  }
+    case 1:
+      frequency1 -= temp;
+      if (frequency1 < LowEdgeSet1 * 100) frequency1 = HighEdgeSet1 * 100;
+      Frontend.SetFreq(frequency1 - (IF * 100), offset);
+      break;
 
-  if (band == 3) {
-    frequency3 -= temp;
-    if (frequency3 < LowEdgeSet3 * 100) frequency3 = HighEdgeSet3 * 100;
-    Frontend.SetFreq(frequency3 - (IF * 100), offset);
-  }
+    case 2:
+      frequency2 -= temp;
+      if (frequency2 < LowEdgeSet2 * 100) frequency2 = HighEdgeSet2 * 100;
+      Frontend.SetFreq(frequency2 - (IF * 100), offset);
+      break;
 
-  if (band == 4) {
-    frequency4 -= temp;
-    if (frequency4 < LowEdgeSet4 * 100) frequency4 = HighEdgeSet4 * 100;
-    Frontend.SetFreq(frequency4 - (IF * 100), offset);
-  }
+    case 3:
+      frequency3 -= temp;
+      if (frequency3 < LowEdgeSet3 * 100) frequency3 = HighEdgeSet3 * 100;
+      Frontend.SetFreq(frequency3 - (IF * 100), offset);
+      break;
 
-  if (band == 5) {
-    if (temp == 1000 && frequency5 <= 1440)
-    {
-      frequency5 = 27000;
-    } else {
-      frequency5 -= temp;
-      if (frequency5 < 144) frequency5 = 27000;
-    }
-    radio.SetFreqAM(frequency5);
-  }
+    case 4:
+      frequency4 -= temp;
+      if (frequency4 < LowEdgeSet4 * 100) frequency4 = HighEdgeSet4 * 100;
+      Frontend.SetFreq(frequency4 - (IF * 100), offset);
+      break;
 
-  if (band == 6) {
-    frequency6 -= temp;
-    if (frequency6 < LowEdgeSet6 * 100) frequency6 = HighEdgeSet6 * 100;
-    radio.SetFreq(frequency6 - converteroffset * 100);
+    case 5:
+      if (temp == 1000 && frequency5 <= 1440) {
+        frequency5 = 27000;
+      } else {
+        frequency5 -= temp;
+        if (frequency5 < 144) frequency5 = 27000;
+      }
+      radio.SetFreqAM(frequency5);
+      break;
+
+    case 6:
+      frequency6 -= temp;
+      if (frequency6 < LowEdgeSet6 * 100) frequency6 = HighEdgeSet6 * 100;
+      radio.SetFreq(frequency6 - converteroffset * 100);
+      break;
   }
   radio.clearRDS(fullsearchrds);
 }
@@ -1902,7 +1894,6 @@ void SetTunerPatch() {
   Display.writeStr("version2.txt", "Please restart tuner");
   EEPROM.writeByte(183, TEF);
   EEPROM.commit();
-  while (true);
   for (;;);
 }
 
@@ -2014,7 +2005,7 @@ void tryWiFi() {
   } else {
     wifiretry = true;
     Display.writeStr("page 26");
-    while (wifiretry == true) Display.NextionListen();
+    while (wifiretry) Display.NextionListen();
   }
 }
 
@@ -2029,7 +2020,7 @@ void read_encoder() {
   if (digitalRead(ROTARY_PIN_B)) old_AB |= 0x01;
   encval += enc_states[( old_AB & 0x0f )];
 
-  if (optrot == 1) {
+  if (optrot) {
     if (encval > 2) {
       rotary = 1;
       encval = 0;

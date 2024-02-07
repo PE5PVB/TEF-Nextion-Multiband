@@ -245,7 +245,7 @@ void trigger10(void) { // Close and save menu
   }
 
   Serial.end();
-  if (usbmode == 1) Serial.begin(19200); else Serial.begin(115200);
+  if (usbmode) Serial.begin(19200); else Serial.begin(115200);
 
   switch (band) {
     case 0: radio.setOffset(LevelOffset0); break;

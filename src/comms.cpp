@@ -432,23 +432,23 @@ void XDRGTKRoutine(void) {
         iMSEQX = atol(buff + 1);
         XDRGTKprint("Z" + String(iMSEQX) + "\n");
         if (iMSEQX == 0) {
-          iMSset = 0;
-          EQset = 0;
+          iMSset = false;
+          EQset = false;
           iMSEQ = 1;
         }
         if (iMSEQX == 1) {
-          iMSset = 0;
-          EQset = 1;
+          iMSset = false;
+          EQset = true;
           iMSEQ = 3;
         }
         if (iMSEQX == 2) {
-          iMSset = 1;
-          EQset = 0;
+          iMSset = true;
+          EQset = false;
           iMSEQ = 4;
         }
         if (iMSEQX == 3) {
-          iMSset = 1;
-          EQset = 1;
+          iMSset = true;
+          EQset = true;
           iMSEQ = 2;
         }
         doFilter();

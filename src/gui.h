@@ -89,8 +89,8 @@ extern bool btconnect;
 extern bool USBstatus;
 extern bool usblogo_on;
 extern bool usblogo_off;
-extern byte iMSset;
-extern byte EQset;
+extern bool iMSset;
+extern bool EQset;
 extern bool mutelogo_on;
 extern bool mutelogo_off;
 
