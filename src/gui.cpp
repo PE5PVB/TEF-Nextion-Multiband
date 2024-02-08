@@ -1,5 +1,6 @@
 #ifndef GUI_CPP
 #define GUI_CPP
+
 #include "gui.h"
 #include "constants.h"
 

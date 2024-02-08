@@ -1,8 +1,6 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 
-#include "scanner.h"
-#include "constants.h"
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <EasyNextionLibrary.h>

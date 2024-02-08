@@ -1,5 +1,5 @@
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#ifndef TOUCH_H
+#define TOUCH_H
 
 #include <Arduino.h>
 #include <EasyNextionLibrary.h>
@@ -10,7 +10,6 @@
 #include <SoftwareSerial.h>
 #include "WiFiConnect.h"
 #include "ADF4351.h"
-#include "constants.h"
 
 extern EasyNex Display;
 extern TEF6686 radio;

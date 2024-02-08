@@ -1,3 +1,6 @@
+#ifndef ADF4351_CPP
+#define ADF4351_CPP
+
 #include "ADF4351.h"
 #include <SPI.h>
 #include <cmath>
@@ -66,3 +69,4 @@ void ADF4351::WriteRegister(uint32_t data)
   }
   digitalWrite(pin_LE, HIGH);
 }
+#endif

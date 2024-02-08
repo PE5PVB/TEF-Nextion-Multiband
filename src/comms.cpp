@@ -303,8 +303,8 @@ void XDRGTKRoutine(void) {
         }
         ShowiMS();
         ShowEQ();
-        EEPROM.writeByte(44, iMSset);
-        EEPROM.writeByte(45, EQset);
+        EEPROM.writeByte(EE_UINT8T_IMSSET, iMSset);
+        EEPROM.writeByte(EE_UINT8T_EQSET, EQset);
         EEPROM.commit();
         break;
 

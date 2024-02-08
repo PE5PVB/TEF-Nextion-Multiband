@@ -1,5 +1,5 @@
-#ifndef CONSTANTS_CPP
-#define CONSTANTS_CPP
+#ifndef TOUCH_CPP
+#define TOUCH_CPP
 
 #include "touch.h"
 #include "constants.h"
@@ -78,7 +78,7 @@ void trigger8(void) { // Check User manual tuning input
     failed = true;
   }
   if (!failed) {
-    EEPROM.writeByte(46, band);
+    EEPROM.writeByte(EE_UINT8T_BAND, band);
     EEPROM.commit();
     doExit();
   }
@@ -236,72 +236,72 @@ void trigger10(void) { // Close and save menu
   showrdserrors = Display.readNumber("showrdserrors");
   delay(50);
 
-  EEPROM.writeByte(11, scanner_band);
-  EEPROM.writeInt(20, ContrastSet);
-  EEPROM.writeInt(4, VolSet);
-  EEPROM.writeInt(28, StereoLevel);
-  EEPROM.writeInt(32, HighCutLevel);
-  EEPROM.writeInt(36, HighCutOffset);
-  EEPROM.writeInt(12, LowEdgeSet0);
-  EEPROM.writeInt(51, LowEdgeSet1);
-  EEPROM.writeInt(59, LowEdgeSet2);
-  EEPROM.writeInt(67, LowEdgeSet3);
-  EEPROM.writeInt(75, LowEdgeSet4);
-  EEPROM.writeInt(16, HighEdgeSet0);
-  EEPROM.writeInt(55, HighEdgeSet1);
-  EEPROM.writeInt(63, HighEdgeSet2);
-  EEPROM.writeInt(71, HighEdgeSet3);
-  EEPROM.writeInt(79, HighEdgeSet4);
-  EEPROM.writeInt(24, LevelOffset0);
-  EEPROM.writeInt(117, LevelOffset1);
-  EEPROM.writeInt(121, LevelOffset2);
-  EEPROM.writeInt(125, LevelOffset3);
-  EEPROM.writeInt(129, LevelOffset4);
-  EEPROM.writeByte(47, IF);
-  EEPROM.writeByte(8, lf);
-  EEPROM.writeByte(9, demp);
-  EEPROM.writeByte(48, usbmode);
-  EEPROM.writeByte(49, wifienable);
-  EEPROM.writeString(134, password);
-  EEPROM.writeByte(140, ip1);
-  EEPROM.writeByte(141, ip2);
-  EEPROM.writeByte(142, ip3);
-  EEPROM.writeByte(143, ip4);
-  EEPROM.writeByte(43, stationlist);
-  EEPROM.writeInt(144, BlendLevel);
-  EEPROM.writeInt(148, BlendOffset);
-  EEPROM.writeInt(152, NBLevel);
-  EEPROM.writeInt(164, AM_Cochannel);
-  EEPROM.writeInt(168, AM_NBLevel);
-  EEPROM.writeInt(172, AM_att);
-  EEPROM.writeByte(176, am);
-  EEPROM.writeByte(177, fm);
-  EEPROM.writeByte(178, uhf1);
-  EEPROM.writeByte(179, uhf2);
-  EEPROM.writeByte(180, uhf3);
-  EEPROM.writeByte(181, uhf4);
-  EEPROM.writeByte(182, coaxmode);
-  EEPROM.writeByte(185, fmsi);
-  EEPROM.writeUInt(187, fmsi_attack);
-  EEPROM.writeUInt(191, fmsi_release);
-  EEPROM.writeUInt(195, fmsi_11);
-  EEPROM.writeUInt(199, fmsi_12);
-  EEPROM.writeUInt(203, fmsi_21);
-  EEPROM.writeUInt(207, fmsi_22);
-  EEPROM.writeUInt(211, fmsi_31);
-  EEPROM.writeUInt(215, fmsi_32);
-  EEPROM.writeUInt(219, fmsi_41);
-  EEPROM.writeUInt(223, fmsi_42);
-  EEPROM.writeByte(351, uhf6);
-  EEPROM.writeInt(352, LevelOffset6);
-  EEPROM.writeInt(356, LowEdgeSet6);
-  EEPROM.writeInt(360, HighEdgeSet6);
-  EEPROM.writeUInt(368, converteroffset);
-  EEPROM.writeUInt(99, scanner_start);
-  EEPROM.writeUInt(103, scanner_end);
-  EEPROM.writeByte(377, softmutefm);
-  EEPROM.writeByte(378, softmuteam);
-  EEPROM.writeByte(378, showrdserrors);
+  EEPROM.writeByte(EE_UINT8T_SCANNERBAND, scanner_band);
+  EEPROM.writeInt(EE_INT16T_CONTRAST, ContrastSet);
+  EEPROM.writeInt(EE_INT16T_VOLSET, VolSet);
+  EEPROM.writeInt(EE_INT16T_STEREOLEVEL, StereoLevel);
+  EEPROM.writeInt(EE_INT16T_HIGHCUTLEVEL, HighCutLevel);
+  EEPROM.writeInt(EE_INT16T_HIGHCUTOFFSET, HighCutOffset);
+  EEPROM.writeInt(EE_INT16T_LOWEDGESET0, LowEdgeSet0);
+  EEPROM.writeInt(EE_INT16T_LOWEDGESET1, LowEdgeSet1);
+  EEPROM.writeInt(EE_INT16T_LOWEDGESET2, LowEdgeSet2);
+  EEPROM.writeInt(EE_INT16T_LOWEDGESET3, LowEdgeSet3);
+  EEPROM.writeInt(EE_INT16T_LOWEDGESET4, LowEdgeSet4);
+  EEPROM.writeInt(EE_INT16T_HIGHEDGESET0, HighEdgeSet0);
+  EEPROM.writeInt(EE_INT16T_HIGHEDGESET1, HighEdgeSet1);
+  EEPROM.writeInt(EE_INT16T_HIGHEDGESET2, HighEdgeSet2);
+  EEPROM.writeInt(EE_INT16T_HIGHEDGESET3, HighEdgeSet3);
+  EEPROM.writeInt(EE_INT16T_HIGHEDGESET4, HighEdgeSet4);
+  EEPROM.writeInt(EE_INT16T_LEVELOFFSET0, LevelOffset0);
+  EEPROM.writeInt(EE_INT16T_LEVELOFFSET1, LevelOffset1);
+  EEPROM.writeInt(EE_INT16T_LEVELOFFSET2, LevelOffset2);
+  EEPROM.writeInt(EE_INT16T_LEVELOFFSET3, LevelOffset3);
+  EEPROM.writeInt(EE_INT16T_LEVELOFFSET4, LevelOffset4);
+  EEPROM.writeByte(EE_UINT8T_IF, IF);
+  EEPROM.writeByte(EE_UINT8T_LF, lf);
+  EEPROM.writeByte(EE_UINT8T_DEMP, demp);
+  EEPROM.writeByte(EE_UINT8T_USBMODE, usbmode);
+  EEPROM.writeByte(EE_UINT8T_WIFIENABLE, wifienable);
+  EEPROM.writeString(EE_STRING_PASSWORD, password);
+  EEPROM.writeByte(EE_UINT8T_IP1, ip1);
+  EEPROM.writeByte(EE_UINT8T_IP2, ip2);
+  EEPROM.writeByte(EE_UINT8T_IP3, ip3);
+  EEPROM.writeByte(EE_UINT8T_IP4, ip4);
+  EEPROM.writeByte(EE_UINT8T_STATIONLIST, stationlist);
+  EEPROM.writeInt(EE_INT16T_BLENDLEVEL, BlendLevel);
+  EEPROM.writeInt(EE_INT16T_BLENDOFFSET, BlendOffset);
+  EEPROM.writeInt(EE_INT16T_NBLEVEL, NBLevel);
+  EEPROM.writeInt(EE_INT16T_AMCOCHANNEL, AM_Cochannel);
+  EEPROM.writeInt(EE_INT16T_AMNBLEVEL, AM_NBLevel);
+  EEPROM.writeInt(EE_INT16T_AMATT, AM_att);
+  EEPROM.writeByte(EE_UINT8T_AM, am);
+  EEPROM.writeByte(EE_UINT8T_FM, fm);
+  EEPROM.writeByte(EE_UINT8T_UHF1, uhf1);
+  EEPROM.writeByte(EE_UINT8T_UHF2, uhf2);
+  EEPROM.writeByte(EE_UINT8T_UHF3, uhf3);
+  EEPROM.writeByte(EE_UINT8T_UHF4, uhf4);
+  EEPROM.writeByte(EE_UINT8T_COAXMODE, coaxmode);
+  EEPROM.writeByte(EE_UINT8T_FMSI, fmsi);
+  EEPROM.writeUInt(EE_UINT16T_FMSIATTACK, fmsi_attack);
+  EEPROM.writeUInt(EE_UINT16T_FMSIRELEASE, fmsi_release);
+  EEPROM.writeUInt(EE_UINT16T_FMSI11, fmsi_11);
+  EEPROM.writeUInt(EE_UINT16T_FMSI12, fmsi_12);
+  EEPROM.writeUInt(EE_UINT16T_FMSI21, fmsi_21);
+  EEPROM.writeUInt(EE_UINT16T_FMSI22, fmsi_22);
+  EEPROM.writeUInt(EE_UINT16T_FMSI31, fmsi_31);
+  EEPROM.writeUInt(EE_UINT16T_FMSI32, fmsi_32);
+  EEPROM.writeUInt(EE_UINT16T_FMSI41, fmsi_41);
+  EEPROM.writeUInt(EE_UINT16T_FMSI42, fmsi_42);
+  EEPROM.writeByte(EE_UINT8T_UHF6, uhf6);
+  EEPROM.writeInt(EE_INT16T_LEVELOFFSET6, LevelOffset6);
+  EEPROM.writeInt(EE_INT16T_LOWEDGESET6, LowEdgeSet6);
+  EEPROM.writeInt(EE_INT16T_HIGHEDGESET6, HighEdgeSet6);
+  EEPROM.writeUInt(EE_UINT16T_CONVERTEROFFSET, converteroffset);
+  EEPROM.writeUInt(EE_UINT16T_SCANNERSTART, scanner_start);
+  EEPROM.writeUInt(EE_UINT16T_SCANNEREND, scanner_end);
+  EEPROM.writeByte(EE_UINT8T_SOFTMUTEFM, softmutefm);
+  EEPROM.writeByte(EE_UINT8T_SOFTMUTEAM, softmuteam);
+  EEPROM.writeByte(EE_UINT8T_SHOWRDSERRORS, showrdserrors);
   EEPROM.commit();
 
   remoteip = IPAddress (ip1, ip2, ip3, ip4);
@@ -553,7 +553,7 @@ void trigger36(void) {  // Set FMSI bands
 
 void trigger37(void) {  // Switch scopeview
   scopeview = Display.readNumber("scopeview");
-  EEPROM.writeByte(186, scopeview);
+  EEPROM.writeByte(EE_UINT8T_SCOPEMODE, scopeview);
   EEPROM.commit();
 }
 
@@ -571,7 +571,7 @@ void trigger39(void) {  // Apply offset's offset
   int x;
   offset = Display.readNumber("looffset");
   delay(50);
-  EEPROM.writeInt(372, offset);
+  EEPROM.writeInt(EE_INT16T_OFFSET, offset);
   EEPROM.commit();
   doExit();
 }
@@ -584,7 +584,7 @@ void trigger40(void) {  // Retry WiFi
 void trigger41(void) {  // Disable WiFi
   WiFi.mode(WIFI_OFF);
   wifienable = 1;
-  EEPROM.writeByte(49, 1);
+  EEPROM.writeByte(EE_UINT8T_WIFIENABLE, 1);
   EEPROM.commit();
   wifiretry = false;
 }

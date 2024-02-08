@@ -4,7 +4,8 @@
 #include <SoftwareSerial.h>         // https://github.com/plerup/espsoftwareserial/
 #include <EasyNextionLibrary.h>     // https://github.com/Seithan/EasyNextionLibrary
 #include <Hash.h>                   // https://github.com/bbx10/Hash_tng
-#include <ESP32Time.h>              // https://github.com/fbiego/ESP32Time
+#include <TimeLib.h>                // https://github.com/PaulStoffregen/Time
+#include "src/constants.h"
 #include "src/TEF6686.h"            // Included with this file
 #include "src/ADF4351.h"            // Included with this file
 #include "src/WiFiConnect.h"        // Included with this file
@@ -309,12 +310,11 @@ void setup(void) {
 
   Display.writeNum("sleep", 0);
   delay(500);
-  EEPROM.begin(380);
-  if (EEPROM.readByte(41) != SOFTWAREVER) FactoryDefaults();
+  EEPROM.begin(EE_TOTAL);
+  if (EEPROM.readByte(EE_UINT8T_VERSIONCHECK) != EE_VERSIONCOUNTER) FactoryDefaults();
 
   if (digitalRead(ROTARY_BUTTON) == LOW && digitalRead(MODEBUTTON) == HIGH && digitalRead(BWBUTTON) == HIGH) {
-    optrot = EEPROM.readByte(184);
-    EEPROM.commit();
+    optrot = EEPROM.readByte(EE_UINT8T_OPTROT);
     if (optrot) {
       optrot = false;
       Display.writeStr("version2.txt", "standard encoder");
@@ -322,7 +322,7 @@ void setup(void) {
       optrot = true;
       Display.writeStr("version2.txt", "optical encoder");
     }
-    EEPROM.writeByte(184, optrot);
+    EEPROM.writeByte(184, EE_UINT8T_OPTROT);
     EEPROM.commit();
     Display.writeStr("version.txt", "Changed to: ");
     delay(2000);
@@ -333,10 +333,9 @@ void setup(void) {
 
 
   if (digitalRead(MODEBUTTON) == LOW && digitalRead(ROTARY_BUTTON) == HIGH && digitalRead(BWBUTTON) == HIGH) {
-    CoaxSwitch = EEPROM.readByte(157);
-    EEPROM.commit();
+    CoaxSwitch = EEPROM.readByte(EE_UINT8T_COAXSWITCH);
     if (CoaxSwitch == 1) CoaxSwitch = 0; else CoaxSwitch = 1;
-    EEPROM.writeByte(157, CoaxSwitch);
+    EEPROM.writeByte(EE_UINT8T_COAXSWITCH, CoaxSwitch);
     EEPROM.commit();
     Display.writeStr("version.txt", "Coax switch");
     Display.writeStr("version2.txt", "changed!");
@@ -347,10 +346,9 @@ void setup(void) {
   }
 
   if (digitalRead(BWBUTTON) == LOW && digitalRead(ROTARY_BUTTON) == HIGH && digitalRead(MODEBUTTON) == HIGH) {
-    rotarymode = EEPROM.readByte(163);
-    EEPROM.commit();
+    rotarymode = EEPROM.readByte(EE_UINT8T_ROTARYMODE);
     if (!rotarymode) rotarymode = true; else rotarymode = false;
-    EEPROM.writeByte(163, rotarymode);
+    EEPROM.writeByte(EE_UINT8T_ROTARYMODE, rotarymode);
     EEPROM.commit();
     Display.writeStr("version.txt", "Rotary direc-");
     Display.writeStr("version2.txt", "tion changed");
@@ -414,7 +412,7 @@ void setup(void) {
     for (;;);
   }
 
-  TEF = EEPROM.readByte(183);
+  TEF = EEPROM.readByte(EE_UINT8T_TEF);
 
   if (TEF != 101 && TEF != 102 && TEF != 205) SetTunerPatch();
 
@@ -646,7 +644,7 @@ void BandSet(void) {
         if (band == 5) RF(5);
         if (band == 6) RF(6);
       }
-      EEPROM.writeByte(46, band);
+      EEPROM.writeByte(EE_UINT8T_BAND, band);
       EEPROM.commit();
       ShowFreq();
       radio.clearRDS(fullsearchrds);
@@ -946,7 +944,7 @@ void doStepSize(void) {
   stepsize++;
   if (stepsize > 4) stepsize = 0;
   ShowStepSize();
-  EEPROM.writeByte(42, stepsize);
+  EEPROM.writeByte(EE_UINT8T_STEPSIZE, stepsize);
   EEPROM.commit();
   if (stepsize == 0) {
     RoundStep();
@@ -967,44 +965,42 @@ void doTuneMode(void) {
 }
 
 void doFilter(void) {
-  if (iMSEQ == 0) iMSEQ = 1;
-
   switch (iMSEQ) {
-    case 4:
+    case 0:
+      iMSset = 1;
+      EQset = 0;
+      ShowiMS();
+      ShowEQ();
+      iMSEQ = 1;
+      break;
+
+    case 1:
+      iMSset = 0;
+      EQset = 1;
+      ShowiMS();
+      ShowEQ();
+      iMSEQ = 2;
+      break;
+
+    case 2:
+      iMSset = 1;
+      EQset = 1;
+      ShowiMS();
+      ShowEQ();
+      iMSEQ = 3;
+      break;
+
+    case 3:
       iMSset = 0;
       EQset = 0;
       ShowiMS();
       ShowEQ();
       iMSEQ = 0;
       break;
-
-    case 3:
-      iMSset = 1;
-      EQset = 0;
-      ShowiMS();
-      ShowEQ();
-      iMSEQ = 4;
-      break;
-
-    case 2:
-      iMSset = 0;
-      EQset = 0;
-      ShowiMS();
-      ShowEQ();
-      iMSEQ = 3;
-      break;
-
-    case 1:
-      iMSset = 1;
-      EQset = 0;
-      ShowiMS();
-      ShowEQ();
-      iMSEQ = 2;
-      break;
   }
 
-  EEPROM.writeByte(44, iMSset);
-  EEPROM.writeByte(45, EQset);
+  EEPROM.writeByte(EE_UINT8T_IMSSET, iMSset);
+  EEPROM.writeByte(EE_UINT8T_EQSET, EQset);
   EEPROM.commit();
 }
 
@@ -1029,7 +1025,7 @@ void ButtonPress(void) {
             Display.writeNum("store.en", 0);
             Display.writeNum("memlogo.pic", 25);
             memorystore = false;
-            EEPROM.writeUInt((memory_pos * 4) + 230, freq);
+            EEPROM.writeUInt((memory_pos * 4) + EE_UINT16T_MEMFREQ, freq);
             EEPROM.commit();
             memory[memory_pos] = freq;
           }
@@ -1118,13 +1114,13 @@ void RoundStep(void) {
 
   while (digitalRead(ROTARY_BUTTON) == LOW) delay(50);
 
-  EEPROM.writeUInt(0, frequency0);
-  EEPROM.writeUInt(83, frequency1);
-  EEPROM.writeUInt(87, frequency2);
-  EEPROM.writeUInt(91, frequency3);
-  EEPROM.writeUInt(95, frequency4);
-  EEPROM.writeUInt(158, frequency5);
-  EEPROM.writeUInt(364, frequency6);
+  EEPROM.writeUInt(EE_UINT16T_FREQUENCY0, frequency0);
+  EEPROM.writeUInt(EE_UINT16T_FREQUENCY1, frequency1);
+  EEPROM.writeUInt(EE_UINT16T_FREQUENCY2, frequency2);
+  EEPROM.writeUInt(EE_UINT16T_FREQUENCY3, frequency3);
+  EEPROM.writeUInt(EE_UINT16T_FREQUENCY4, frequency4);
+  EEPROM.writeUInt(EE_UINT16T_FREQUENCY5, frequency5);
+  EEPROM.writeUInt(EE_UINT16T_FREQUENCY6, frequency6);
   EEPROM.commit();
 }
 
@@ -1488,98 +1484,97 @@ void doStereoToggle(void) {
 }
 
 void EEpromReadData(void) {
-  frequency0 = EEPROM.readUInt(0);
-  VolSet = EEPROM.readInt(4);
-  ContrastSet = EEPROM.readInt(20);
-  StereoLevel = EEPROM.readInt(28);
-  HighCutLevel = EEPROM.readInt(32);
-  HighCutOffset = EEPROM.readInt(36);
-  scanner_speed = EEPROM.readByte(40);
-  stepsize = EEPROM.readByte(42);
-  stationlist = EEPROM.readByte(43);
-  iMSset = EEPROM.readByte(44);
-  EQset = EEPROM.readByte(45);
-  band = EEPROM.readByte(46);
-  IF = EEPROM.readByte(47);
-  LowEdgeSet0 = EEPROM.readInt(12);
-  HighEdgeSet0 = EEPROM.readInt(16);
-  LowEdgeSet1 = EEPROM.readInt(51);
-  HighEdgeSet1 = EEPROM.readInt(55);
-  LowEdgeSet2 = EEPROM.readInt(59);
-  HighEdgeSet2 = EEPROM.readInt(63);
-  LowEdgeSet3 = EEPROM.readInt(67);
-  HighEdgeSet3 = EEPROM.readInt(71);
-  LowEdgeSet4 = EEPROM.readInt(75);
-  HighEdgeSet4 = EEPROM.readInt(79);
-  frequency1 = EEPROM.readUInt(83);
-  frequency2 = EEPROM.readUInt(87);
-  frequency3 = EEPROM.readUInt(91);
-  frequency4 = EEPROM.readUInt(95);
-  scanner_start = EEPROM.readUInt(99);
-  scanner_end = EEPROM.readUInt(103);
-  scanner_vbw = EEPROM.readUInt(107);
-  scanner_th = EEPROM.readByte(10);
-  scanner_band = EEPROM.readByte(11);
-  scanner_thenable = EEPROM.readByte(113);
-  LevelOffset0 = EEPROM.readInt(24);
-  LevelOffset1 = EEPROM.readInt(117);
-  LevelOffset2 = EEPROM.readInt(121);
-  LevelOffset3 = EEPROM.readInt(125);
-  LevelOffset4 = EEPROM.readInt(129);
-  lf = EEPROM.readByte(8);
-  demp = EEPROM.readByte(9);
-  usbmode = EEPROM.readByte(48);
-  wifienable = EEPROM.readByte(49);
-  password = EEPROM.readString(134);
-  ip1 = EEPROM.readByte(140);
-  ip2 = EEPROM.readByte(141);
-  ip3 = EEPROM.readByte(142);
-  ip4 = EEPROM.readByte(143);
-  BlendLevel = EEPROM.readInt(144);
-  BlendOffset = EEPROM.readInt(148);
-  NBLevel = EEPROM.readInt(152);
-  CoaxSwitch = EEPROM.readByte(157);
-  frequency5 = EEPROM.readUInt(158);
-  rotarymode = EEPROM.readByte(163);
-  AM_Cochannel = EEPROM.readInt(164);
-  AM_NBLevel = EEPROM.readInt(168);
-  AM_att = EEPROM.readInt(172);
-  am = EEPROM.readByte(176);
-  fm = EEPROM.readByte(177);
-  uhf1 = EEPROM.readByte(178);
-  uhf2 = EEPROM.readByte(179);
-  uhf3 = EEPROM.readByte(180);
-  uhf4 = EEPROM.readByte(181);
-  coaxmode = EEPROM.readByte(182);
-  optrot = EEPROM.readByte(184);
-  fmsi = EEPROM.readByte(185);
-  scopeview = EEPROM.readByte(186);
-  fmsi_attack = EEPROM.readUInt(187);
-  fmsi_release = EEPROM.readUInt(191);
-  fmsi_11 = EEPROM.readUInt(195);
-  fmsi_12 = EEPROM.readUInt(199);
-  fmsi_21 = EEPROM.readUInt(203);
-  fmsi_22 = EEPROM.readUInt(207);
-  fmsi_31 = EEPROM.readUInt(211);
-  fmsi_32 = EEPROM.readUInt(215);
-  fmsi_41 = EEPROM.readUInt(219);
-  fmsi_42 = EEPROM.readUInt(223);
-  memory_pos = EEPROM.readByte(227);
-  tunemode = EEPROM.readByte(228);
-  uhf6 = EEPROM.readByte(351);
-  LevelOffset6 = EEPROM.readInt(352);
-  LowEdgeSet6 = EEPROM.readInt(356);
-  HighEdgeSet6 = EEPROM.readInt(360);
-  frequency6 = EEPROM.readUInt(364);
-  converteroffset = EEPROM.readUInt(368);
-  offset = EEPROM.readInt(372);
-  softmutefm = EEPROM.readByte(377);
-  softmuteam = EEPROM.readByte(378);
-  showrdserrors = EEPROM.readByte(379);
+  frequency0 = EEPROM.readUInt(EE_UINT16T_FREQUENCY0);
+  VolSet = EEPROM.readInt(EE_INT16T_VOLSET);
+  ContrastSet = EEPROM.readInt(EE_INT16T_CONTRAST);
+  StereoLevel = EEPROM.readInt(EE_INT16T_STEREOLEVEL);
+  HighCutLevel = EEPROM.readInt(EE_INT16T_HIGHCUTLEVEL);
+  HighCutOffset = EEPROM.readInt(EE_INT16T_HIGHCUTOFFSET);
+  scanner_speed = EEPROM.readByte(EE_UINT8T_SCANNERSPEED);
+  stepsize = EEPROM.readByte(EE_UINT8T_STEPSIZE);
+  stationlist = EEPROM.readByte(EE_UINT8T_STATIONLIST);
+  iMSset = EEPROM.readByte(EE_UINT8T_IMSSET);
+  EQset = EEPROM.readByte(EE_UINT8T_EQSET);
+  band = EEPROM.readByte(EE_UINT8T_BAND);
+  IF = EEPROM.readByte(EE_UINT8T_IF);
+  LowEdgeSet0 = EEPROM.readInt(EE_INT16T_LOWEDGESET0);
+  HighEdgeSet0 = EEPROM.readInt(EE_INT16T_HIGHEDGESET0);
+  LowEdgeSet1 = EEPROM.readInt(EE_INT16T_LOWEDGESET1);
+  HighEdgeSet1 = EEPROM.readInt(EE_INT16T_HIGHEDGESET1);
+  LowEdgeSet2 = EEPROM.readInt(EE_INT16T_LOWEDGESET2);
+  HighEdgeSet2 = EEPROM.readInt(EE_INT16T_HIGHEDGESET2);
+  LowEdgeSet3 = EEPROM.readInt(EE_INT16T_LOWEDGESET3);
+  HighEdgeSet3 = EEPROM.readInt(EE_INT16T_HIGHEDGESET3);
+  LowEdgeSet4 = EEPROM.readInt(EE_INT16T_LOWEDGESET4);
+  HighEdgeSet4 = EEPROM.readInt(EE_INT16T_HIGHEDGESET4);
+  frequency1 = EEPROM.readUInt(EE_UINT16T_FREQUENCY1);
+  frequency2 = EEPROM.readUInt(EE_UINT16T_FREQUENCY2);
+  frequency3 = EEPROM.readUInt(EE_UINT16T_FREQUENCY3);
+  frequency4 = EEPROM.readUInt(EE_UINT16T_FREQUENCY4);
+  scanner_start = EEPROM.readUInt(EE_UINT16T_SCANNERSTART);
+  scanner_end = EEPROM.readUInt(EE_UINT16T_SCANNEREND);
+  scanner_vbw = EEPROM.readUInt(EE_UINT16T_SCANNERVBW);
+  scanner_th = EEPROM.readByte(EE_UINT8T_SCANNERTH);
+  scanner_band = EEPROM.readByte(EE_UINT8T_SCANNERBAND);
+  scanner_thenable = EEPROM.readByte(EE_UINT8T_SCANNERTHENABLE);
+  LevelOffset0 = EEPROM.readInt(EE_INT16T_LEVELOFFSET0);
+  LevelOffset1 = EEPROM.readInt(EE_INT16T_LEVELOFFSET1);
+  LevelOffset2 = EEPROM.readInt(EE_INT16T_LEVELOFFSET2);
+  LevelOffset3 = EEPROM.readInt(EE_INT16T_LEVELOFFSET3);
+  LevelOffset4 = EEPROM.readInt(EE_INT16T_LEVELOFFSET4);
+  lf = EEPROM.readByte(EE_UINT8T_LF);
+  demp = EEPROM.readByte(EE_UINT8T_DEMP);
+  usbmode = EEPROM.readByte(EE_UINT8T_USBMODE);
+  wifienable = EEPROM.readByte(EE_UINT8T_WIFIENABLE);
+  password = EEPROM.readString(EE_STRING_PASSWORD);
+  ip1 = EEPROM.readByte(EE_UINT8T_IP1);
+  ip2 = EEPROM.readByte(EE_UINT8T_IP2);
+  ip3 = EEPROM.readByte(EE_UINT8T_IP3);
+  ip4 = EEPROM.readByte(EE_UINT8T_IP4);
+  BlendLevel = EEPROM.readInt(EE_INT16T_BLENDLEVEL);
+  BlendOffset = EEPROM.readInt(EE_INT16T_BLENDOFFSET);
+  NBLevel = EEPROM.readInt(EE_INT16T_NBLEVEL);
+  CoaxSwitch = EEPROM.readByte(EE_UINT8T_COAXSWITCH);
+  frequency5 = EEPROM.readUInt(EE_UINT16T_FREQUENCY5);
+  rotarymode = EEPROM.readByte(EE_UINT8T_ROTARYMODE);
+  AM_Cochannel = EEPROM.readInt(EE_INT16T_AMCOCHANNEL);
+  AM_NBLevel = EEPROM.readInt(EE_INT16T_AMNBLEVEL);
+  AM_att = EEPROM.readInt(EE_INT16T_AMATT);
+  am = EEPROM.readByte(EE_UINT8T_AM);
+  fm = EEPROM.readByte(EE_UINT8T_FM);
+  uhf1 = EEPROM.readByte(EE_UINT8T_UHF1);
+  uhf2 = EEPROM.readByte(EE_UINT8T_UHF2);
+  uhf3 = EEPROM.readByte(EE_UINT8T_UHF3);
+  uhf4 = EEPROM.readByte(EE_UINT8T_UHF4);
+  coaxmode = EEPROM.readByte(EE_UINT8T_COAXMODE);
+  optrot = EEPROM.readByte(EE_UINT8T_OPTROT);
+  fmsi = EEPROM.readByte(EE_UINT8T_FMSI);
+  scopeview = EEPROM.readByte(EE_UINT8T_SCOPEMODE);
+  fmsi_attack = EEPROM.readUInt(EE_UINT16T_FMSIATTACK);
+  fmsi_release = EEPROM.readUInt(EE_UINT16T_FMSIRELEASE);
+  fmsi_11 = EEPROM.readUInt(EE_UINT16T_FMSI11);
+  fmsi_12 = EEPROM.readUInt(EE_UINT16T_FMSI12);
+  fmsi_21 = EEPROM.readUInt(EE_UINT16T_FMSI21);
+  fmsi_22 = EEPROM.readUInt(EE_UINT16T_FMSI22);
+  fmsi_31 = EEPROM.readUInt(EE_UINT16T_FMSI31);
+  fmsi_32 = EEPROM.readUInt(EE_UINT16T_FMSI32);
+  fmsi_41 = EEPROM.readUInt(EE_UINT16T_FMSI41);
+  fmsi_42 = EEPROM.readUInt(EE_UINT16T_FMSI42);
+  memory_pos = EEPROM.readByte(EE_UINT8T_MEMORYPOS);
+  tunemode = EEPROM.readByte(EE_UINT8T_TUNEMODE);
+  uhf6 = EEPROM.readByte(EE_UINT8T_UHF6);
+  LevelOffset6 = EEPROM.readInt(EE_INT16T_LEVELOFFSET6);
+  LowEdgeSet6 = EEPROM.readInt(EE_INT16T_LOWEDGESET6);
+  HighEdgeSet6 = EEPROM.readInt(EE_INT16T_HIGHEDGESET6);
+  frequency6 = EEPROM.readUInt(EE_UINT16T_FREQUENCY6);
+  converteroffset = EEPROM.readUInt(EE_UINT16T_CONVERTEROFFSET);
+  offset = EEPROM.readInt(EE_INT16T_OFFSET);
+  softmutefm = EEPROM.readByte(EE_UINT8T_SOFTMUTEFM);
+  softmuteam = EEPROM.readByte(EE_UINT8T_SOFTMUTEAM);
+  showrdserrors = EEPROM.readByte(EE_UINT8T_SHOWRDSERRORS);
 
   uint8_t i;
-  for (i = 0; i < 30; i++) memory[i] = EEPROM.readUInt((i * 4) + 230);
-  EEPROM.commit();
+  for (i = 0; i < 30; i++) memory[i] = EEPROM.readUInt((i * 4) + EE_UINT16T_MEMFREQ);
 
   if (!UHF && band != 0 && band != 5 && band != 6) {
     band = 0;
@@ -1751,15 +1746,15 @@ void doEEpromWrite(void) {
   if (change > 200 && store) {
     detachInterrupt(digitalPinToInterrupt(ROTARY_PIN_A));
     detachInterrupt(digitalPinToInterrupt(ROTARY_PIN_B));
-    EEPROM.writeUInt(0, frequency0);
-    EEPROM.writeUInt(83, frequency1);
-    EEPROM.writeUInt(87, frequency2);
-    EEPROM.writeUInt(91, frequency3);
-    EEPROM.writeUInt(95, frequency4);
-    EEPROM.writeUInt(158, frequency5);
-    EEPROM.writeUInt(364, frequency6);
-    EEPROM.writeByte(227, memory_pos);
-    EEPROM.writeByte(228, tunemode);
+    EEPROM.writeUInt(EE_UINT16T_FREQUENCY0, frequency0);
+    EEPROM.writeUInt(EE_UINT16T_FREQUENCY1, frequency1);
+    EEPROM.writeUInt(EE_UINT16T_FREQUENCY2, frequency2);
+    EEPROM.writeUInt(EE_UINT16T_FREQUENCY3, frequency3);
+    EEPROM.writeUInt(EE_UINT16T_FREQUENCY4, frequency4);
+    EEPROM.writeUInt(EE_UINT16T_FREQUENCY5, frequency5);
+    EEPROM.writeUInt(EE_UINT16T_FREQUENCY6, frequency6);
+    EEPROM.writeByte(EE_UINT8T_MEMORYPOS, memory_pos);
+    EEPROM.writeByte(EE_UINT8T_TUNEMODE, tunemode);
     EEPROM.commit();
     store = false;
     attachInterrupt(digitalPinToInterrupt(ROTARY_PIN_A), read_encoder, CHANGE);
@@ -1961,7 +1956,7 @@ void SetTunerPatch(void) {
   TEF = highByte(hw) * 100 + highByte(sw);
   if (TEF == 0) Display.writeStr("version.txt", "Tuner not detected"); else Display.writeStr("version.txt", String("Tuner version set: v") + String(TEF));
   Display.writeStr("version2.txt", "Please restart tuner");
-  EEPROM.writeByte(183, TEF);
+  EEPROM.writeByte(EE_UINT8T_TEF, TEF);
   EEPROM.commit();
   for (;;);
 }
@@ -1971,99 +1966,99 @@ void FactoryDefaults(void) {
   delay(250);
   swSer.print("AT+ADDLINKADD=0xffffffffffff");
   passwordgenerator();
-  EEPROM.writeUInt(0, 9630);
-  EEPROM.writeInt(4, 0);
-  EEPROM.writeByte(8, 1);
-  EEPROM.writeByte(9, 1);
-  EEPROM.writeByte(10, 50);
-  EEPROM.writeByte(11, 0);
-  EEPROM.writeInt(12, 84);
-  EEPROM.writeInt(16, 108);
-  EEPROM.writeInt(20, 50);
-  EEPROM.writeInt(24, 0);
-  EEPROM.writeInt(28, 0);
-  EEPROM.writeInt(32, 70);
-  EEPROM.writeInt(36, 0);
-  EEPROM.writeByte(40, 1);
-  EEPROM.writeByte(41, SOFTWAREVER);
-  EEPROM.writeByte(42, 0);
-  EEPROM.writeByte(43, 1);
-  EEPROM.writeByte(44, 1);
-  EEPROM.writeByte(45, 1);
-  EEPROM.writeByte(46, 0);
-  EEPROM.writeByte(47, 70);
-  EEPROM.writeByte(48, 1);
-  EEPROM.writeByte(49, 1);
-  EEPROM.writeInt(51, 430);
-  EEPROM.writeInt(55, 440);
-  EEPROM.writeInt(59, 870);
-  EEPROM.writeInt(63, 880);
-  EEPROM.writeInt(67, 1290);
-  EEPROM.writeInt(71, 1310);
-  EEPROM.writeInt(75, 2320);
-  EEPROM.writeInt(79, 2400);
-  EEPROM.writeUInt(83, 43500);
-  EEPROM.writeUInt(87, 87400);
-  EEPROM.writeUInt(91, 129900);
-  EEPROM.writeUInt(95, 232500);
-  EEPROM.writeUInt(99, 8800);
-  EEPROM.writeUInt(103, 10800);
-  EEPROM.writeUInt(107, 56);
-  EEPROM.writeByte(113, 0);
-  EEPROM.writeInt(117, 0);
-  EEPROM.writeInt(121, 0);
-  EEPROM.writeInt(125, 0);
-  EEPROM.writeInt(129, 0);
-  EEPROM.writeString(134, password);
-  EEPROM.writeByte(140, 192);
-  EEPROM.writeByte(141, 168);
-  EEPROM.writeByte(142, 178);
-  EEPROM.writeByte(143, 150);
-  EEPROM.writeInt(144, 70);
-  EEPROM.writeInt(148, 0);
-  EEPROM.writeInt(152, 0);
-  EEPROM.writeByte(157, 1);
-  EEPROM.writeUInt(158, 828);
-  EEPROM.writeByte(163, 0);
-  EEPROM.writeInt(164, 100);
-  EEPROM.writeInt(168, 0);
-  EEPROM.writeInt(172, 0);
-  EEPROM.writeByte(176, 1);
-  EEPROM.writeByte(177, 1);
-  EEPROM.writeByte(178, 1);
-  EEPROM.writeByte(179, 1);
-  EEPROM.writeByte(180, 1);
-  EEPROM.writeByte(181, 1);
-  EEPROM.writeByte(182, 1);
-  EEPROM.writeByte(183, 0);
-  EEPROM.writeByte(184, 0);
-  EEPROM.writeByte(185, 2);
-  EEPROM.writeByte(186, 0);
-  EEPROM.writeUInt(187, 50);
-  EEPROM.writeUInt(191, 50);
-  EEPROM.writeUInt(195, 100);
-  EEPROM.writeUInt(199, 175);
-  EEPROM.writeUInt(203, 100);
-  EEPROM.writeUInt(207, 215);
-  EEPROM.writeUInt(211, 100);
-  EEPROM.writeUInt(215, 225);
-  EEPROM.writeUInt(219, 100);
-  EEPROM.writeUInt(223, 225);
-  EEPROM.writeByte(227, 0);
-  EEPROM.writeByte(228, 0);
-  EEPROM.writeByte(351, 0);
-  EEPROM.writeInt(352, 0);
-  EEPROM.writeInt(356, 430);
-  EEPROM.writeInt(360, 440);
-  EEPROM.writeUInt(364, 43500);
-  EEPROM.writeUInt(368, 340);
-  EEPROM.writeInt(372, 0);
-  EEPROM.writeByte(377, 0);
-  EEPROM.writeByte(378, 0);
-  EEPROM.writeByte(379, 0);
+  EEPROM.writeUInt(EE_UINT16T_FREQUENCY0, 9630);
+  EEPROM.writeInt(EE_INT16T_VOLSET, 0);
+  EEPROM.writeByte(EE_UINT8T_LF, 1);
+  EEPROM.writeByte(EE_UINT8T_DEMP, 1);
+  EEPROM.writeByte(EE_UINT8T_SCANNERTH, 50);
+  EEPROM.writeByte(EE_UINT8T_SCANNERBAND, 0);
+  EEPROM.writeInt(EE_INT16T_LOWEDGESET0, 84);
+  EEPROM.writeInt(EE_INT16T_HIGHEDGESET0, 108);
+  EEPROM.writeInt(EE_INT16T_CONTRAST, 50);
+  EEPROM.writeInt(EE_INT16T_LEVELOFFSET0, 0);
+  EEPROM.writeInt(EE_INT16T_STEREOLEVEL, 0);
+  EEPROM.writeInt(EE_INT16T_HIGHCUTLEVEL, 70);
+  EEPROM.writeInt(EE_INT16T_HIGHCUTOFFSET, 0);
+  EEPROM.writeByte(EE_UINT8T_SCANNERSPEED, 1);
+  EEPROM.writeByte(EE_UINT8T_VERSIONCHECK, EE_VERSIONCOUNTER);
+  EEPROM.writeByte(EE_UINT8T_STEPSIZE, 0);
+  EEPROM.writeByte(EE_UINT8T_STATIONLIST, 1);
+  EEPROM.writeByte(EE_UINT8T_IMSSET, 1);
+  EEPROM.writeByte(EE_UINT8T_EQSET, 1);
+  EEPROM.writeByte(EE_UINT8T_BAND, 0);
+  EEPROM.writeByte(EE_UINT8T_IF, 70);
+  EEPROM.writeByte(EE_UINT8T_USBMODE, 1);
+  EEPROM.writeByte(EE_UINT8T_WIFIENABLE, 1);
+  EEPROM.writeInt(EE_INT16T_LOWEDGESET1, 430);
+  EEPROM.writeInt(EE_INT16T_HIGHEDGESET1, 440);
+  EEPROM.writeInt(EE_INT16T_LOWEDGESET2, 870);
+  EEPROM.writeInt(EE_INT16T_HIGHEDGESET2, 880);
+  EEPROM.writeInt(EE_INT16T_LOWEDGESET3, 1290);
+  EEPROM.writeInt(EE_INT16T_HIGHEDGESET3, 1310);
+  EEPROM.writeInt(EE_INT16T_LOWEDGESET4, 2320);
+  EEPROM.writeInt(EE_INT16T_HIGHEDGESET4, 2400);
+  EEPROM.writeUInt(EE_UINT16T_FREQUENCY1, 43500);
+  EEPROM.writeUInt(EE_UINT16T_FREQUENCY2, 87400);
+  EEPROM.writeUInt(EE_UINT16T_FREQUENCY3, 129900);
+  EEPROM.writeUInt(EE_UINT16T_FREQUENCY4, 232500);
+  EEPROM.writeUInt(EE_UINT16T_SCANNERSTART, 8800);
+  EEPROM.writeUInt(EE_UINT16T_SCANNEREND, 10800);
+  EEPROM.writeUInt(EE_UINT16T_SCANNERVBW, 56);
+  EEPROM.writeByte(EE_UINT8T_SCANNERTHENABLE, 0);
+  EEPROM.writeInt(EE_INT16T_LEVELOFFSET1, 0);
+  EEPROM.writeInt(EE_INT16T_LEVELOFFSET2, 0);
+  EEPROM.writeInt(EE_INT16T_LEVELOFFSET3, 0);
+  EEPROM.writeInt(EE_INT16T_LEVELOFFSET4, 0);
+  EEPROM.writeString(EE_STRING_PASSWORD, password);
+  EEPROM.writeByte(EE_UINT8T_IP1, 192);
+  EEPROM.writeByte(EE_UINT8T_IP2, 168);
+  EEPROM.writeByte(EE_UINT8T_IP3, 178);
+  EEPROM.writeByte(EE_UINT8T_IP4, 150);
+  EEPROM.writeInt(EE_INT16T_BLENDLEVEL, 70);
+  EEPROM.writeInt(EE_INT16T_BLENDOFFSET, 0);
+  EEPROM.writeInt(EE_INT16T_NBLEVEL, 0);
+  EEPROM.writeByte(EE_UINT8T_COAXSWITCH, 1);
+  EEPROM.writeUInt(EE_UINT16T_FREQUENCY5, 828);
+  EEPROM.writeByte(EE_UINT8T_ROTARYMODE, 0);
+  EEPROM.writeInt(EE_INT16T_AMCOCHANNEL, 100);
+  EEPROM.writeInt(EE_INT16T_AMNBLEVEL, 0);
+  EEPROM.writeInt(EE_INT16T_AMATT, 0);
+  EEPROM.writeByte(EE_UINT8T_AM, 1);
+  EEPROM.writeByte(EE_UINT8T_FM, 1);
+  EEPROM.writeByte(EE_UINT8T_UHF1, 1);
+  EEPROM.writeByte(EE_UINT8T_UHF2, 1);
+  EEPROM.writeByte(EE_UINT8T_UHF3, 1);
+  EEPROM.writeByte(EE_UINT8T_UHF4, 1);
+  EEPROM.writeByte(EE_UINT8T_COAXMODE, 1);
+  EEPROM.writeByte(EE_UINT8T_TEF, 0);
+  EEPROM.writeByte(EE_UINT8T_OPTROT, 0);
+  EEPROM.writeByte(EE_UINT8T_FMSI, 2);
+  EEPROM.writeByte(EE_UINT8T_SCOPEMODE, 0);
+  EEPROM.writeUInt(EE_UINT16T_FMSIATTACK, 50);
+  EEPROM.writeUInt(EE_UINT16T_FMSIRELEASE, 50);
+  EEPROM.writeUInt(EE_UINT16T_FMSI11, 100);
+  EEPROM.writeUInt(EE_UINT16T_FMSI12, 175);
+  EEPROM.writeUInt(EE_UINT16T_FMSI21, 100);
+  EEPROM.writeUInt(EE_UINT16T_FMSI22, 215);
+  EEPROM.writeUInt(EE_UINT16T_FMSI31, 100);
+  EEPROM.writeUInt(EE_UINT16T_FMSI32, 225);
+  EEPROM.writeUInt(EE_UINT16T_FMSI41, 100);
+  EEPROM.writeUInt(EE_UINT16T_FMSI42, 225);
+  EEPROM.writeByte(EE_UINT8T_MEMORYPOS, 0);
+  EEPROM.writeByte(EE_UINT8T_TUNEMODE, 0);
+  EEPROM.writeByte(EE_UINT8T_UHF6, 0);
+  EEPROM.writeInt(EE_INT16T_LEVELOFFSET6, 0);
+  EEPROM.writeInt(EE_INT16T_LOWEDGESET6, 430);
+  EEPROM.writeInt(EE_INT16T_HIGHEDGESET6, 440);
+  EEPROM.writeUInt(EE_UINT16T_FREQUENCY6, 43500);
+  EEPROM.writeUInt(EE_UINT16T_CONVERTEROFFSET, 340);
+  EEPROM.writeInt(EE_INT16T_OFFSET, 0);
+  EEPROM.writeByte(EE_UINT8T_SOFTMUTEFM, 0);
+  EEPROM.writeByte(EE_UINT8T_SOFTMUTEAM, 0);
+  EEPROM.writeByte(EE_UINT8T_SHOWRDSERRORS, 0);
 
   uint8_t i;
-  for (i = 0; i < 30; i++) EEPROM.writeUInt((i * 4) + 230, 8750);
+  for (i = 0; i < 30; i++) EEPROM.writeUInt((i * 4) + EE_UINT16T_MEMFREQ, 8750);
   EEPROM.commit();
 }
 

@@ -1,7 +1,7 @@
 #include "TEF6686.h"
 #include <map>
 #include <Arduino.h>
-#include <TimeLib.h>                // https://github.com/PaulStoffregen/Time
+#include <TimeLib.h>
 #include "SPIFFS.h"
 #include "constants.h"
 
