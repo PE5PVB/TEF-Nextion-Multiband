@@ -539,7 +539,7 @@ void loop(void) {
   }
 
   if (!menu && !manfreq && !spec && !setoffset) {
-    if ((SStatus < 50) || ((OStatus < -200 || OStatus > 200) || (USN > 200 && WAM > 230))) {
+    if ((SStatus < 0) || ((OStatus < -200 || OStatus > 200) || (USN > 200 && WAM > 230))) {
       if (millis() >= showmillis + 250) {
         if (band == 5) radio.getStatusAM(SStatus, USN, WAM, OStatus, BW, MStatus, CN); else radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
         readRds();
@@ -857,7 +857,7 @@ void RF(byte RFset) {
 }
 
 void readRds(void) {
-  if (band == 5) RDSstatus = false; else radio.readRDS(showrdserrors ? 1 : 3);
+  if (band == 5) RDSstatus = false; else radio.readRDS(showrdserrors ? 3 : 1);
   RDSstatus = radio.rds.hasRDS;
   ShowRDS();
 
@@ -1848,8 +1848,6 @@ void TuneUp(void) {
       radio.SetFreq(frequency6 - converteroffset * 100);
       break;
   }
-
-  radio.clearRDS(fullsearchrds);
 }
 
 void TuneDown(void) {
@@ -1927,7 +1925,6 @@ void TuneDown(void) {
       radio.SetFreq(frequency6 - converteroffset * 100);
       break;
   }
-  radio.clearRDS(fullsearchrds);
 }
 
 void SetTunerPatch(void) {

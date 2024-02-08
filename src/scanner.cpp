@@ -210,7 +210,7 @@ void scan_loop(void) {
     Display.writeNum("bexit.pic", NEXTION_BUT_EXIT14070_RED);
     Display.writeNum("bstop.pic", NEXTION_BUT_STOP14070_GREYOUT);
     Display.writeStr("vis scanner_found,1");
-    Display.writeNum("scanstatus", 0);
+
     if (scanfound) {
       if (scanner_band == 0) {
         radio.SetFreq(scanner_found);
@@ -265,7 +265,8 @@ void scan_loop(void) {
 
       Display.writeStr(DotString);
     } else {
-      if (rotary == -1) scanup(); else scandown();
+
+      if (rotary == -1) scanup(); else if (rotary == 1) scandown();
 
       if (digitalRead(ROTARY_BUTTON) == LOW) {
         freq = scanner_found;

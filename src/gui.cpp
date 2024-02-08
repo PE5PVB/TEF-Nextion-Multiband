@@ -463,7 +463,9 @@ void ShowFreq(void) {
     Udp.endPacket();
     stlmillis += 500;
   }
+  
   radio.clearRDS(fullsearchrds);
+  
   if (showrdsinfo) {
     af2show = false;
     af = "";
