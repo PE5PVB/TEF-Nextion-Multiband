@@ -903,22 +903,27 @@ void readRds(void) {
         uint8_t piState = radio.rds.piBuffer.add(radio.rds.rdsA, piError);
 
         if (piState != RdsPiBuffer::STATE_INVALID) {
-          if (XDRGTKTCP) RemoteClient.print("P"); else Serial.print("P");
+          if (XDRGTKTCP) RemoteClient.print("P");
+          if (XDRGTK) Serial.print("P");
           String PIcodeToSend;
           PIcodeToSend = String(((radio.rds.rdsA >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsA >> 8) & 0xF, HEX) + String(((radio.rds.rdsA) >> 4) & 0xF, HEX) + String((radio.rds.rdsA) & 0xF, HEX);
           PIcodeToSend.toUpperCase();
-          if (XDRGTKTCP) RemoteClient.print(PIcodeToSend); else Serial.print(PIcodeToSend);
+          if (XDRGTKTCP) RemoteClient.print(PIcodeToSend);
+          if (XDRGTK) Serial.print(PIcodeToSend);
           while (piState != 0) {
-            if (XDRGTKTCP) RemoteClient.print("?"); else Serial.print("?");
+            if (XDRGTKTCP) RemoteClient.print("?");
+            if (XDRGTK) Serial.print("?");
             piState--;
           }
-          if (XDRGTKTCP) RemoteClient.print("\n"); else Serial.print("\n");
+          if (XDRGTKTCP) RemoteClient.print("\n");
+          if (XDRGTK) Serial.print("\n");
         }
       }
 
       XDRGTKRDSold = XDRGTKRDS;
       XDRGTKRDS.toUpperCase();
-      if (XDRGTKTCP) RemoteClient.print(XDRGTKRDS); else Serial.print(XDRGTKRDS);
+      if (XDRGTKTCP) RemoteClient.print(XDRGTKRDS);
+      if (XDRGTK) Serial.print(XDRGTKRDS);
     }
   }
 }

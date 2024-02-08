@@ -708,13 +708,13 @@ void ShowBTstatus(void) {
 
 void ShowUSBstatus(void) {
   if (USBstatus) {
-    if (!usblogo_on) {
+    if (!usblogo_on || displayreset) {
       Display.writeNum("usblogo.pic", NEXTION_USBLOGO);
       usblogo_on = true;
       usblogo_off = false;
     }
   } else {
-    if (!usblogo_off) {
+    if (!usblogo_off || displayreset) {
       Display.writeNum("usblogo.pic", NEXTION_USBLOGO_GREYOUT);
       usblogo_on = false;
       usblogo_off = true;

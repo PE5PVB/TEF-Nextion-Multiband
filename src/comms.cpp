@@ -424,8 +424,10 @@ void XDRGTKRoutine(void) {
 
       case 'X':
         XDRGTKTCP = false;
+		XDRGTK = false;
         store = true;
         XDRMute = false;
+		USBstatus = false;
         break;
 
       case 'Z':
