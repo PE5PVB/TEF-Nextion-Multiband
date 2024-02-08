@@ -278,25 +278,25 @@ void XDRGTKRoutine(void) {
         if (offsetg == 0) {
           iMSset = 1;
           EQset = 1;
-		  iMSEQ = 3;
+          iMSEQ = 3;
           XDRGTKprint("G00\n");
         }
         if (offsetg == 10) {
           iMSset = 1;
           EQset = 0;
-		  iMSEQ = 1;
+          iMSEQ = 1;
           XDRGTKprint("G10\n");
         }
         if (offsetg == 1) {
           iMSset = 0;
           EQset = 1;
-		  iMSEQ = 2;
+          iMSEQ = 2;
           XDRGTKprint("G01\n");
         }
         if (offsetg == 11) {
           iMSset = 0;
           EQset = 0;
-		  iMSEQ = 0;
+          iMSEQ = 0;
           XDRGTKprint("G11\n");
         }
         ShowiMS();
@@ -326,7 +326,11 @@ void XDRGTKRoutine(void) {
       case 'T':
         unsigned int XDRfreq;
         XDRfreq = atoi(buff + 1);
-        if (XDRfreq > 143 && XDRfreq < 27001) {
+        if (XDRfreq > 27001) {
+          XDRGTKprint("M0\n");
+          XDRGTKTune(XDRfreq / 10);
+          XDRGTKprint("T" + String(freq * 10) + "\n");
+        } else {
           frequency5 = XDRfreq;
           if (band != 5) {
             band = 5;
@@ -335,22 +339,8 @@ void XDRGTKRoutine(void) {
           } else {
             radio.SetFreqAM(frequency5);
           }
-        } else if (XDRfreq > 64999 && XDRfreq < 108001) {
-          frequency0 = XDRfreq / 10;
-          if (band != 0) {
-            band = 0;
-            RF(band);
-            XDRGTKprint("M0\n");
-          } else {
-            radio.SetFreq(frequency0);
-          }
-        }
-        if (band == 0) {
-          XDRGTKprint("T" + String(frequency0 * 10) + "\n");
-        } else {
           XDRGTKprint("T" + String(frequency5) + "\n");
         }
-        radio.clearRDS(fullsearchrds);
         ShowFreq();
         break;
 
@@ -424,10 +414,10 @@ void XDRGTKRoutine(void) {
 
       case 'X':
         XDRGTKTCP = false;
-		XDRGTK = false;
+        XDRGTK = false;
         store = true;
         XDRMute = false;
-		USBstatus = false;
+        USBstatus = false;
         break;
 
       case 'Z':
@@ -471,6 +461,68 @@ void XDRGTKRoutine(void) {
     XDRGTKprint(String(((SStatus * 100) + 10875) / 1000) + "." + String(((SStatus * 100) + 10875) / 100 % 10) + "," + String(WAM / 10) + "," + String(CN) + "," + String(BW) + "\n\n");
     signalstatustimer = millis();
   }
+}
+
+void XDRGTKTune(unsigned int freqtemp) {
+  if (freqtemp >= LowEdgeSet0 * 100 && freqtemp <= HighEdgeSet0 * 100) {
+    frequency0 = freqtemp;
+    if (band != 0) {
+      RF(0);
+      band = 0;
+    } else {
+      radio.SetFreq(frequency0);
+    }
+  } else if (UHF && freqtemp >= LowEdgeSet1 * 100 && freqtemp <= HighEdgeSet1 * 100) {
+    frequency1 = freqtemp;
+    if (band != 1) {
+      RF(1);
+      band = 1;
+    } else {
+      Frontend.SetFreq(frequency1 - (IF * 100), offset);
+    }
+  } else if (UHF && freqtemp >= LowEdgeSet2 * 100 && freqtemp <= HighEdgeSet2 * 100) {
+    frequency2 = freqtemp;
+    if (band != 2) {
+      RF(2);
+      band = 2;
+    } else {
+      Frontend.SetFreq(frequency2 - (IF * 100), offset);
+    }
+  } else if (UHF && freqtemp >= LowEdgeSet3 * 100 && freqtemp <= HighEdgeSet3 * 100) {
+    frequency3 = freqtemp;
+    if (band != 3) {
+      RF(3);
+      band = 3;
+    } else {
+      Frontend.SetFreq(frequency3 - (IF * 100), offset);
+    }
+  } else if (UHF && freqtemp >= LowEdgeSet4 * 100 && freqtemp <= HighEdgeSet4 * 100) {
+    frequency4 = freqtemp;
+    if (band != 4) {
+      RF(4);
+      band = 4;
+    } else {
+      Frontend.SetFreq(frequency4 - (IF * 100), offset);
+    }
+  } else if (!UHF && freqtemp >= LowEdgeSet6 * 100 && freqtemp <= HighEdgeSet6 * 100) {
+    frequency6 = freqtemp;
+    if (band != 6) {
+      RF(6);
+      band = 6;
+    } else {
+      radio.SetFreq(frequency6 - converteroffset * 100);
+    }
+  } else {
+    switch (band) {
+      case 0: freqtemp = frequency0; break;
+      case 1: freqtemp = frequency1; break;
+      case 2: freqtemp = frequency2; break;
+      case 3: freqtemp = frequency3; break;
+      case 4: freqtemp = frequency4; break;
+      case 6: freqtemp = frequency6; break;
+    }
+  }
+  freq = freqtemp;
 }
 
 void passwordcrypt(void) {

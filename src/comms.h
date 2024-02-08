@@ -9,6 +9,7 @@
 #include <Hash.h>
 #include <EEPROM.h>
 #include "WiFiConnect.h"
+#include "ADF4351.h"
 
 extern EasyNex Display;
 extern TEF6686 radio;
@@ -17,6 +18,7 @@ extern EspSoftwareSerial::UART swSer;
 extern WiFiServer Server;
 extern WiFiClient RemoteClient;
 extern WiFiConnect wc;
+extern ADF4351 Frontend;
 
 extern bool btconnect;
 extern bool btsetup;
@@ -30,6 +32,7 @@ extern bool SQ;
 extern bool Stereostatus;
 extern bool StereoToggle;
 extern bool store;
+extern bool UHF;
 extern bool USBstatus;
 extern bool wificonnect;
 extern bool wifiretry;
@@ -41,11 +44,25 @@ extern byte band;
 extern byte BWset;
 extern byte demp;
 extern byte EQset;
+extern byte IF;
 extern byte iMSEQ;
 extern byte iMSset;
 extern byte stationlist;
 extern byte wifienable;
 extern char buff[16];
+extern int HighEdgeSet0;
+extern int HighEdgeSet1;
+extern int HighEdgeSet2;
+extern int HighEdgeSet3;
+extern int HighEdgeSet4;
+extern int HighEdgeSet6;
+extern int LowEdgeSet0;
+extern int LowEdgeSet1;
+extern int LowEdgeSet2;
+extern int LowEdgeSet3;
+extern int LowEdgeSet4;
+extern int LowEdgeSet6;
+extern int offset;
 extern int Squelch;
 extern int VolSet;
 extern int XDRBWset;
@@ -68,8 +85,15 @@ extern uint16_t MStatus;
 extern uint16_t USN;
 extern uint16_t WAM;
 extern uint8_t buff_pos;
+extern unsigned int converteroffset;
+extern unsigned int freq;
 extern unsigned int frequency0;
+extern unsigned int frequency1;
+extern unsigned int frequency2;
+extern unsigned int frequency3;
+extern unsigned int frequency4;
 extern unsigned int frequency5;
+extern unsigned int frequency6;
 extern unsigned int XDRfreq_scan;
 extern unsigned int XDRscanner_end;
 extern unsigned int XDRscanner_old;
@@ -94,4 +118,5 @@ void XDRGTKRoutine(void);
 void passwordcrypt(void);
 void passwordgenerator(void);
 void tryWiFi(void);
+void XDRGTKTune(unsigned int freqtemp);
 #endif

@@ -1182,11 +1182,27 @@ void KeyUp(void) {
         MemoryTune();
       }
       if (XDRGTK) {
-        if (band == 5) Serial.print("T" + String(frequency5) + "\n"); else Serial.print("T" + String(frequency0 * 10) + "\n");
+        switch (band) {
+          case 0: Serial.print("T" + String(frequency0 * 10) + "\n"); break;
+          case 1: Serial.print("T" + String(frequency1 * 10) + "\n"); break;
+          case 2: Serial.print("T" + String(frequency2 * 10) + "\n"); break;
+          case 3: Serial.print("T" + String(frequency3 * 10) + "\n"); break;
+          case 4: Serial.print("T" + String(frequency4 * 10) + "\n"); break;
+          case 5: Serial.print("T" + String(frequency5) + "\n"); break;
+          case 6: Serial.print("T" + String(frequency6 * 10) + "\n"); break;
+        }
       }
 
       if (XDRGTKTCP) {
-        if (band == 5) RemoteClient.print("T" + String(frequency5) + "\n"); else RemoteClient.print("T" + String(frequency0 * 10) + "\n");
+        switch (band) {
+          case 0: RemoteClient.print("T" + String(frequency0 * 10) + "\n"); break;
+          case 1: RemoteClient.print("T" + String(frequency1 * 10) + "\n"); break;
+          case 2: RemoteClient.print("T" + String(frequency2 * 10) + "\n"); break;
+          case 3: RemoteClient.print("T" + String(frequency3 * 10) + "\n"); break;
+          case 4: RemoteClient.print("T" + String(frequency4 * 10) + "\n"); break;
+          case 5: RemoteClient.print("T" + String(frequency5) + "\n"); break;
+          case 6: RemoteClient.print("T" + String(frequency6 * 10) + "\n"); break;
+        }
       }
       change = 0;
       ShowFreq();
@@ -1212,11 +1228,27 @@ void KeyDown(void) {
         MemoryTune();
       }
       if (XDRGTK) {
-        if (band == 5) Serial.print("T" + String(frequency5) + "\n"); else Serial.print("T" + String(frequency0 * 10) + "\n");
+        switch (band) {
+          case 0: Serial.print("T" + String(frequency0 * 10) + "\n"); break;
+          case 1: Serial.print("T" + String(frequency1 * 10) + "\n"); break;
+          case 2: Serial.print("T" + String(frequency2 * 10) + "\n"); break;
+          case 3: Serial.print("T" + String(frequency3 * 10) + "\n"); break;
+          case 4: Serial.print("T" + String(frequency4 * 10) + "\n"); break;
+          case 5: Serial.print("T" + String(frequency5) + "\n"); break;
+          case 6: Serial.print("T" + String(frequency6 * 10) + "\n"); break;
+        }
       }
 
       if (XDRGTKTCP) {
-        if (band == 5) RemoteClient.print("T" + String(frequency5) + "\n"); else RemoteClient.print("T" + String(frequency0 * 10) + "\n");
+        switch (band) {
+          case 0: RemoteClient.print("T" + String(frequency0 * 10) + "\n"); break;
+          case 1: RemoteClient.print("T" + String(frequency1 * 10) + "\n"); break;
+          case 2: RemoteClient.print("T" + String(frequency2 * 10) + "\n"); break;
+          case 3: RemoteClient.print("T" + String(frequency3 * 10) + "\n"); break;
+          case 4: RemoteClient.print("T" + String(frequency4 * 10) + "\n"); break;
+          case 5: RemoteClient.print("T" + String(frequency5) + "\n"); break;
+          case 6: RemoteClient.print("T" + String(frequency6 * 10) + "\n"); break;
+        }
       }
       change = 0;
       ShowFreq();
