@@ -497,7 +497,7 @@ void setup(void) {
   radio.rds.rtbuffer = true;
   radio.rds.underscore = false;
   radio.rds.filter = false;
-  radio.rds.pierrors = true;
+  radio.rds.pierrors = false;
   radio.rds.sortaf = true;
   radio.rds.fastps = true;
 
