@@ -280,21 +280,25 @@ void XDRGTKRoutine(void) {
         if (offsetg == 0) {
           iMSset = 1;
           EQset = 1;
+		  iMSEQ = 3;
           XDRGTKprint("G00\n");
         }
         if (offsetg == 10) {
           iMSset = 1;
           EQset = 0;
+		  iMSEQ = 1;
           XDRGTKprint("G10\n");
         }
         if (offsetg == 1) {
           iMSset = 0;
           EQset = 1;
+		  iMSEQ = 2;
           XDRGTKprint("G01\n");
         }
         if (offsetg == 11) {
           iMSset = 0;
           EQset = 0;
+		  iMSEQ = 0;
           XDRGTKprint("G11\n");
         }
         ShowiMS();
