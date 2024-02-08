@@ -175,6 +175,7 @@ int timeoffset;
 int VolSet;
 int XDRBWset;
 int XDRBWsetold;
+int XDRscanner_filter;
 int16_t OStatus;
 int16_t SAvg;
 int16_t SAvg2;
@@ -262,7 +263,6 @@ unsigned int scanner_start;
 unsigned int scanner_vbw;
 unsigned int XDRfreq_scan;
 unsigned int XDRscanner_end;
-unsigned int XDRscanner_filter;
 unsigned int XDRscanner_old;
 unsigned int XDRscanner_start;
 unsigned int XDRscanner_step;
@@ -857,7 +857,7 @@ void RF(byte RFset) {
 }
 
 void readRds(void) {
-  if (band == 5) RDSstatus = false; else radio.readRDS(showrdserrors);
+  if (band == 5) RDSstatus = false; else radio.readRDS(showrdserrors ? 1 : 3);
   RDSstatus = radio.rds.hasRDS;
   ShowRDS();
 

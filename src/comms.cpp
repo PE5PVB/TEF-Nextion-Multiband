@@ -115,7 +115,6 @@ void Communication(void) {
 
       if (!XDRGTKTCP && wificonnect && RemoteClient.available()) {
         String data_str = RemoteClient.readStringUntil('\n');
-        int data = data_str.toInt();
         Serial.println(data_str);
         if (data_str.length() > 30 && data_str.equals(cryptedpassword)) {
           radio.setFMABandw();
@@ -150,7 +149,6 @@ void Communication(void) {
 
       if (!XDRGTK && Serial.available()) {
         String data_str = Serial.readStringUntil('\n');
-        int data = data_str.toInt();
         if (data_str.length() > 1 && data_str == ("*D*R?F")) {
           USBstatus = true;
           RDSSpy = true;
