@@ -24,78 +24,45 @@ ADF4351 Frontend;
 EspSoftwareSerial::UART swSer;
 ESP32Time rtc(0);
 
-#define ROTARY_PIN_A          36
-#define ROTARY_PIN_B          34
-#define ROTARY_BUTTON         39
-#define PIN_POT               35
-#define BWBUTTON              25
-#define MODEBUTTON            26
-#define RFA                   32
-#define RFB                   33
-#define RFC                   4
-#define BAND                  27
-#define SMETERPIN             2
-#define SOFTWAREVER           209
-#define DISPLAYVER            106
-#define BETA                  1
-
-
-bool hasCTold;
-int8_t CN;
-String rds_clockold;
-bool rtcset;
-String PIold;
-bool dropout;
-String PSold;
-String RTold;
-byte MSold;
-
-bool cnvis;
-bool fullsearchrds;
-bool wifiretry;
-bool mlogo_on;
-bool mlogo_off;
-bool slogo_on;
-bool slogo_off;
-bool mutelogo_on;
-bool mutelogo_off;
-bool usblogo_on;
-bool usblogo_off;
-bool mutestatus = true;
-bool memorystore;
-int8_t CNold;
-byte btselect;
-byte TEF;
-byte scopeview;
-byte softmutefm;
-byte softmuteam;
 bool af2show;
 bool btconnect;
 bool btsetup;
-bool power;
-String MAC[10];
-String NAME[10];
 bool BWreset = true;
+bool cnvis;
 bool ctshow;
 bool direction;
 bool displayreset;
-bool donesearch = false;
+bool donesearch;
+bool dropout;
 bool EONold;
+bool fullsearchrds;
+bool hasCTold;
 bool manfreq;
+bool memorystore;
 bool menu;
+bool mlogo_off;
+bool mlogo_on;
 bool MS;
+bool mutelogo_off;
+bool mutelogo_on;
+bool mutestatus = true;
+bool optrot;
+bool power;
 bool RDSSpy;
 bool RDSstatus;
 bool RDSstatusold;
+bool rotarymode;
+bool rtcset;
 bool RTPlus;
-bool scanfound = false;
+bool scanfound;
 bool seek;
 bool setoffset;
 bool showrdserrors;
 bool showrdsinfo;
+bool slogo_off;
+bool slogo_on;
 bool spec;
 bool SQ;
-byte stationlist;
 bool Stereostatus;
 bool Stereostatusold;
 bool StereoToggle = true;
@@ -104,26 +71,34 @@ bool TA;
 bool TAold;
 bool TP;
 bool TPold;
-byte tunemode;
-bool XDRGTKdata;
 bool UHF;
-bool USBstatus = false;
+bool usblogo_off;
+bool usblogo_on;
+bool USBstatus;
 bool wificonnect;
+bool wifiretry;
 bool XDRGTK;
+bool XDRGTKdata;
 bool XDRGTKTCP;
 bool XDRMute;
 byte af_counterold;
 byte af_scan;
+byte am;
 byte band;
-byte CoaxSwitch;
+byte btselect;
 byte BWset;
 byte BWsetAM = 2;
+byte BWsetOld = 254;
+byte change;
+byte coaxmode;
+byte CoaxSwitch;
 byte ContrastSet;
 byte demp;
 byte displaysize;
 byte ECCold;
 byte EQset;
-byte change;
+byte fm;
+byte fmsi;
 byte IF;
 byte iMSEQ;
 byte iMSset;
@@ -132,45 +107,44 @@ byte ip2;
 byte ip3;
 byte ip4;
 byte lf;
-bool optrot;
-bool rotarymode;
+byte memory_pos;
+byte MSold;
+byte OStatusold;
 byte scanner_band;
 byte scanner_speed;
 byte scanner_th;
 byte scanner_thenable;
 byte scanstatus;
+byte scopeview;
+byte softmuteam;
+byte softmutefm;
+byte stationlist;
 byte stepsize;
-byte usbmode;
-byte wifienable;
-byte wifienableold;
-byte am;
-byte fm;
-byte fmsi;
+byte TEF;
+byte tunemode;
 byte uhf1;
 byte uhf2;
 byte uhf3;
 byte uhf4;
 byte uhf6;
-byte coaxmode;
+byte usbmode;
+byte wifienable;
+byte wifienableold;
 char buff[16];
 char musicArtistPrevious[48];
 char musicTitlePrevious[48];
-String programServicePrevious;
 char programTypePrevious[18];
 char radioIdPrevious[5];
-String radioTextPrevious;
 char stationEventPrevious[48];
 char stationHostPrevious[48];
-unsigned int BWOld;
-byte BWsetOld = 254;
-int HighCutLevel;
-int HighCutOffset;
-int BlendLevel;
-int BlendOffset;
-int NBLevel;
+int AM_att;
 int AM_Cochannel;
 int AM_NBLevel;
-int AM_att;
+int BlendLevel;
+int BlendOffset;
+int displayversion;
+int HighCutLevel;
+int HighCutOffset;
 int HighEdgeSet0;
 int HighEdgeSet1;
 int HighEdgeSet2;
@@ -189,24 +163,25 @@ int LowEdgeSet2;
 int LowEdgeSet3;
 int LowEdgeSet4;
 int LowEdgeSet6;
+int NBLevel;
+int offset;
 int rotary;
 int scanner_filter;
 int Squelch;
 int Squelchold;
 int SStatusold;
-byte OStatusold;
 int StereoLevel;
 int timeoffset;
 int VolSet;
 int XDRBWset;
 int XDRBWsetold;
-int displayversion;
 int16_t OStatus;
-int16_t SStatus;
 int16_t SAvg;
 int16_t SAvg2;
 int16_t SAvg3;
-int offset;
+int16_t SStatus;
+int8_t CN;
+int8_t CNold;
 IPAddress remoteip;
 long rssi;
 long rssiold = 1;
@@ -215,33 +190,44 @@ String af2;
 String clockPrevious;
 String cryptedpassword;
 String datePrevious;
+String eonstringold;
+String MAC[10];
+String NAME[10];
 String packet;
 String password = "12345";
 String PIcode;
+String PIold;
+String programServicePrevious;
+String PSold;
+String radioTextPrevious;
 String rds_clock = "--:--";
+String rds_clockold;
 String rds_date = "----------";
+String RDSSPYRDSold;
+String RTContent1old;
+String RTContent2old;
+String RTold;
 String salt;
 String saltkey = "                ";
 String showsoftwareversion;
 String XDRGTKRDSold;
-String RDSSPYRDSold;
 uint16_t BW;
-uint8_t RDSerrorsold;
+uint16_t highcut;
 uint16_t minutesold;
 uint16_t MStatus;
-uint16_t USN;
-uint16_t WAM;
-uint16_t highcut;
 uint16_t stereo;
 uint16_t sthiblend;
+uint16_t USN;
+uint16_t WAM;
+uint8_t af_counter;
+uint8_t buff_pos = 0;
+uint8_t RDSerrorsold;
 uint8_t stband_1;
 uint8_t stband_2;
 uint8_t stband_3;
 uint8_t stband_4;
-uint8_t af_counter;
-uint8_t buff_pos = 0;
-unsigned int fmsi_attack;
-unsigned int fmsi_release;
+unsigned int BWOld;
+unsigned int converteroffset;
 unsigned int fmsi_11;
 unsigned int fmsi_12;
 unsigned int fmsi_21;
@@ -250,6 +236,8 @@ unsigned int fmsi_31;
 unsigned int fmsi_32;
 unsigned int fmsi_41;
 unsigned int fmsi_42;
+unsigned int fmsi_attack;
+unsigned int fmsi_release;
 unsigned int freq;
 unsigned int freq_scan;
 unsigned int freqtemp;
@@ -267,6 +255,7 @@ unsigned int frequency5;
 unsigned int frequency5old;
 unsigned int frequency6;
 unsigned int frequency6old;
+unsigned int memory[30];
 unsigned int scanner_end;
 unsigned int scanner_found;
 unsigned int scanner_start;
@@ -278,16 +267,10 @@ unsigned int XDRscanner_old;
 unsigned int XDRscanner_start;
 unsigned int XDRscanner_step;
 unsigned long showmillis;
+unsigned long signalstatustimer;
 unsigned long stlmillis;
 unsigned long time_now;
 unsigned long XDRshowmillis;
-unsigned long signalstatustimer;
-unsigned int memory[30];
-unsigned int converteroffset;
-byte memory_pos;
-String RTContent1old;
-String RTContent2old;
-String eonstringold;
 
 void setup(void) {
   swSer.begin(9600, EspSoftwareSerial::SWSERIAL_8N1, 13, 14, false, 95);
@@ -429,9 +412,9 @@ void setup(void) {
   radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
 
   if (lowByte(device) != 0) {
-    Display.writeNum("TEFicon.pic", 4);
+    Display.writeNum("TEFicon.pic", NEXTION_RTPLUSLOGO);
     Display.writeStr("vis TEFicon,1");
-    Display.writeNum("TEF.pco", 34800);
+    Display.writeNum("TEF.pco", NEXTION_COLOR_GREEN);
     if (lowByte(device) == 14) {
       Display.writeStr("TEF.txt", "TEF6686 detected!");
     } else if (lowByte(device) == 1) {
@@ -446,23 +429,23 @@ void setup(void) {
       fullsearchrds = true;
     }
   } else {
-    Display.writeNum("TEFicon.pic", 5);
+    Display.writeNum("TEFicon.pic", NEXTION_RTPLUSLOGO_GREYOUT);
     Display.writeStr("vis TEFicon,1");
-    Display.writeNum("TEF.pco", 63488);
+    Display.writeNum("TEF.pco", NEXTION_COLOR_RED);
     Display.writeStr("TEF.txt", "Tuner NOT detected!");
   }
 
   if (digitalRead(BAND) == LOW) {
-    Display.writeNum("UHFicon.pic", 4);
+    Display.writeNum("UHFicon.pic", NEXTION_RTPLUSLOGO);
     Display.writeStr("vis UHFicon,1");
-    Display.writeNum("UHF.pco", 34800);
+    Display.writeNum("UHF.pco", NEXTION_COLOR_GREEN);
     Display.writeStr("UHF.txt", "UHF Board detected!");
     Display.writeNum("uhf", 1);
     UHF = true;
   } else {
-    Display.writeNum("UHFicon.pic", 5);
+    Display.writeNum("UHFicon.pic", NEXTION_RTPLUSLOGO_GREYOUT);
     Display.writeStr("vis UHFicon,1");
-    Display.writeNum("UHF.pco", 63488);
+    Display.writeNum("UHF.pco", NEXTION_COLOR_RED);
     Display.writeStr("UHF.txt", "UHF Board NOT detected!");
     UHF = false;
   }
@@ -471,9 +454,9 @@ void setup(void) {
   delay(100);
 
   if (swSer.available()) {
-    Display.writeNum("BTicon.pic", 4);
+    Display.writeNum("BTicon.pic", NEXTION_RTPLUSLOGO);
     Display.writeStr("vis BTicon,1");
-    Display.writeNum("BT.pco", 34800);
+    Display.writeNum("BT.pco", NEXTION_COLOR_GREEN);
     Display.writeStr("BT.txt", "Bluetooth detected!");
     Display.writeNum("btenable", 1);
   }
@@ -723,17 +706,17 @@ void RF(byte RFset) {
       Display.writeNum("scopeview", 1);
     }
     if (!manfreq) {
-      Display.writeNum("BW.pco", 65504);
-      Display.writeNum("autobwlogo.pic", 22);
-      Display.writeNum("imslogo.pic", 28);
-      Display.writeNum("eqlogo.pic", 26);
-      Display.writeNum("stereo.pic", 10);
-      Display.writeNum("ber.pic", 206);
-      Display.writeNum("t4.pco", 33840);
-      Display.writeNum("t5.pco", 33840);
-      Display.writeNum("t6.pco", 33840);
-      Display.writeNum("t7.pco", 33840);
-      Display.writeNum("t10.pco", 33840);
+      Display.writeNum("BW.pco", NEXTION_COLOR_YELLOW);
+      Display.writeNum("autobwlogo.pic", NEXTION_AUTOBWLOGO_GREYOUT);
+      Display.writeNum("imslogo.pic", NEXTION_IMSLOGO_GREYOUT);
+      Display.writeNum("eqlogo.pic", NEXTION_EQLOGO_GREYOUT);
+      Display.writeNum("stereo.pic", NEXTION_STEREOLOGO_GREYOUT);
+      Display.writeNum("ber.pic", NEXTION_RDSBAR_0);
+      Display.writeNum("t4.pco", NEXTION_COLOR_GREY);
+      Display.writeNum("t5.pco", NEXTION_COLOR_GREY);
+      Display.writeNum("t6.pco", NEXTION_COLOR_GREY);
+      Display.writeNum("t7.pco", NEXTION_COLOR_GREY);
+      Display.writeNum("t10.pco", NEXTION_COLOR_GREY);
 
       String count = String(frequency5, DEC);
       if (count.length() > 3) {
@@ -760,11 +743,11 @@ void RF(byte RFset) {
       }
       Display.writeNum("freq.vvs1", 2);
       Display.writeStr("t2.txt", "MHz");
-      Display.writeNum("t4.pco", 65535);
-      Display.writeNum("t5.pco", 65535);
-      Display.writeNum("t6.pco", 65535);
-      Display.writeNum("t7.pco", 65535);
-      Display.writeNum("t10.pco", 65535);
+      Display.writeNum("t4.pco", NEXTION_COLOR_WHITE);
+      Display.writeNum("t5.pco", NEXTION_COLOR_WHITE);
+      Display.writeNum("t6.pco", NEXTION_COLOR_WHITE);
+      Display.writeNum("t7.pco", NEXTION_COLOR_WHITE);
+      Display.writeNum("t10.pco", NEXTION_COLOR_WHITE);
       ShowBW();
     }
   }
@@ -1023,7 +1006,7 @@ void ButtonPress(void) {
             Display.writeNum("store.en", 1);
           } else {
             Display.writeNum("store.en", 0);
-            Display.writeNum("memlogo.pic", 25);
+            Display.writeNum("memlogo.pic", NEXTION_MEMLOGO);
             memorystore = false;
             EEPROM.writeUInt((memory_pos * 4) + EE_UINT16T_MEMFREQ, freq);
             EEPROM.commit();
@@ -1299,7 +1282,7 @@ void doExit(void) {
   if (band == 5) {
     Display.writeStr("vis m0,0");
     Display.writeNum("freq.vvs1", 3);
-    Display.writeNum("ber.pic", 206);
+    Display.writeNum("ber.pic", NEXTION_RDSBAR_0);
   } else {
     Display.writeStr("vis m0,1");
     Display.writeNum("freq.vvs1", 2);
@@ -1472,11 +1455,11 @@ void doSquelch(void) {
 
 void doStereoToggle(void) {
   if (StereoToggle) {
-    Display.writeNum("stereo.pic", 11);
+    Display.writeNum("stereo.pic", NEXTION_MONOLOGO);
     radio.setMono(2);
     StereoToggle = false;
   } else {
-    Display.writeNum("stereo.pic", 10);
+    Display.writeNum("stereo.pic", NEXTION_STEREOLOGO_GREYOUT);
     radio.setMono(0);
     Stereostatusold = false;
     StereoToggle = true;

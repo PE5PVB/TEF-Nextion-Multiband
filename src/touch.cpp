@@ -91,12 +91,12 @@ void trigger9(void) { // Cancel User manual tuning input
 }
 
 void trigger10(void) { // Close and save menu
-  Display.writeNum("b0.pic", 123);
-  Display.writeNum("b1.pic", 127);
-  Display.writeNum("b2.pic", 129);
-  Display.writeNum("b3.pic", 125);
-  Display.writeNum("b4.pic", 131);
-  Display.writeNum("b5.pic", 133);
+  Display.writeNum("b0.pic", NEXTION_BUT_AUDIO15065_GREYOUT);
+  Display.writeNum("b1.pic", NEXTION_BUT_DSP15065_GREYOUT);
+  Display.writeNum("b2.pic", NEXTION_BUT_SYSTEM15065_GREYOUT);
+  Display.writeNum("b3.pic", NEXTION_BUT_RF15065_GREYOUT);
+  Display.writeNum("b4.pic", NEXTION_BUT_OK15065_GREYOUT);
+  Display.writeNum("b5.pic", NEXTION_BUT_CANCEL15065_GREYOUT);
   Display.writeStr("tsw b0,0");
   Display.writeStr("tsw b1,0");
   Display.writeStr("tsw b2,0");
@@ -327,12 +327,12 @@ void trigger10(void) { // Close and save menu
 }
 
 void trigger11(void) {  // Cancel menu
-  Display.writeNum("b0.pic", 123);
-  Display.writeNum("b1.pic", 127);
-  Display.writeNum("b2.pic", 129);
-  Display.writeNum("b3.pic", 125);
-  Display.writeNum("b4.pic", 131);
-  Display.writeNum("b5.pic", 133);
+  Display.writeNum("b0.pic", NEXTION_BUT_AUDIO15065_GREYOUT);
+  Display.writeNum("b1.pic", NEXTION_BUT_DSP15065_GREYOUT);
+  Display.writeNum("b2.pic", NEXTION_BUT_SYSTEM15065_GREYOUT);
+  Display.writeNum("b3.pic", NEXTION_BUT_RF15065_GREYOUT);
+  Display.writeNum("b4.pic", NEXTION_BUT_OK15065_GREYOUT);
+  Display.writeNum("b5.pic", NEXTION_BUT_CANCEL15065_GREYOUT);
   Display.writeStr("tsw b0, 0");
   Display.writeStr("tsw b1, 0");
   Display.writeStr("tsw b2, 0");
@@ -411,11 +411,11 @@ void trigger20(void) {  // Show Wifi information
     String ssid = String(WiFi.SSID());
     Display.writeStr("IP.txt", WiFi.localIP().toString());
     Display.writeStr("SSID.txt", ssid);
-    Display.writeNum("p1.pic", 183);
+    Display.writeNum("p1.pic", NEXTION_BUT_ACTIVE15065_YELLOW);
     Display.writeStr("password.txt", password);
   } else {
     Display.writeStr("SSID.txt", "DISCONNECTED");
-    Display.writeNum("p1.pic", 175);
+    Display.writeNum("p1.pic", NEXTION_BUT_OFF15065_YELLOW);
   }
 }
 
@@ -433,7 +433,7 @@ void trigger22(void) {  // Enable/disable WiFi
   wifienable++;
   if (wifienable == 3) wifienable = 1;
   if (wifienable == 1) {
-    Display.writeNum("p1.pic", 175);
+    Display.writeNum("p1.pic", NEXTION_BUT_OFF15065_YELLOW);
     Server.end();
     Udp.stop();
     WiFi.mode(WIFI_OFF);
@@ -442,7 +442,7 @@ void trigger22(void) {  // Enable/disable WiFi
     Display.writeStr("SSID.txt", "DISCONNECTED");
     Display.writeStr("password.txt", "");
   } else if (wifienable == 2) {
-    Display.writeNum("p1.pic", 184);
+    Display.writeNum("p1.pic", NEXTION_BUT_WAIT15065_YELLOW);
     Display.writeNum("wifienable", wifienable);
     Display.writeStr("SSID.txt", "Connecting.....");
     WiFi.begin();
@@ -453,7 +453,7 @@ void trigger22(void) {  // Enable/disable WiFi
       Display.writeStr("IP.txt", WiFi.localIP().toString());
       Display.writeStr("SSID.txt", ssid);
       Display.writeStr("password.txt", password);
-      Display.writeNum("p1.pic", 183);
+      Display.writeNum("p1.pic", NEXTION_BUT_ACTIVE15065_YELLOW);
     } else {
       Display.writeStr("page 10");
       trigger21();

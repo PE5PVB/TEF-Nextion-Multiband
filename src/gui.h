@@ -1,10 +1,6 @@
 #ifndef GUI_H
 #define GUI_H
 
-#define ROTARY_PIN_A          36
-#define ROTARY_PIN_B          34
-#define SMETERPIN             2
-
 #include <Arduino.h>
 #include <EasyNextionLibrary.h>
 #include <WiFiClient.h>
@@ -19,40 +15,82 @@ extern WiFiUDP Udp;
 extern ESP32Time rtc;
 extern WiFiClient RemoteClient;
 
+extern bool af2show;
+extern bool btconnect;
+extern bool BWreset;
+extern bool cnvis;
 extern bool displayreset;
 extern bool dropout;
 extern bool EONold;
+extern bool fullsearchrds;
 extern bool hasCTold;
 extern bool manfreq;
 extern bool menu;
+extern bool mutelogo_off;
+extern bool mutelogo_on;
+extern bool RDSSpy;
 extern bool RDSstatus;
 extern bool RDSstatusold;
 extern bool rtcset;
 extern bool RTPlus;
+extern bool seek;
+extern bool setoffset;
 extern bool showrdsinfo;
 extern bool spec;
 extern bool SQ;
-extern byte stationlist;
+extern bool Stereostatus;
+extern bool Stereostatusold;
+extern bool StereoToggle;
 extern bool TAold;
 extern bool TPold;
+extern bool usblogo_off;
+extern bool usblogo_on;
+extern bool USBstatus;
+extern bool wificonnect;
+extern byte af_counterold;
+extern byte af_scan;
 extern byte band;
+extern byte BWset;
+extern byte BWsetOld;
+extern byte displaysize;
 extern byte ECCold;
+extern byte EQset;
+extern byte iMSset;
 extern byte MSold;
+extern byte OStatusold;
+extern byte stationlist;
+extern byte stepsize;
+extern byte tunemode;
 extern byte wifienable;
 extern char programTypePrevious[18];
+extern int SStatusold;
 extern int16_t OStatus;
+extern int16_t SAvg;
+extern int16_t SAvg2;
+extern int16_t SAvg3;
+extern int16_t SStatus;
+extern int8_t CN;
+extern int8_t CNold;
 extern IPAddress remoteip;
+extern long rssi;
+extern long rssiold;
+extern String af;
+extern String af2;
+extern String eonstringold;
 extern String PIold;
 extern String PSold;
 extern String rds_clock;
 extern String rds_clockold;
+extern String RTContent1old;
+extern String RTContent2old;
 extern String RTold;
 extern String showsoftwareversion;
+extern uint16_t BW;
+extern uint16_t MStatus;
 extern uint16_t USN;
 extern uint16_t WAM;
 extern uint8_t RDSerrorsold;
-extern long rssi;
-extern long rssiold;
+extern unsigned int BWOld;
 extern unsigned int freq;
 extern unsigned int frequency0;
 extern unsigned int frequency1;
@@ -61,49 +99,7 @@ extern unsigned int frequency3;
 extern unsigned int frequency4;
 extern unsigned int frequency5;
 extern unsigned int frequency6;
-extern bool RDSSpy;
 extern unsigned long stlmillis;
-extern bool wificonnect;
-extern int SStatusold;
-extern bool seek;
-extern uint16_t MStatus;
-extern uint16_t BW;
-extern unsigned int BWOld;
-extern byte BWsetOld;
-extern byte BWset;
-extern int16_t SStatus;
-extern int16_t SAvg;
-extern int16_t SAvg2;
-extern int16_t SAvg3;
-extern int8_t CNold;
-extern int8_t CN;
-extern bool cnvis;
-extern bool BWreset;
-extern bool StereoToggle;
-extern bool Stereostatus;
-extern bool Stereostatusold;
-extern byte OStatusold;
-extern bool setoffset;
-extern byte stepsize;
-extern byte tunemode;
-extern bool btconnect;
-extern bool USBstatus;
-extern bool usblogo_on;
-extern bool usblogo_off;
-extern byte iMSset;
-extern byte EQset;
-extern bool mutelogo_on;
-extern bool mutelogo_off;
-extern String af;
-extern String af2;
-extern bool af2show;
-extern byte displaysize;
-extern byte af_scan;
-extern byte af_counterold;
-extern bool fullsearchrds;
-extern String RTContent1old;
-extern String RTContent2old;
-extern String eonstringold;
 
 extern void read_encoder(void);
 

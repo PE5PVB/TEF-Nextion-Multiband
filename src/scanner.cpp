@@ -87,10 +87,10 @@ void BuildScanScreen(void) {
   Display.writeStr("tsw bconfig,1");
   Display.writeStr("tsw bexit,1");
   Display.writeStr("tsw bstop,0");
-  Display.writeNum("bstart.pic", 147);
-  Display.writeNum("bconfig.pic", 151);
-  Display.writeNum("bexit.pic", 153);
-  Display.writeNum("bstop.pic", 150);
+  Display.writeNum("bstart.pic", NEXTION_BUT_START14070_GREEN);
+  Display.writeNum("bconfig.pic", NEXTION_BUT_CONFIG14070_YELLOW);
+  Display.writeNum("bexit.pic", NEXTION_BUT_EXIT14070_RED);
+  Display.writeNum("bstop.pic", NEXTION_BUT_STOP14070_GREYOUT);
   String rbw = String(((((scanner_end - scanner_start) / 100) / 2) * 10) * scanner_speed, DEC) + " kHz";
   String vbw = String(scanner_vbw, DEC) + " kHz";
   String span = String((scanner_end - scanner_start) / 100, DEC) + " MHz";
@@ -133,7 +133,7 @@ void scan_loop(void) {
     Display.writeStr("tsw b1,0");
     Display.writeStr("tsw b2,0");
     Display.writeStr("tsw b3,0");
-    Display.writeNum("b0.pic", 159);
+    Display.writeNum("b0.pic", NEXTION_BUT_BAND16565_GREYOUT);
     delay(350);
     scanner_start = Display.readNumber("sstart") * 100;
     scanner_end = Display.readNumber("sstop") * 100;
@@ -160,7 +160,7 @@ void scan_loop(void) {
     Display.writeStr("tsw b1,0");
     Display.writeStr("tsw b2,0");
     Display.writeStr("tsw b3,0");
-    Display.writeNum("b0.pic", 159);
+    Display.writeNum("b0.pic", NEXTION_BUT_BAND16565_GREYOUT);
     Display.writeStr("page 3");
     BuildScanScreen();
 
@@ -193,10 +193,10 @@ void scan_loop(void) {
     Display.writeStr("tsw bconfig,0");
     Display.writeStr("tsw bexit,0");
     Display.writeStr("tsw bstart,0");
-    Display.writeNum("bstop.pic", 149);
-    Display.writeNum("bconfig.pic", 152);
-    Display.writeNum("bexit.pic", 154);
-    Display.writeNum("bstart.pic", 148);
+    Display.writeNum("bstop.pic", NEXTION_BUT_STOP14070_RED);
+    Display.writeNum("bconfig.pic", NEXTION_BUT_CONFIG14070_GREYOUT);
+    Display.writeNum("bexit.pic", NEXTION_BUT_EXIT14070_GREYOUT);
+    Display.writeNum("bstart.pic", NEXTION_BUT_START14070_GREYOUT);
     donesearch = false;
     SpectrumAnalyser();
 
@@ -205,10 +205,10 @@ void scan_loop(void) {
     Display.writeStr("tsw bconfig,1");
     Display.writeStr("tsw bexit,1");
     Display.writeStr("tsw bstop,0");
-    Display.writeNum("bstart.pic", 147);
-    Display.writeNum("bconfig.pic", 151);
-    Display.writeNum("bexit.pic", 153);
-    Display.writeNum("bstop.pic", 150);
+    Display.writeNum("bstart.pic", NEXTION_BUT_START14070_GREEN);
+    Display.writeNum("bconfig.pic", NEXTION_BUT_CONFIG14070_YELLOW);
+    Display.writeNum("bexit.pic", NEXTION_BUT_EXIT14070_RED);
+    Display.writeNum("bstop.pic", NEXTION_BUT_STOP14070_GREYOUT);
     Display.writeStr("vis scanner_found,1");
     Display.writeNum("scanstatus", 0);
     if (scanfound) {
