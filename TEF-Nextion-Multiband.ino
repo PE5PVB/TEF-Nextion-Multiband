@@ -472,8 +472,8 @@ void setup(void) {
 
   if (iMSset == 1 && EQset == 1) iMSEQ = 2;
   if (iMSset == 0 && EQset == 1) iMSEQ = 3;
-  if (iMSset == 1&& EQset == 0) iMSEQ = 4;
-  if (iMSset == 0&& EQset == 0) iMSEQ = 1;
+  if (iMSset == 1 && EQset == 0) iMSEQ = 4;
+  if (iMSset == 0 && EQset == 0) iMSEQ = 1;
 
   if (wifienable == 2) tryWiFi(); else WiFi.mode(WIFI_OFF);
 
@@ -1577,7 +1577,7 @@ void EEpromReadData(void) {
   delay(100);
 
   displaysize = Display.readNumber("displaysize");
-delay(200);
+  delay(200);
 
   Display.writeNum("sstart", scanner_start / 100);
   delay(50);
@@ -1951,7 +1951,7 @@ void FactoryDefaults(void) {
   passwordgenerator();
   EEPROM.writeUInt(EE_UINT16T_FREQUENCY0, 9630);
   EEPROM.writeInt(EE_INT16T_VOLSET, 0);
-  EEPROM.writeByte(EE_UINT8T_LF, 1);
+  EEPROM.writeByte(EE_UINT8T_LF, 0);
   EEPROM.writeByte(EE_UINT8T_DEMP, 1);
   EEPROM.writeByte(EE_UINT8T_SCANNERTH, 50);
   EEPROM.writeByte(EE_UINT8T_SCANNERBAND, 0);
@@ -1970,7 +1970,7 @@ void FactoryDefaults(void) {
   EEPROM.writeByte(EE_UINT8T_EQSET, 1);
   EEPROM.writeByte(EE_UINT8T_BAND, 0);
   EEPROM.writeByte(EE_UINT8T_IF, 70);
-  EEPROM.writeByte(EE_UINT8T_USBMODE, 1);
+  EEPROM.writeByte(EE_UINT8T_USBMODE, 0);
   EEPROM.writeByte(EE_UINT8T_WIFIENABLE, 1);
   EEPROM.writeInt(EE_INT16T_LOWEDGESET1, 430);
   EEPROM.writeInt(EE_INT16T_HIGHEDGESET1, 440);
@@ -2058,18 +2058,18 @@ void read_encoder(void) {
 
   if (optrot) {
     if (encval > 2) {
-      rotary = 1;
+      if (rotarymode) rotary = -1; else rotary = 1;
       encval = 0;
     } else if (encval < -2) {
-      rotary = -1;
+      if (rotarymode) rotary = 1; else rotary = -1;
       encval = 0;
     }
   } else {
     if (encval > 3) {
-      rotary = 1;
+      if (rotarymode) rotary = -1; else rotary = 1;
       encval = 0;
     } else if (encval < -3) {
-      rotary = -1;
+      if (rotarymode) rotary = 1; else rotary = -1;
       encval = 0;
     }
   }
