@@ -58,7 +58,7 @@ void Communication(void) {
           Udp.read(packetBuffer, packetSize);
           Udp.endPacket();
           packet = String(packetBuffer);
-          if (packetBuffer == "from=StationList;freq=?;bandwidth=?") {
+          if (strcmp(packetBuffer, "from=StationList;freq=?;bandwidth=?") == 0) {
             ShowFreq();
             Udp.beginPacket(remoteip, 9030);
             Udp.print("from=TEF tuner " + showsoftwareversion + ";Bandwidth=");

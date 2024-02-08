@@ -568,7 +568,6 @@ void trigger38(void) {  // Set offset's offset
 
 void trigger39(void) {  // Apply offset's offset
   setoffset = false;
-  int x;
   offset = Display.readNumber("looffset");
   delay(50);
   EEPROM.writeInt(EE_INT16T_OFFSET, offset);

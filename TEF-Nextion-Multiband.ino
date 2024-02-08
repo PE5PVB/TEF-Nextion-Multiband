@@ -539,7 +539,7 @@ void loop(void) {
   }
 
   if (!menu && !manfreq && !spec && !setoffset) {
-    if ((SStatus < 50) || (OStatus < -200 || OStatus > 200) || (USN > 200) && (WAM > 230)) {
+    if ((SStatus < 50) || ((OStatus < -200 || OStatus > 200) || (USN > 200 && WAM > 230))) {
       if (millis() >= showmillis + 250) {
         if (band == 5) radio.getStatusAM(SStatus, USN, WAM, OStatus, BW, MStatus, CN); else radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
         readRds();
@@ -1769,7 +1769,7 @@ void Seek(bool mode) {
 }
 
 void TuneUp(void) {
-  unsigned int temp;
+  unsigned int temp = 0;
   if (stepsize == 0) {
     if (band == 5) {
       if (frequency5 < 1998) {
@@ -1853,7 +1853,7 @@ void TuneUp(void) {
 }
 
 void TuneDown(void) {
-  unsigned int temp;
+  unsigned int temp = 0;
   if (stepsize == 0) {
     if (band == 5) {
       if (frequency5 <= 2000) {
