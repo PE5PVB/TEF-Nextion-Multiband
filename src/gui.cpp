@@ -29,7 +29,6 @@ void ShowRDS(void) {
         Display.writeNum("PI.pco", NEXTION_COLOR_WHITE);
         Display.writeNum("CT.pco", NEXTION_COLOR_WHITE);
         Display.writeNum("rtshow", 0);
-        Display.writeStr("vis BER,0");
         Display.writeNum("a.pic", NEXTION_RT_A_GREYOUT_PIC);
         Display.writeNum("b.pic", NEXTION_RT_B_GREYOUT_PIC);
       } else {
@@ -41,7 +40,6 @@ void ShowRDS(void) {
           Display.writeNum("PI.pco", NEXTION_COLOR_YELLOW);
           Display.writeNum("CT.pco", NEXTION_COLOR_YELLOW);
           Display.writeNum("rtshow", 0);
-          Display.writeStr("vis BER,1");
         } else {
           Display.writeNum("rdslogo.pic", NEXTION_RDSLOGO_GREYOUT);
           Display.writeNum("m.pic", NEXTION_MUSICLOGO_GREYOUT);
@@ -52,7 +50,6 @@ void ShowRDS(void) {
           Display.writeNum("PI.pco", NEXTION_COLOR_WHITE);
           Display.writeNum("CT.pco", NEXTION_COLOR_WHITE);
           Display.writeNum("rtshow", 0);
-          Display.writeStr("vis BER,0");
           Display.writeNum("a.pic", NEXTION_RT_A_GREYOUT_PIC);
           Display.writeNum("b.pic", NEXTION_RT_B_GREYOUT_PIC);
           Display.writeNum("tm3.en", 0);

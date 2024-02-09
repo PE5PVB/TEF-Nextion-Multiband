@@ -716,7 +716,6 @@ void RF(byte RFset) {
       Display.writeNum("t5.pco", NEXTION_COLOR_GREY);
       Display.writeNum("t6.pco", NEXTION_COLOR_GREY);
       Display.writeNum("t7.pco", NEXTION_COLOR_GREY);
-      Display.writeNum("t10.pco", NEXTION_COLOR_GREY);
 
       String count = String(frequency5, DEC);
       if (count.length() > 3) {
@@ -747,7 +746,6 @@ void RF(byte RFset) {
       Display.writeNum("t5.pco", NEXTION_COLOR_WHITE);
       Display.writeNum("t6.pco", NEXTION_COLOR_WHITE);
       Display.writeNum("t7.pco", NEXTION_COLOR_WHITE);
-      Display.writeNum("t10.pco", NEXTION_COLOR_WHITE);
       ShowBW();
     }
   }
