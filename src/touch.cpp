@@ -40,7 +40,7 @@ void trigger7(void) { // Start spectrumanalyser
 void trigger8(void) { // Check User manual tuning input
   bool failed = false;
   freqtemp = Display.readNumber("freqresult.val");
-  delay(50);
+  delay(10);
 
   if (freqtemp >= LowEdgeSet0 * 100 && freqtemp <= HighEdgeSet0 * 100) {
     frequency0 = freqtemp;
@@ -103,138 +103,138 @@ void trigger10(void) { // Close and save menu
   Display.writeStr("tsw b3,0");
   Display.writeStr("tsw b4,0");
   Display.writeStr("tsw b5,0");
-  delay(50);
+  delay(10);
 
   LowEdgeSet0 = Display.readNumber("l0");
-  delay(50);
+  delay(10);
   LowEdgeSet1 = Display.readNumber("l1");
-  delay(50);
+  delay(10);
   LowEdgeSet2 = Display.readNumber("l2");
-  delay(50);
+  delay(10);
   LowEdgeSet3 = Display.readNumber("l3");
-  delay(50);
+  delay(10);
   LowEdgeSet4 = Display.readNumber("l4");
-  delay(50);
+  delay(10);
   LowEdgeSet6 = Display.readNumber("l6");
-  delay(50);
+  delay(10);
   HighEdgeSet0 = Display.readNumber("h0");
-  delay(50);
+  delay(10);
   HighEdgeSet1 = Display.readNumber("h1");
-  delay(50);
+  delay(10);
   HighEdgeSet2 = Display.readNumber("h2");
-  delay(50);
+  delay(10);
   HighEdgeSet3 = Display.readNumber("h3");
-  delay(50);
+  delay(10);
   HighEdgeSet4 = Display.readNumber("h4");
-  delay(50);
+  delay(10);
   HighEdgeSet6 = Display.readNumber("h6");
-  delay(50);
+  delay(10);
   LevelOffset0 = Display.readNumber("o0") - 25;
-  delay(50);
+  delay(10);
   LevelOffset1 = Display.readNumber("o1") - 25;
-  delay(50);
+  delay(10);
   LevelOffset2 = Display.readNumber("o2") - 25;
-  delay(50);
+  delay(10);
   LevelOffset3 = Display.readNumber("o3") - 25;
-  delay(50);
+  delay(10);
   LevelOffset4 = Display.readNumber("o4") - 25;
-  delay(50);
+  delay(10);
   LevelOffset6 = Display.readNumber("o6") - 25;
-  delay(50);
+  delay(10);
   IF = Display.readNumber("iffreq");
-  delay(50);
+  delay(10);
   converteroffset = Display.readNumber("converterlo");
-  delay(50);
+  delay(10);
   lf = Display.readNumber("lf");
-  delay(50);
+  delay(10);
   demp = Display.readNumber("demp");
-  delay(50);
+  delay(10);
   usbmode = Display.readNumber("usbmode");
-  delay(50);
+  delay(10);
   wifienable = Display.readNumber("wifienable");
-  delay(50);
+  delay(10);
   ip1 = Display.readNumber("pcip1");
-  delay(50);
+  delay(10);
   ip2 = Display.readNumber("pcip2");
-  delay(50);
+  delay(10);
   ip3 = Display.readNumber("pcip3");
-  delay(50);
+  delay(10);
   ip4 = Display.readNumber("pcip4");
-  delay(50);
+  delay(10);
   stationlist = Display.readNumber("stationlog");
-  delay(50);
+  delay(10);
   VolSet = Display.readNumber("Volset") - 15;
-  delay(50);
+  delay(10);
   ContrastSet = Display.readNumber("dim");
-  delay(50);
+  delay(10);
   StereoLevel = Display.readNumber("StereoLevel");
-  delay(50);
+  delay(10);
   HighCutLevel = Display.readNumber("HighCutLevel") / 100;
-  delay(50);
+  delay(10);
   HighCutOffset = Display.readNumber("HighCutOffset");
-  delay(50);
+  delay(10);
   BlendLevel = Display.readNumber("BlendLevel") / 100;
-  delay(50);
+  delay(10);
   BlendOffset = Display.readNumber("BlendOffset");
-  delay(50);
+  delay(10);
   NBLevel = Display.readNumber("NBLevel");
-  delay(50);
+  delay(10);
   AM_Cochannel = Display.readNumber("AMcochannel");
-  delay(50);
+  delay(10);
   AM_NBLevel = Display.readNumber("AMnb");
-  delay(50);
+  delay(10);
   AM_att = Display.readNumber("AMatt");
-  delay(50);
+  delay(10);
   fm = Display.readNumber("fm");
-  delay(50);
+  delay(10);
   am = Display.readNumber("am");
-  delay(50);
+  delay(10);
   uhf1 = Display.readNumber("uhf1");
-  delay(50);
+  delay(10);
   uhf2 = Display.readNumber("uhf2");
-  delay(50);
+  delay(10);
   uhf3 = Display.readNumber("uhf3");
-  delay(50);
+  delay(10);
   uhf4 = Display.readNumber("uhf4");
-  delay(50);
+  delay(10);
   uhf6 = Display.readNumber("uhf6");
-  delay(50);
+  delay(10);
   coaxmode = Display.readNumber("coaxmode");
-  delay(50);
+  delay(10);
   fmsi = Display.readNumber("fmsi");
-  delay(50);
+  delay(10);
   fmsi_attack = Display.readNumber("fmsiattack");
-  delay(50);
+  delay(10);
   fmsi_release = Display.readNumber("fmsirelease");
-  delay(50);
+  delay(10);
   fmsi_11 = Display.readNumber("b1sens");
-  delay(50);
+  delay(10);
   fmsi_12 = Display.readNumber("b1bias");
-  delay(50);
+  delay(10);
   fmsi_21 = Display.readNumber("b2sens");
-  delay(50);
+  delay(10);
   fmsi_22 = Display.readNumber("b2bias");
-  delay(50);
+  delay(10);
   fmsi_31 = Display.readNumber("b3sens");
-  delay(50);
+  delay(10);
   fmsi_32 = Display.readNumber("b3bias");
-  delay(50);
+  delay(10);
   fmsi_41 = Display.readNumber("b4sens");
-  delay(50);
+  delay(10);
   fmsi_42 = Display.readNumber("b4bias");
-  delay(50);
+  delay(10);
   scanner_start = Display.readNumber("sstart") * 100;
-  delay(50);
+  delay(10);
   scanner_end = Display.readNumber("sstop") * 100;
-  delay(50);
+  delay(10);
   scanner_band = Display.readNumber("sband");
-  delay(50);
+  delay(10);
   softmutefm = Display.readNumber("softmutefm");
-  delay(50);
+  delay(10);
   softmuteam = Display.readNumber("softmuteam");
-  delay(50);
+  delay(10);
   showrdserrors = Display.readNumber("showrdserrors");
-  delay(50);
+  delay(10);
 
   EEPROM.writeByte(EE_UINT8T_SCANNERBAND, scanner_band);
   EEPROM.writeInt(EE_INT16T_CONTRAST, ContrastSet);
@@ -359,22 +359,22 @@ void trigger12(void) {  // reset audio settings
 
 void trigger13(void) {  // Apply volume
   radio.setVolume(Display.readNumber("slider.val") - 15);
-  delay(50);
+  delay(10);
 }
 
 void trigger14(void) {  // Apply Highcut threshold
   radio.setHighCutLevel(Display.readNumber("slider2.val") / 100);
-  delay(50);
+  delay(10);
 }
 
 void trigger15(void) {  // Apply highcut offset
   radio.setHighCutOffset(Display.readNumber("slider3.val"));
-  delay(50);
+  delay(10);
 }
 
 void trigger16(void) {  // Apply stereo threshold
   radio.setStereoLevel(Display.readNumber("slider.val"));
-  delay(50);
+  delay(10);
 }
 
 void trigger17(void) {  // Undo DSP settings
@@ -397,12 +397,12 @@ void trigger17(void) {  // Undo DSP settings
 
 void trigger18(void) {  // Apply deemphasis
   radio.setDeemphasis(Display.readNumber("demp"));
-  delay(50);
+  delay(10);
 }
 
 void trigger19(void) {  // Apply audio output mode
   radio.setAudio(Display.readNumber("lf"));
-  delay(50);
+  delay(10);
 }
 
 void trigger20(void) {  // Show Wifi information
@@ -482,7 +482,6 @@ void trigger24(void) {  // Show advanced RDS
   ShowUSBstatus();
   ShowBTstatus();
   ctshow = false;
-  radio.clearRDS(fullsearchrds);
   if (wificonnect) Display.writeNum("tm2.en", 1);
 }
 
@@ -506,49 +505,49 @@ void trigger27(void) {  // Close BT configurator
 
 void trigger28(void) {  // Set highblend level
   radio.setStHiBlendLevel(Display.readNumber("slider2.val") / 100);
-  delay(50);
+  delay(10);
 }
 
 void trigger29(void) {  // Set highblend threshold
   radio.setStHiBlendOffset(Display.readNumber("slider3.val"));
-  delay(50);
+  delay(10);
 }
 
 void trigger30(void) {  // Set FM noiseblanker
   radio.setFMNoiseBlanker(Display.readNumber("slider.val"));
-  delay(50);
+  delay(10);
 }
 
 void trigger31(void) {  // Set AM noise blanker
   radio.setAMNoiseBlanker(Display.readNumber("slider2.val"));
-  delay(50);
+  delay(10);
 }
 
 void trigger32(void) {  // AM attenuator
   radio.setAMAttenuation(Display.readNumber("slider3.val"));
-  delay(50);
+  delay(10);
 }
 
 void trigger33(void) {  // Set cochannel
   radio.setAMCoChannel(Display.readNumber("slider.val"));
-  delay(50);
+  delay(10);
 }
 
 void trigger34(void) {  // Enable/disable FMSI
   radio.setFMSI(Display.readNumber("fmsi"));
-  delay(50);
+  delay(10);
 }
 
 void trigger35(void) {  // Set FMSI attack/release
   radio.setFMSI_Time(Display.readNumber("slider.val"), Display.readNumber("slider2.val"));
-  delay(50);
+  delay(10);
 }
 
 void trigger36(void) {  // Set FMSI bands
   radio.setFMSI_Gain(Display.readNumber("b1sens"), Display.readNumber("b2sens"), Display.readNumber("b3sens"), Display.readNumber("b4sens"));
-  delay(50);
+  delay(10);
   radio.setFMSI_Bias(Display.readNumber("b1bias"), Display.readNumber("b2bias"), Display.readNumber("b3bias"), Display.readNumber("b4bias"));
-  delay(50);
+  delay(10);
 }
 
 void trigger37(void) {  // Switch scopeview
@@ -562,14 +561,14 @@ void trigger38(void) {  // Set offset's offset
   setoffset = true;
   Display.writeStr("tm1.en=0");
   offset = Display.readNumber("offsetkhz.val");
-  delay(50);
+  delay(10);
   Frontend.SetFreq(freq - (IF * 100), offset);
 }
 
 void trigger39(void) {  // Apply offset's offset
   setoffset = false;
   offset = Display.readNumber("looffset");
-  delay(50);
+  delay(10);
   EEPROM.writeInt(EE_INT16T_OFFSET, offset);
   EEPROM.commit();
   doExit();
@@ -590,9 +589,9 @@ void trigger41(void) {  // Disable WiFi
 
 void trigger42(void) {  // Set softmute
   radio.setSoftmuteFM(Display.readNumber("softmutefm"));
-  delay(50);
+  delay(10);
   radio.setSoftmuteAM(Display.readNumber("softmuteam"));
-  delay(50);
+  delay(10);
 }
 
 #endif

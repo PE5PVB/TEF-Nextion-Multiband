@@ -5,9 +5,8 @@
 #include <SPI.h>
 #include <cmath>
 
-void ADF4351::Power(bool OnOff)
-{
-  if (OnOff == 0) {
+void ADF4351::Power(bool OnOff) {
+  if (!OnOff) {
     WriteRegister(0xC00005);
     WriteRegister(0xC8C1C);
     WriteRegister(0x8020F42);
@@ -18,8 +17,7 @@ void ADF4351::Power(bool OnOff)
   }
 }
 
-void ADF4351::Init(uint8_t LE, uint32_t Ref)
-{
+void ADF4351::Init(uint8_t LE, uint32_t Ref) {
   pin_LE = LE;
   RefIn = Ref;
   pinMode(pin_LE, OUTPUT);
@@ -34,8 +32,7 @@ void ADF4351::Init(uint8_t LE, uint32_t Ref)
   WriteRegister(0x1664E18);
 }
 
-void ADF4351::SetFreq(uint32_t freq_Hz, int8_t offset)
-{
+void ADF4351::SetFreq(uint32_t freq_Hz, int8_t offset) {
   freq_Hz = freq_Hz * 10000;
   freq_Hz += offset * 1000;
   double fPFD = RefIn / 8;
@@ -59,8 +56,7 @@ void ADF4351::SetFreq(uint32_t freq_Hz, int8_t offset)
   WriteRegister(0xD80005);
 }
 
-void ADF4351::WriteRegister(uint32_t data)
-{
+void ADF4351::WriteRegister(uint32_t data) {
   digitalWrite(pin_LE, LOW);
   for (int i = 0; i < 4 ; i++)
   {

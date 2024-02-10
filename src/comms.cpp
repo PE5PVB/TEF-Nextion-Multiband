@@ -342,6 +342,8 @@ void XDRGTKRoutine(void) {
           XDRGTKprint("T" + String(frequency5) + "\n");
         }
         ShowFreq();
+        XDRshowmillis = millis();
+        store = true;
         break;
 
       case 'Q':

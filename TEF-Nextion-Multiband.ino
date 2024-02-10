@@ -311,7 +311,7 @@ void setup(void) {
     delay(2000);
     Display.writeStr("version.txt", "Please release");
     Display.writeStr("version2.txt", "the button!");
-    while (digitalRead(ROTARY_BUTTON) == LOW) delay(50);
+    while (digitalRead(ROTARY_BUTTON) == LOW) delay(10);
   }
 
 
@@ -325,7 +325,7 @@ void setup(void) {
     delay(2000);
     Display.writeStr("version.txt", "Please release");
     Display.writeStr("version2.txt", "the button!");
-    while (digitalRead(MODEBUTTON) == LOW) delay(50);
+    while (digitalRead(MODEBUTTON) == LOW) delay(10);
   }
 
   if (digitalRead(BWBUTTON) == LOW && digitalRead(ROTARY_BUTTON) == HIGH && digitalRead(MODEBUTTON) == HIGH) {
@@ -338,7 +338,7 @@ void setup(void) {
     delay(2000);
     Display.writeStr("version.txt", "Please release");
     Display.writeStr("version2.txt", "the button!");
-    while (digitalRead(BWBUTTON) == LOW) delay(50);
+    while (digitalRead(BWBUTTON) == LOW) delay(10);
   }
 
   if (digitalRead(BWBUTTON) == LOW && digitalRead(ROTARY_BUTTON) == LOW && digitalRead(MODEBUTTON) == HIGH) {
@@ -348,7 +348,7 @@ void setup(void) {
     delay(2000);
     Display.writeStr("version.txt", "Please release");
     Display.writeStr("version2.txt", "the buttons!");
-    while (digitalRead(BWBUTTON) == LOW && digitalRead(ROTARY_BUTTON) == LOW) delay(50);
+    while (digitalRead(BWBUTTON) == LOW && digitalRead(ROTARY_BUTTON) == LOW) delay(10);
   }
 
   if (digitalRead(BWBUTTON) == HIGH && digitalRead(ROTARY_BUTTON) == LOW && digitalRead(MODEBUTTON) == LOW) {
@@ -357,7 +357,7 @@ void setup(void) {
     delay(2000);
     Display.writeStr("version.txt", "Release buttons");
     Display.writeStr("version2.txt", "when ready!");
-    while (digitalRead(MODEBUTTON) == LOW && digitalRead(ROTARY_BUTTON) == LOW) delay(50);
+    while (digitalRead(MODEBUTTON) == LOW && digitalRead(ROTARY_BUTTON) == LOW) delay(10);
   }
 
   String displayversionext;
@@ -524,6 +524,13 @@ void loop(void) {
   Display.NextionListen();
   Communication();
 
+
+  if (setoffset) {
+    radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
+    Display.writeNum("offsetvalue.val", OStatus);
+    ShowOffset();
+  }
+
   if (seek) Seek(direction);
   if (spec) scan_loop();
 
@@ -539,27 +546,18 @@ void loop(void) {
   }
 
   if (!menu && !manfreq && !spec && !setoffset) {
-    if ((SStatus < 0) || ((OStatus < -200 || OStatus > 200) || (USN > 200 && WAM > 230))) {
-      if (millis() >= showmillis + 250) {
-        if (band == 5) radio.getStatusAM(SStatus, USN, WAM, OStatus, BW, MStatus, CN); else radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
-        readRds();
-        ShowStereoStatus();
-        showmillis = millis();
-      }
-    } else {
-      if (band == 5) radio.getStatusAM(SStatus, USN, WAM, OStatus, BW, MStatus, CN); else radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
-      readRds();
-      ShowStereoStatus();
-    }
+    if (band == 5) radio.getStatusAM(SStatus, USN, WAM, OStatus, BW, MStatus, CN); else radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
+    readRds();
 
     if (XDRGTKTCP || XDRGTK) {
-      if (millis() >= XDRshowmillis + 25) {
+      if (millis() >= XDRshowmillis + 70) {
         ShowBW();
-        ShowSignalLevel();
         ShowOffset();
         ShowUSBstatus();
         ShowRSSI();
         doSquelch();
+        ShowStereoStatus();
+        ShowSignalLevel();
         XDRshowmillis = millis();
       }
     } else {
@@ -569,6 +567,7 @@ void loop(void) {
       ShowUSBstatus();
       ShowRSSI();
       doSquelch();
+      ShowStereoStatus();
     }
 
     doEEpromWrite();
@@ -581,12 +580,6 @@ void loop(void) {
     if (digitalRead(MODEBUTTON) == LOW) ModeButtonPress();
     if (digitalRead(BWBUTTON) == LOW) BWButtonPress();
     if (digitalRead(BAND) == LOW) BandSet();
-  }
-
-  if (setoffset) {
-    radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
-    Display.writeNum("offsetvalue.val", OStatus);
-    ShowOffset();
   }
 }
 
@@ -630,7 +623,6 @@ void BandSet(void) {
       EEPROM.writeByte(EE_UINT8T_BAND, band);
       EEPROM.commit();
       ShowFreq();
-      radio.clearRDS(fullsearchrds);
     } else {
       power = true;
       Display.writeNum("sleep", 1);
@@ -643,7 +635,7 @@ void BandSet(void) {
         WiFi.mode(WIFI_OFF);
       }
     }
-    while (digitalRead(BAND) == LOW) delay(50);
+    while (digitalRead(BAND) == LOW) delay(10);
   }
 }
 
@@ -756,8 +748,9 @@ void RF(byte RFset) {
       digitalWrite(RFA, HIGH);
       digitalWrite(RFB, HIGH);
       radio.power(0);
-      delay(50);
+      delay(10);
       radio.SetFreq(frequency0);
+      if (!displayreset) radio.clearRDS(fullsearchrds);
       radio.setOffset(LevelOffset0);
       Frontend.Power(0);
       if (!spec && !manfreq) {
@@ -771,7 +764,7 @@ void RF(byte RFset) {
       digitalWrite(RFB, LOW);
       radio.power(0);
       radio.SetFreq(IF * 100);
-      radio.clearRDS(fullsearchrds);
+      if (!displayreset) radio.clearRDS(fullsearchrds);
       radio.setOffset(LevelOffset1 - 7);
       Frontend.Power(1);
       Frontend.SetFreq(frequency1 - (IF * 100), offset);
@@ -784,7 +777,7 @@ void RF(byte RFset) {
       digitalWrite(RFB, LOW);
       radio.power(0);
       radio.SetFreq(IF * 100);
-      radio.clearRDS(fullsearchrds);
+      if (!displayreset) radio.clearRDS(fullsearchrds);
       radio.setOffset(LevelOffset2 - 4);
       Frontend.SetFreq(frequency2 - (IF * 100), offset);
       Display.writeNum("offsettouch", 1);
@@ -796,7 +789,7 @@ void RF(byte RFset) {
       digitalWrite(RFB, HIGH);
       radio.power(0);
       radio.SetFreq(IF * 100);
-      radio.clearRDS(fullsearchrds);
+      if (!displayreset) radio.clearRDS(fullsearchrds);
       radio.setOffset(LevelOffset3);
       Frontend.SetFreq(frequency3 - (IF * 100), offset);
       Display.writeNum("offsettouch", 1);
@@ -808,7 +801,7 @@ void RF(byte RFset) {
       digitalWrite(RFB, HIGH);
       radio.power(0);
       radio.SetFreq(IF * 100);
-      radio.clearRDS(fullsearchrds);
+      if (!displayreset) radio.clearRDS(fullsearchrds);
       radio.setOffset(LevelOffset4 + 2);
       Frontend.SetFreq(frequency4 - (IF * 100), offset);
       Display.writeNum("offsettouch", 1);
@@ -822,7 +815,7 @@ void RF(byte RFset) {
       }
       digitalWrite(RFA, HIGH);
       digitalWrite(RFB, HIGH);
-      radio.clearRDS(fullsearchrds);
+      if (!displayreset) radio.clearRDS(fullsearchrds);
       radio.SetFreqAM(frequency5);
       Frontend.Power(0);
       Display.writeNum("offsettouch", 0);
@@ -844,7 +837,7 @@ void RF(byte RFset) {
       Wire.write(converteroffset >> 8);
       Wire.write(converteroffset & (0xFF));
       Wire.endTransmission();
-      radio.clearRDS(fullsearchrds);
+      if (!displayreset) radio.clearRDS(fullsearchrds);
       break;
   }
 
@@ -1020,7 +1013,7 @@ void ButtonPress(void) {
         doFilter();
       }
     }
-    while (digitalRead(ROTARY_BUTTON) == LOW) delay(50);
+    while (digitalRead(ROTARY_BUTTON) == LOW) delay(10);
   }
 }
 
@@ -1098,7 +1091,7 @@ void RoundStep(void) {
       break;
   }
 
-  while (digitalRead(ROTARY_BUTTON) == LOW) delay(50);
+  while (digitalRead(ROTARY_BUTTON) == LOW) delay(10);
 
   EEPROM.writeUInt(EE_UINT16T_FREQUENCY0, frequency0);
   EEPROM.writeUInt(EE_UINT16T_FREQUENCY1, frequency1);
@@ -1138,7 +1131,7 @@ void ModeButtonPress(void) {
         }
       }
     }
-    while (digitalRead(MODEBUTTON) == LOW) delay(50);
+    while (digitalRead(MODEBUTTON) == LOW) delay(10);
   }
 }
 
@@ -1159,7 +1152,7 @@ void BWButtonPress(void) {
         if (band != 5) doStereoToggle();
       }
     }
-    while (digitalRead(BWBUTTON) == LOW) delay(50);
+    while (digitalRead(BWBUTTON) == LOW) delay(10);
   }
 }
 
@@ -1299,7 +1292,6 @@ void MemoryTune(void) {
     }
   }
   store = true;
-  radio.clearRDS(fullsearchrds);
 }
 
 
@@ -1312,7 +1304,6 @@ void doExit(void) {
   spec = false;
   BWreset = true;
   Display.writeNum("smeterold", 0);
-  radio.clearRDS(fullsearchrds);
   if (!showrdsinfo) Display.writeStr("page 1"); else Display.writeStr("page 12");
   if (band == 5) {
     Display.writeStr("vis m0,0");
@@ -1330,6 +1321,10 @@ void doExit(void) {
   Squelchold = 200;
   mutestatus = false;
   cnvis = false;
+  Display.writeNum("tm3.en", 0);
+  Display.writeStr("vis CT,0");
+  Display.writeStr("t7.txt", "PTY:");
+  ctshow = false;
   CNold = 0;
   doSquelch();
   ShowBW();
@@ -1340,10 +1335,6 @@ void doExit(void) {
   ShowTuneMode();
   ShowUSBstatus();
   ShowBTstatus();
-  Display.writeNum("tm3.en", 0);
-  Display.writeStr("vis CT,0");
-  Display.writeStr("t7.txt", "PTY:");
-  ctshow = false;
   store = true;
 }
 
@@ -1615,147 +1606,147 @@ void EEpromReadData(void) {
   delay(200);
 
   Display.writeNum("sstart", scanner_start / 100);
-  delay(50);
+  delay(10);
   Display.writeNum("sstop", scanner_end / 100);
-  delay(50);
+  delay(10);
   Display.writeNum("sbw", scanner_vbw);
-  delay(50);
+  delay(10);
   Display.writeNum("sth", scanner_th);
-  delay(50);
+  delay(10);
   Display.writeNum("sband", scanner_band);
-  delay(50);
+  delay(10);
   Display.writeNum("sspeed", scanner_speed);
-  delay(50);
+  delay(10);
   Display.writeNum("thenable", scanner_thenable);
-  delay(50);
+  delay(10);
   Display.writeNum("l0", LowEdgeSet0 / 2 * 2);
-  delay(50);
+  delay(10);
   Display.writeNum("l1", LowEdgeSet1 / 2 * 2);
-  delay(50);
+  delay(10);
   Display.writeNum("l2", LowEdgeSet2 / 2 * 2);
-  delay(50);
+  delay(10);
   Display.writeNum("l3", LowEdgeSet3 / 2 * 2);
-  delay(50);
+  delay(10);
   Display.writeNum("l4", LowEdgeSet4 / 2 * 2);
-  delay(50);
+  delay(10);
   Display.writeNum("l6", LowEdgeSet6 / 2 * 2);
-  delay(50);
+  delay(10);
   Display.writeNum("h0", HighEdgeSet0 / 2 * 2);
-  delay(50);
+  delay(10);
   Display.writeNum("h1", HighEdgeSet1 / 2 * 2);
-  delay(50);
+  delay(10);
   Display.writeNum("h2", HighEdgeSet2 / 2 * 2);
-  delay(50);
+  delay(10);
   Display.writeNum("h3", HighEdgeSet3 / 2 * 2);
-  delay(50);
+  delay(10);
   Display.writeNum("h4", HighEdgeSet4 / 2 * 2);
-  delay(50);
+  delay(10);
   Display.writeNum("h6", HighEdgeSet6 / 2 * 2);
-  delay(50);
+  delay(10);
   Display.writeNum("Volset", VolSet + 15);
-  delay(50);
+  delay(10);
   Display.writeNum("dim", ContrastSet);
-  delay(50);
+  delay(10);
   Display.writeNum("HighCutOffset", HighCutOffset);
-  delay(50);
+  delay(10);
   Display.writeNum("HighCutLevel", HighCutLevel * 100);
-  delay(50);
+  delay(10);
   Display.writeNum("StereoLevel", StereoLevel);
-  delay(50);
+  delay(10);
   Display.writeNum("o0", LevelOffset0 + 25);
-  delay(50);
+  delay(10);
   Display.writeNum("o1", LevelOffset1 + 25);
-  delay(50);
+  delay(10);
   Display.writeNum("o2", LevelOffset2 + 25);
-  delay(50);
+  delay(10);
   Display.writeNum("o3", LevelOffset3 + 25);
-  delay(50);
+  delay(10);
   Display.writeNum("o4", LevelOffset4 + 25);
-  delay(50);
+  delay(10);
   Display.writeNum("o6", LevelOffset6 + 25);
-  delay(50);
+  delay(10);
   Display.writeNum("iffreq", IF);
-  delay(50);
+  delay(10);
   Display.writeNum("demp", demp);
-  delay(50);
+  delay(10);
   Display.writeNum("lf", lf);
-  delay(50);
+  delay(10);
   Display.writeNum("usbmode", usbmode);
-  delay(50);
+  delay(10);
   Display.writeNum("wifienable", wifienable);
-  delay(50);
+  delay(10);
   Display.writeNum("pcip1", ip1);
-  delay(50);
+  delay(10);
   Display.writeNum("pcip2", ip2);
-  delay(50);
+  delay(10);
   Display.writeNum("pcip3", ip3);
-  delay(50);
+  delay(10);
   Display.writeNum("pcip4", ip4);
-  delay(50);
+  delay(10);
   Display.writeNum("stationlog", stationlist);
-  delay(50);
+  delay(10);
   Display.writeNum("BlendLevel", BlendLevel * 100);
-  delay(50);
+  delay(10);
   Display.writeNum("BlendOffset", BlendOffset);
-  delay(50);
+  delay(10);
   Display.writeNum("NBLevel", NBLevel);
-  delay(50);
+  delay(10);
   Display.writeNum("AMcochannel", AM_Cochannel);
-  delay(50);
+  delay(10);
   Display.writeNum("AMnb", AM_NBLevel);
-  delay(50);
+  delay(10);
   Display.writeNum("AMatt", AM_att);
-  delay(50);
+  delay(10);
   Display.writeNum("am", am);
-  delay(50);
+  delay(10);
   Display.writeNum("fm", fm);
-  delay(50);
+  delay(10);
   Display.writeNum("uhf1", uhf1);
-  delay(50);
+  delay(10);
   Display.writeNum("uhf2", uhf2);
-  delay(50);
+  delay(10);
   Display.writeNum("uhf3", uhf3);
-  delay(50);
+  delay(10);
   Display.writeNum("uhf4", uhf4);
-  delay(50);
+  delay(10);
   Display.writeNum("uhf6", uhf6);
-  delay(50);
+  delay(10);
   Display.writeNum("converterlo", converteroffset);
-  delay(50);
+  delay(10);
   Display.writeNum("coaxmode", coaxmode);
-  delay(50);
+  delay(10);
   Display.writeNum("fmsi", fmsi);
-  delay(50);
+  delay(10);
   Display.writeNum("scopeview", scopeview);
-  delay(50);
+  delay(10);
   Display.writeNum("fmsiattack", fmsi_attack);
-  delay(50);
+  delay(10);
   Display.writeNum("fmsirelease", fmsi_release);
-  delay(50);
+  delay(10);
   Display.writeNum("b1sens", fmsi_11);
-  delay(50);
+  delay(10);
   Display.writeNum("b1bias", fmsi_12);
-  delay(50);
+  delay(10);
   Display.writeNum("b2sens", fmsi_21);
-  delay(50);
+  delay(10);
   Display.writeNum("b2bias", fmsi_22);
-  delay(50);
+  delay(10);
   Display.writeNum("b3sens", fmsi_31);
-  delay(50);
+  delay(10);
   Display.writeNum("b3bias", fmsi_32);
-  delay(50);
+  delay(10);
   Display.writeNum("b4sens", fmsi_41);
-  delay(50);
+  delay(10);
   Display.writeNum("b4bias", fmsi_42);
-  delay(50);
+  delay(10);
   Display.writeNum("looffset", offset);
-  delay(50);
+  delay(10);
   Display.writeNum("softmutefm", softmutefm);
-  delay(50);
+  delay(10);
   Display.writeNum("softmuteam", softmuteam);
-  delay(50);
+  delay(10);
   Display.writeNum("showrdserrors", showrdserrors);
-  delay(50);
+  delay(10);
 }
 
 void doEEpromWrite(void) {

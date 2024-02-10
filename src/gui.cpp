@@ -95,7 +95,7 @@ void ShowRDS(void) {
       EONold = radio.rds.hasEON;
     }
 
-    if (RTPlus != radio.rds.hasRDSplus && showrdsinfo) {
+    if ((RTPlus != radio.rds.hasRDSplus || displayreset) && showrdsinfo) {
       if (RDSstatus && radio.rds.hasRDSplus) Display.writeNum("rtplus.pic", NEXTION_RTPLUSLOGO); else Display.writeNum("rtplus.pic", NEXTION_RTPLUSLOGO_GREYOUT);
       RTPlus = radio.rds.hasRDSplus;
     }
@@ -104,12 +104,12 @@ void ShowRDS(void) {
 
 void ShowRDSPlus(void) {
   if (showrdsinfo) {
-    if (radio.rds.RTContent1 != RTContent1old) {
+    if (radio.rds.RTContent1 != RTContent1old || displayreset) {
       Display.writeStr("rtplus1.txt", radio.rds.RTContent1);
       RTContent1old = radio.rds.RTContent1;
     }
 
-    if (radio.rds.RTContent2 != RTContent2old) {
+    if (radio.rds.RTContent2 != RTContent2old || displayreset) {
       Display.writeStr("rtplus2.txt", radio.rds.RTContent2);
       RTContent2old = radio.rds.RTContent2;
     }
@@ -120,7 +120,7 @@ void ShowEON(void) {
   if (showrdsinfo) {
     String eonstring;
     if (radio.eon_counter > 0) for (byte i = 0; i < radio.eon_counter; i++) eonstring += String(radio.eon[i].picode) + (radio.eon[i].ps.length() > 0 ? String(": " + String(radio.eon[i].ps)) : "") + (radio.eon[i].mappedfreq > 0 ? String(" " + String(radio.eon[i].mappedfreq / 100) + "." + String((radio.eon[i].mappedfreq % 100) / 10))  : "") + (radio.eon[i].mappedfreq2 > 0 ? String(" / " + String(radio.eon[i].mappedfreq2 / 100) + "." + String((radio.eon[i].mappedfreq2 % 100) / 10))  : "") + (radio.eon[i].mappedfreq3 > 0 ? String(" /  " + String(radio.eon[i].mappedfreq3 / 100) + "." + String((radio.eon[i].mappedfreq3 % 100) / 10))  : "") + (i == radio.eon_counter - 1 ? "" : " | "); else eonstring = "";
-    if (eonstring != eonstringold) {
+    if (eonstring != eonstringold || displayreset) {
       Display.writeStr("eontxt.txt", eonstring);
       eonstringold = eonstring;
     }
@@ -129,7 +129,7 @@ void ShowEON(void) {
 }
 
 void ShowAF(void) {
-  if (radio.af_counter != af_counterold) {
+  if (radio.af_counter != af_counterold || displayreset) {
     af = "";
     af2 = "";
     af2show = false;
@@ -243,7 +243,9 @@ void ShowPS(void) {
 
 void ShowRadiotext(void) {
   if (RTold != (radio.rds.stationText + " " + radio.rds.stationText32) || displayreset) {
-    Display.writeStr("RT.txt", radio.rds.stationText + " " + radio.rds.stationText32);
+	  String txt = radio.rds.stationText + " " + radio.rds.stationText32;
+	  txt.replace("\"", "\\\"");
+    Display.writeStr("RT.txt", txt);
     RTold = radio.rds.stationText + " " + radio.rds.stationText32;
 
     if (radio.rds.hasRT) {
@@ -322,91 +324,93 @@ void ShowECC(void) {
     Udp.print(radio.rds.ECC, HEX);
     Udp.endPacket();
   }
-  if (radio.rds.picode[0] == '1') {
-    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 55);
-    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 56);
-    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 57);
-    if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 58);
-  } else if (radio.rds.picode[0] == '2') {
-    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 59);
-    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 60);
-    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 61);
-    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 62);
-    if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 63);
-  } else if (radio.rds.picode[0] == '3') {
-    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 64);
-    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 65);
-    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 66);
-    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 67);
-  } else if (radio.rds.picode[0] == '4') {
-    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 68);
-    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 69);
-    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 70);
-    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 71);
-  } else if (radio.rds.picode[0] == '5') {
-    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 72);
-    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 73);
-    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 74);
-  } else if (radio.rds.picode[0] == '6') {
-    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 75);
-    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 76);
-    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 77);
-    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 78);
-    if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 79);
-  } else if (radio.rds.picode[0] == '7') {
-    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 80);
-    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 81);
-    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 82);
-  } else if (radio.rds.picode[0] == '8') {
-    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 83);
-    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 84);
-    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 85);
-    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 86);
-    if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 87);
-  } else if (radio.rds.picode[0] == '9') {
-    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 88);
-    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 89);
-    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 90);
-    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 91);
-    if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 92);
-  } else if (radio.rds.picode[0] == 'A') {
-    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 93);
-    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 94);
-    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 95);
-    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 96);
-  } else if (radio.rds.picode[0] == 'B') {
-    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 97);
-    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 98);
-    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 99);
-  } else if (radio.rds.picode[0] == 'C') {
-    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 100);
-    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 101);
-    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 102);
-    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 103);
-  } else if (radio.rds.picode[0] == 'D') {
-    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 104);
-    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 105);
-  } else if (radio.rds.picode[0] == 'E') {
-    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 106);
-    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 107);
-    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 108);
-    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 109);
-  } else if (radio.rds.picode[0] == 'F') {
-    if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 110);
-    if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 111);
-    if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 112);
-    if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 113);
-    if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 114);
-  } else {
-    Display.writeNum("ECC.pic", 115);
+  if (radio.rds.ECC != ECCold || displayreset) {
+    if (radio.rds.picode[0] == '1') {
+      if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 55);
+      if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 56);
+      if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 57);
+      if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 58);
+    } else if (radio.rds.picode[0] == '2') {
+      if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 59);
+      if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 60);
+      if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 61);
+      if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 62);
+      if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 63);
+    } else if (radio.rds.picode[0] == '3') {
+      if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 64);
+      if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 65);
+      if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 66);
+      if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 67);
+    } else if (radio.rds.picode[0] == '4') {
+      if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 68);
+      if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 69);
+      if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 70);
+      if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 71);
+    } else if (radio.rds.picode[0] == '5') {
+      if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 72);
+      if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 73);
+      if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 74);
+    } else if (radio.rds.picode[0] == '6') {
+      if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 75);
+      if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 76);
+      if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 77);
+      if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 78);
+      if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 79);
+    } else if (radio.rds.picode[0] == '7') {
+      if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 80);
+      if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 81);
+      if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 82);
+    } else if (radio.rds.picode[0] == '8') {
+      if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 83);
+      if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 84);
+      if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 85);
+      if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 86);
+      if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 87);
+    } else if (radio.rds.picode[0] == '9') {
+      if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 88);
+      if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 89);
+      if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 90);
+      if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 91);
+      if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 92);
+    } else if (radio.rds.picode[0] == 'A') {
+      if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 93);
+      if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 94);
+      if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 95);
+      if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 96);
+    } else if (radio.rds.picode[0] == 'B') {
+      if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 97);
+      if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 98);
+      if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 99);
+    } else if (radio.rds.picode[0] == 'C') {
+      if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 100);
+      if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 101);
+      if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 102);
+      if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 103);
+    } else if (radio.rds.picode[0] == 'D') {
+      if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 104);
+      if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 105);
+    } else if (radio.rds.picode[0] == 'E') {
+      if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 106);
+      if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 107);
+      if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 108);
+      if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 109);
+    } else if (radio.rds.picode[0] == 'F') {
+      if (radio.rds.ECC == 224) Display.writeNum("ECC.pic", 110);
+      if (radio.rds.ECC == 225) Display.writeNum("ECC.pic", 111);
+      if (radio.rds.ECC == 226) Display.writeNum("ECC.pic", 112);
+      if (radio.rds.ECC == 227) Display.writeNum("ECC.pic", 113);
+      if (radio.rds.ECC == 228) Display.writeNum("ECC.pic", 114);
+    } else {
+      Display.writeNum("ECC.pic", 115);
+    }
+    ECCold = radio.rds.ECC;
   }
-  ECCold = radio.rds.ECC;
 }
 
 void ShowRSSI(void) {
   if (wifienable == 2) rssi = WiFi.RSSI(); else rssi = 0;
 
-  if (rssiold != rssi) {
+  if (rssiold != rssi || displayreset) {
     rssiold = rssi;
     if (rssi == 0) {
       Display.writeNum("wifilogo.pic", NEXTION_WIFIBAR0);
@@ -460,9 +464,9 @@ void ShowFreq(void) {
     Udp.endPacket();
     stlmillis += 500;
   }
-  
-  radio.clearRDS(fullsearchrds);
-  
+
+  if (!displayreset) radio.clearRDS(fullsearchrds);
+
   if (showrdsinfo) {
     af2show = false;
     af = "";

@@ -100,6 +100,7 @@ extern unsigned int XDRscanner_old;
 extern unsigned int XDRscanner_start;
 extern unsigned int XDRscanner_step;
 extern unsigned long signalstatustimer;
+extern unsigned long XDRshowmillis;
 
 extern void RF(byte RFset);
 extern void ShowBTstatus(void);
@@ -110,7 +111,6 @@ extern void doBW(void);
 extern void doFilter(void);
 extern void ShowiMS(void);
 extern void ShowEQ(void);
-
 
 void Communication(void);
 void XDRGTKprint(String string);
