@@ -1,3 +1,5 @@
+#include "soc/soc.h"
+#include "soc/rtc_cntl_reg.h"
 #include <Wire.h>                   // Included in Boardmanager
 #include <WiFiClient.h>             // Included in Boardmanager
 #include <EEPROM.h>                 // Included in Boardmanager
@@ -71,6 +73,7 @@ bool TA;
 bool TAold;
 bool TP;
 bool TPold;
+bool tunereset;
 bool UHF;
 bool usblogo_off;
 bool usblogo_on;
@@ -266,13 +269,19 @@ unsigned int XDRscanner_end;
 unsigned int XDRscanner_old;
 unsigned int XDRscanner_start;
 unsigned int XDRscanner_step;
+unsigned long BWTimer;
+unsigned long CNTimer;
 unsigned long showmillis;
 unsigned long signalstatustimer;
 unsigned long stlmillis;
 unsigned long time_now;
 unsigned long XDRshowmillis;
+unsigned long tuneresetcounter;
 
 void setup(void) {
+  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
+  gpio_set_drive_capability((gpio_num_t) 21, GPIO_DRIVE_CAP_0);
+  gpio_set_drive_capability((gpio_num_t) 22, GPIO_DRIVE_CAP_0);
   swSer.begin(9600, EspSoftwareSerial::SWSERIAL_8N1, 13, 14, false, 95);
   btStop();
   Display.begin(38400);
@@ -497,7 +506,7 @@ void setup(void) {
   radio.rds.rtbuffer = true;
   radio.rds.underscore = false;
   radio.rds.filter = false;
-  radio.rds.pierrors = false;
+  radio.rds.pierrors = true;
   radio.rds.sortaf = true;
   radio.rds.fastps = true;
 
@@ -549,7 +558,7 @@ void loop(void) {
 
       if (XDRGTKTCP || XDRGTK) {
         if (millis() > XDRshowmillis + 70) {
-          if (USN > 200 && WAM > 230 && millis() > showmillis + 250) {
+          if (WAM > 150 && millis() > showmillis + 250) {
             ShowBW();
             ShowStereoStatus();
             if (band != 5) {
@@ -558,7 +567,7 @@ void loop(void) {
             ShowOffset();
             showmillis = millis();
           }
-          if (USN <= 200 && WAM <= 200) {
+          if (WAM <= 150) {
             ShowBW();
             ShowStereoStatus();
             if (band != 5) {
@@ -574,7 +583,7 @@ void loop(void) {
           XDRshowmillis = millis();
         }
       } else {
-        if (USN > 200 && WAM > 230 && millis() > showmillis + 250) {
+        if (WAM > 150 && millis() > showmillis + 250) {
           ShowBW();
           ShowStereoStatus();
           if (band != 5) {
@@ -583,7 +592,7 @@ void loop(void) {
           ShowOffset();
           showmillis = millis();
         }
-        if (USN <= 200 && WAM <= 200) {
+        if (WAM <= 150) {
           ShowBW();
           ShowStereoStatus();
           if (band != 5) {
@@ -1222,7 +1231,6 @@ void KeyUp(void) {
           case 6: RemoteClient.print("T" + String(frequency6 * 10) + "\n"); break;
         }
       }
-      change = 0;
       ShowFreq();
       store = true;
     }
@@ -1268,7 +1276,6 @@ void KeyDown(void) {
           case 6: RemoteClient.print("T" + String(frequency6 * 10) + "\n"); break;
         }
       }
-      change = 0;
       ShowFreq();
       store = true;
     }
@@ -1777,9 +1784,7 @@ void EEpromReadData(void) {
 }
 
 void doEEpromWrite(void) {
-  if (store) change++;
-
-  if (change > 200 && store) {
+  if (store && millis() > tuneresetcounter - 250) {
     detachInterrupt(digitalPinToInterrupt(ROTARY_PIN_A));
     detachInterrupt(digitalPinToInterrupt(ROTARY_PIN_B));
     EEPROM.writeUInt(EE_UINT16T_FREQUENCY0, frequency0);

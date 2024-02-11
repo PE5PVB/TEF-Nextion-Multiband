@@ -43,6 +43,7 @@ extern bool Stereostatusold;
 extern bool StereoToggle;
 extern bool TAold;
 extern bool TPold;
+extern bool tunereset;
 extern bool usblogo_off;
 extern bool usblogo_on;
 extern bool USBstatus;
@@ -99,7 +100,10 @@ extern unsigned int frequency3;
 extern unsigned int frequency4;
 extern unsigned int frequency5;
 extern unsigned int frequency6;
+extern unsigned long BWTimer;
+extern unsigned long CNTimer;
 extern unsigned long stlmillis;
+extern unsigned long tuneresetcounter;
 
 extern void read_encoder(void);
 

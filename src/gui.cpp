@@ -18,7 +18,7 @@ void ShowRDS(void) {
     ShowRDSPlus();
     ShowEON();
 
-    if (RDSstatusold != RDSstatus || displayreset) {
+    if (RDSstatusold != RDSstatus || displayreset || (tunereset && millis() > tuneresetcounter + 250)) {
       if (band == 5) {
         Display.writeNum("rdslogo.pic", NEXTION_RDSLOGO_GREYOUT);
         Display.writeNum("m.pic", NEXTION_SPEECHLOGO_GREYOUT);
@@ -56,6 +56,7 @@ void ShowRDS(void) {
         }
       }
       RDSstatusold = RDSstatus;
+      tunereset = false;
     }
 
     if (MSold != radio.rds.MS || displayreset) {
@@ -241,8 +242,8 @@ void ShowPS(void) {
 
 void ShowRadiotext(void) {
   if (RTold != (radio.rds.stationText + " " + radio.rds.stationText32) || displayreset) {
-	  String txt = radio.rds.stationText + " " + radio.rds.stationText32;
-	  txt.replace("\"", "\\\"");
+    String txt = radio.rds.stationText + " " + radio.rds.stationText32;
+    txt.replace("\"", "\\\"");
     Display.writeStr("RT.txt", txt);
     RTold = radio.rds.stationText + " " + radio.rds.stationText32;
 
@@ -477,6 +478,8 @@ void ShowFreq(void) {
 
   attachInterrupt(digitalPinToInterrupt(ROTARY_PIN_A), read_encoder, CHANGE);
   attachInterrupt(digitalPinToInterrupt(ROTARY_PIN_B), read_encoder, CHANGE);
+  tunereset = true;
+  tuneresetcounter = millis();
 }
 
 void ShowModLevel(void) {
@@ -490,38 +493,40 @@ void ShowModLevel(void) {
 }
 
 void ShowBW(void) {
-  if ((BW != BWOld || BWreset) || displayreset) {
-    if (BWreset) {
-      if (band != 5) {
-        if (BWsetOld != BWset) {
-          if (BWset == 0) {
-            Display.writeNum("BW.pco", NEXTION_COLOR_SKYBLUE);
-            if (!showrdsinfo) Display.writeNum("autobwlogo.pic", NEXTION_AUTOBWLOGO);
-            radio.setFMABandw();
-          } else {
-            Display.writeNum("BW.pco", NEXTION_COLOR_YELLOW);
-            if (!showrdsinfo) Display.writeNum("autobwlogo.pic", NEXTION_AUTOBWLOGO_GREYOUT);
-            BWsetOld = BWset;
+  if (millis() > BWTimer + 250 || displayreset) {
+    if ((BW != BWOld || BWreset) || displayreset) {
+      if (BWreset) {
+        if (band != 5) {
+          if (BWsetOld != BWset) {
+            if (BWset == 0) {
+              Display.writeNum("BW.pco", NEXTION_COLOR_SKYBLUE);
+              if (!showrdsinfo) Display.writeNum("autobwlogo.pic", NEXTION_AUTOBWLOGO);
+              radio.setFMABandw();
+            } else {
+              Display.writeNum("BW.pco", NEXTION_COLOR_YELLOW);
+              if (!showrdsinfo) Display.writeNum("autobwlogo.pic", NEXTION_AUTOBWLOGO_GREYOUT);
+              BWsetOld = BWset;
+            }
           }
         }
       }
-    }
 
-    Display.writeNum("BW.val", BW);
-    BWOld = BW;
-    BWreset = false;
-    if (stationlist == 1 && wifienable == 2) {
-      Udp.beginPacket(remoteip, 9030);
-      Udp.print("from=TEF tuner " + showsoftwareversion + ";Bandwidth=");
-      Udp.print(BW * 1000);
-      Udp.endPacket();
+      Display.writeNum("BW.val", BW);
+      BWOld = BW;
+      BWreset = false;
+      if (stationlist == 1 && wifienable == 2) {
+        Udp.beginPacket(remoteip, 9030);
+        Udp.print("from=TEF tuner " + showsoftwareversion + ";Bandwidth=");
+        Udp.print(BW * 1000);
+        Udp.endPacket();
+      }
     }
+    BWTimer = millis();
   }
 }
 
 void ShowSignalLevel(void) {
   SAvg = (((SAvg * 9) + 5) / 10) + SStatus;
-  SAvg2 = (((SAvg2 * 9) + 5) / 10) + CN;
 
   float sval = 0;
   int16_t smeter = 0;
@@ -537,30 +542,36 @@ void ShowSignalLevel(void) {
 
   smeter = int16_t(sval);
   SStatus = SAvg / 10;
-  CN = SAvg2 / 10;
 
   if (!showrdsinfo) {
-    if (USN < 250 && WAM < 250 && OStatus > -250 && OStatus < 250) {
-      if (CN > (CNold + 1) || CN < (CNold - 1)) {
-        if (CN < SStatus / 10) Display.writeNum("SNR.val", CN);
-        if (!cnvis) {
-          Display.writeStr("vis SNR,1");
-          Display.writeStr("vis t12,1");
-          Display.writeStr("vis t13,1");
+    if (millis() > CNTimer + 250 || displayreset) {
+      if (CN > 0 && WAM < 200) {
+        if (CN > (CNold + 1) || CN < (CNold - 1)) {
+          Display.writeNum("SNR.val", CN);
+          if (!cnvis) {
+            Display.writeStr("vis SNR,1");
+            Display.writeStr("vis t12,1");
+            Display.writeStr("vis t13,1");
+          }
+          CNold = CN;
+          cnvis = true;
         }
-        CNold = CN;
-        cnvis = true;
+      } else {
+        if (cnvis) {
+          Display.writeNum("SNR.val", 0);
+          Display.writeStr("vis SNR,0");
+          Display.writeStr("vis t12,0");
+          Display.writeStr("vis t13,0");
+          CNold = 0;
+        }
+        cnvis = false;
       }
-    } else {
-      if (cnvis) {
-        Display.writeNum("SNR.val", 0);
-        Display.writeStr("vis SNR,0");
-        Display.writeStr("vis t12,0");
-        Display.writeStr("vis t13,0");
-        CNold = 0;
-      }
-      cnvis = false;
+      CNTimer = millis();
     }
+
+    SAvg2 = (((SAvg2 * 9) + 5) / 10) + CN;
+    CN = SAvg2 / 10;
+
     Display.writeNum("WAM.val", WAM / 5);
     Display.writeNum("USN.val", USN / 5);
 
