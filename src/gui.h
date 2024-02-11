@@ -48,6 +48,8 @@ extern bool usblogo_off;
 extern bool usblogo_on;
 extern bool USBstatus;
 extern bool wificonnect;
+extern bool XDRGTK;
+extern bool XDRGTKTCP;
 extern byte af_counterold;
 extern byte af_scan;
 extern byte band;

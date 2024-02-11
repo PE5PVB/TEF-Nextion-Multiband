@@ -554,7 +554,7 @@ void loop(void) {
 
     if (!menu && !manfreq && !spec) {
       if (band == 5) radio.getStatusAM(SStatus, USN, WAM, OStatus, BW, MStatus, CN); else radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
-      readRds();
+      if (millis() > tuneresetcounter + 250) readRds();
 
       if (XDRGTKTCP || XDRGTK) {
         if (millis() > XDRshowmillis + 70) {
@@ -1208,29 +1208,6 @@ void KeyUp(void) {
         if (memory_pos > 29) memory_pos = 0;
         MemoryTune();
       }
-      if (XDRGTK) {
-        switch (band) {
-          case 0: Serial.print("T" + String(frequency0 * 10) + "\n"); break;
-          case 1: Serial.print("T" + String(frequency1 * 10) + "\n"); break;
-          case 2: Serial.print("T" + String(frequency2 * 10) + "\n"); break;
-          case 3: Serial.print("T" + String(frequency3 * 10) + "\n"); break;
-          case 4: Serial.print("T" + String(frequency4 * 10) + "\n"); break;
-          case 5: Serial.print("T" + String(frequency5) + "\n"); break;
-          case 6: Serial.print("T" + String(frequency6 * 10) + "\n"); break;
-        }
-      }
-
-      if (XDRGTKTCP) {
-        switch (band) {
-          case 0: RemoteClient.print("T" + String(frequency0 * 10) + "\n"); break;
-          case 1: RemoteClient.print("T" + String(frequency1 * 10) + "\n"); break;
-          case 2: RemoteClient.print("T" + String(frequency2 * 10) + "\n"); break;
-          case 3: RemoteClient.print("T" + String(frequency3 * 10) + "\n"); break;
-          case 4: RemoteClient.print("T" + String(frequency4 * 10) + "\n"); break;
-          case 5: RemoteClient.print("T" + String(frequency5) + "\n"); break;
-          case 6: RemoteClient.print("T" + String(frequency6 * 10) + "\n"); break;
-        }
-      }
       ShowFreq();
       store = true;
     }
@@ -1252,29 +1229,6 @@ void KeyDown(void) {
         memory_pos--;
         if (memory_pos > 29) memory_pos = 29;
         MemoryTune();
-      }
-      if (XDRGTK) {
-        switch (band) {
-          case 0: Serial.print("T" + String(frequency0 * 10) + "\n"); break;
-          case 1: Serial.print("T" + String(frequency1 * 10) + "\n"); break;
-          case 2: Serial.print("T" + String(frequency2 * 10) + "\n"); break;
-          case 3: Serial.print("T" + String(frequency3 * 10) + "\n"); break;
-          case 4: Serial.print("T" + String(frequency4 * 10) + "\n"); break;
-          case 5: Serial.print("T" + String(frequency5) + "\n"); break;
-          case 6: Serial.print("T" + String(frequency6 * 10) + "\n"); break;
-        }
-      }
-
-      if (XDRGTKTCP) {
-        switch (band) {
-          case 0: RemoteClient.print("T" + String(frequency0 * 10) + "\n"); break;
-          case 1: RemoteClient.print("T" + String(frequency1 * 10) + "\n"); break;
-          case 2: RemoteClient.print("T" + String(frequency2 * 10) + "\n"); break;
-          case 3: RemoteClient.print("T" + String(frequency3 * 10) + "\n"); break;
-          case 4: RemoteClient.print("T" + String(frequency4 * 10) + "\n"); break;
-          case 5: RemoteClient.print("T" + String(frequency5) + "\n"); break;
-          case 6: RemoteClient.print("T" + String(frequency6 * 10) + "\n"); break;
-        }
       }
       ShowFreq();
       store = true;

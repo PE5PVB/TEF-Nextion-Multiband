@@ -120,7 +120,6 @@ void Tuner_Reset(void) {
 }
 
 void Tuner_Patch(byte TEF) {
-  Wire.beginTransmission(0x64);
   Tuner_Reset();
   delay(100);
   Wire.beginTransmission(0x64);

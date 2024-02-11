@@ -311,14 +311,13 @@ void XDRGTKRoutine(void) {
         XDRband = atol(buff + 1);
         if (XDRband == 0) {
           band = 0;
-          RF(band);
           XDRGTKprint("M0\n");
-          XDRGTKprint("T" + String(frequency0 * 10) + "\n");
+          RF(band);
+
         } else {
           band = 5;
-          RF(band);
           XDRGTKprint("M1\n");
-          XDRGTKprint("T" + String(frequency5) + "\n");
+          RF(band);
         }
         ShowFreq();
         break;
@@ -329,8 +328,7 @@ void XDRGTKRoutine(void) {
         if (XDRfreq > 27001) {
           XDRGTKprint("M0\n");
           XDRGTKTune(XDRfreq / 10);
-          XDRGTKprint("T" + String(freq * 10) + "\n");
-        } else {
+        } else if (XDRfreq > 143) {
           frequency5 = XDRfreq;
           if (band != 5) {
             band = 5;
@@ -339,7 +337,6 @@ void XDRGTKRoutine(void) {
           } else {
             radio.SetFreqAM(frequency5);
           }
-          XDRGTKprint("T" + String(frequency5) + "\n");
         }
         ShowFreq();
         XDRshowmillis = millis();
