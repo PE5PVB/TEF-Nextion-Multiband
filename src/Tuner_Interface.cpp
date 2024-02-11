@@ -109,6 +109,16 @@ bool Tuner_Table_Write(const unsigned char *tab) {
   }
 }
 
+void Tuner_Reset(void) {
+  Wire.beginTransmission(0x64);
+  Wire.write(0x1e);
+  Wire.write(0x5a);
+  Wire.write(0x01);
+  Wire.write(0x5a);
+  Wire.write(0x5a);
+  Wire.endTransmission();	
+}
+
 void Tuner_Patch(byte TEF) {
   Wire.beginTransmission(0x64);
   Wire.write(0x1e);

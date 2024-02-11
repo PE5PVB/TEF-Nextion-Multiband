@@ -33,7 +33,6 @@ void ShowRDS(void) {
         Display.writeNum("b.pic", NEXTION_RT_B_GREYOUT_PIC);
       } else {
         if (RDSstatus && USN < 250 && WAM < 250 && !SQ && OStatus > -250 && OStatus < 250) {
-          Display.writeNum("rdslogo.pic", NEXTION_RDSLOGO);
           Display.writeNum("PTY.pco", NEXTION_COLOR_YELLOW);
           Display.writeNum("RT.pco", NEXTION_COLOR_YELLOW);
           Display.writeNum("PS.pco", NEXTION_COLOR_YELLOW);
@@ -41,7 +40,6 @@ void ShowRDS(void) {
           Display.writeNum("CT.pco", NEXTION_COLOR_YELLOW);
           Display.writeNum("rtshow", 0);
         } else {
-          Display.writeNum("rdslogo.pic", NEXTION_RDSLOGO_GREYOUT);
           Display.writeNum("m.pic", NEXTION_MUSICLOGO_GREYOUT);
           Display.writeNum("s.pic", NEXTION_SPEECHLOGO_GREYOUT);
           Display.writeNum("PTY.pco", NEXTION_COLOR_WHITE);
@@ -665,7 +663,6 @@ void ShowOffset(void) {
       }
     }
   }
-  if (!setoffset) ShowModLevel();
 }
 
 void ShowStepSize(void) {

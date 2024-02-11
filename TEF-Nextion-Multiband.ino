@@ -524,62 +524,91 @@ void loop(void) {
   Display.NextionListen();
   Communication();
 
-
   if (setoffset) {
     radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
     Display.writeNum("offsetvalue.val", OStatus);
     ShowOffset();
-  }
+  } else {
+    if (seek) Seek(direction);
+    if (spec) scan_loop();
 
-  if (seek) Seek(direction);
-  if (spec) scan_loop();
+    if (menu) {
+      radio.getProcessing(highcut, stereo, sthiblend, stband_1, stband_2, stband_3, stband_4);
+      Display.writeNum("highcut", highcut);
+      Display.writeNum("stereol", stereo);
+      Display.writeNum("sthiblend", sthiblend);
+      Display.writeNum("stband_1", stband_1);
+      Display.writeNum("stband_2", stband_2);
+      Display.writeNum("stband_3", stband_3);
+      Display.writeNum("stband_4", stband_4);
+    }
 
-  if (menu) {
-    radio.getProcessing(highcut, stereo, sthiblend, stband_1, stband_2, stband_3, stband_4);
-    Display.writeNum("highcut", highcut);
-    Display.writeNum("stereol", stereo);
-    Display.writeNum("sthiblend", sthiblend);
-    Display.writeNum("stband_1", stband_1);
-    Display.writeNum("stband_2", stband_2);
-    Display.writeNum("stband_3", stband_3);
-    Display.writeNum("stband_4", stband_4);
-  }
+    if (!menu && !manfreq && !spec) {
+      if (band == 5) radio.getStatusAM(SStatus, USN, WAM, OStatus, BW, MStatus, CN); else radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
+      readRds();
 
-  if (!menu && !manfreq && !spec && !setoffset) {
-    if (band == 5) radio.getStatusAM(SStatus, USN, WAM, OStatus, BW, MStatus, CN); else radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
-    readRds();
-
-    if (XDRGTKTCP || XDRGTK) {
-      if (millis() >= XDRshowmillis + 70) {
-        ShowBW();
-        ShowOffset();
+      if (XDRGTKTCP || XDRGTK) {
+        if (millis() > XDRshowmillis + 70) {
+          if (USN > 200 && WAM > 230 && millis() > showmillis + 250) {
+            ShowBW();
+            ShowStereoStatus();
+            if (band != 5) {
+              if (RDSstatus) Display.writeNum("rdslogo.pic", NEXTION_RDSLOGO); else Display.writeNum("rdslogo.pic", NEXTION_RDSLOGO_GREYOUT);
+            }
+            ShowOffset();
+            showmillis = millis();
+          }
+          if (USN <= 200 && WAM <= 200) {
+            ShowBW();
+            ShowStereoStatus();
+            if (band != 5) {
+              if (RDSstatus) Display.writeNum("rdslogo.pic", NEXTION_RDSLOGO); else Display.writeNum("rdslogo.pic", NEXTION_RDSLOGO_GREYOUT);
+            }
+            ShowOffset();
+          }
+          ShowSignalLevel();
+          ShowModLevel();
+          ShowUSBstatus();
+          ShowRSSI();
+          doSquelch();
+          XDRshowmillis = millis();
+        }
+      } else {
+        if (USN > 200 && WAM > 230 && millis() > showmillis + 250) {
+          ShowBW();
+          ShowStereoStatus();
+          if (band != 5) {
+            if (RDSstatus) Display.writeNum("rdslogo.pic", NEXTION_RDSLOGO); else Display.writeNum("rdslogo.pic", NEXTION_RDSLOGO_GREYOUT);
+          }
+          ShowOffset();
+          showmillis = millis();
+        }
+        if (USN <= 200 && WAM <= 200) {
+          ShowBW();
+          ShowStereoStatus();
+          if (band != 5) {
+            if (RDSstatus) Display.writeNum("rdslogo.pic", NEXTION_RDSLOGO); else Display.writeNum("rdslogo.pic", NEXTION_RDSLOGO_GREYOUT);
+          }
+          ShowOffset();
+        }
+        ShowSignalLevel();
+        ShowModLevel();
         ShowUSBstatus();
         ShowRSSI();
         doSquelch();
-        ShowStereoStatus();
-        ShowSignalLevel();
-        XDRshowmillis = millis();
       }
-    } else {
-      ShowBW();
-      ShowSignalLevel();
-      ShowOffset();
-      ShowUSBstatus();
-      ShowRSSI();
-      doSquelch();
-      ShowStereoStatus();
+
+      doEEpromWrite();
+      displayreset = false;
+
+      if (rotary == -1) KeyUp();
+      if (rotary == 1) KeyDown();
+
+      if (digitalRead(ROTARY_BUTTON) == LOW) ButtonPress();
+      if (digitalRead(MODEBUTTON) == LOW) ModeButtonPress();
+      if (digitalRead(BWBUTTON) == LOW) BWButtonPress();
+      if (digitalRead(BAND) == LOW) BandSet();
     }
-
-    doEEpromWrite();
-    displayreset = false;
-
-    if (rotary == -1) KeyUp();
-    if (rotary == 1) KeyDown();
-
-    if (digitalRead(ROTARY_BUTTON) == LOW) ButtonPress();
-    if (digitalRead(MODEBUTTON) == LOW) ModeButtonPress();
-    if (digitalRead(BWBUTTON) == LOW) BWButtonPress();
-    if (digitalRead(BAND) == LOW) BandSet();
   }
 }
 
@@ -870,8 +899,6 @@ void readRds(void) {
   if ((XDRGTKTCP || XDRGTK) && RDSstatus && band != 5) {
     String XDRGTKRDS;
     XDRGTKRDS = "R";
-    XDRGTKRDS += String(((radio.rds.rdsA >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsA >> 8) & 0xF, HEX);
-    XDRGTKRDS += String(((radio.rds.rdsA) >> 4) & 0xF, HEX) + String((radio.rds.rdsA) & 0xF, HEX);
     XDRGTKRDS += String(((radio.rds.rdsB >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsB >> 8) & 0xF, HEX);
     XDRGTKRDS += String(((radio.rds.rdsB) >> 4) & 0xF, HEX) + String((radio.rds.rdsB) & 0xF, HEX);
     XDRGTKRDS += String(((radio.rds.rdsC >> 8) >> 4) & 0xF, HEX) + String((radio.rds.rdsC >> 8) & 0xF, HEX);
@@ -1960,11 +1987,14 @@ void SetTunerPatch(void) {
   uint16_t sw;
   radio.getIdentification(device, hw, sw);
   TEF = highByte(hw) * 100 + highByte(sw);
-  if (TEF == 0) Display.writeStr("version.txt", "Tuner not detected"); else Display.writeStr("version.txt", String("Tuner version set: v") + String(TEF));
-  Display.writeStr("version2.txt", "Please restart tuner");
+  if (TEF == 0) {
+    Display.writeStr("version.txt", "Tuner not detected");
+    for (;;);
+  }
   EEPROM.writeByte(EE_UINT8T_TEF, TEF);
   EEPROM.commit();
-  for (;;);
+  Tuner_Reset();
+  ESP.restart();
 }
 
 void FactoryDefaults(void) {
