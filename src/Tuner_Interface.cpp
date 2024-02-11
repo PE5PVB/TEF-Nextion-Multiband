@@ -121,12 +121,7 @@ void Tuner_Reset(void) {
 
 void Tuner_Patch(byte TEF) {
   Wire.beginTransmission(0x64);
-  Wire.write(0x1e);
-  Wire.write(0x5a);
-  Wire.write(0x01);
-  Wire.write(0x5a);
-  Wire.write(0x5a);
-  Wire.endTransmission();
+  Tuner_Reset();
   delay(100);
   Wire.beginTransmission(0x64);
   Wire.write(0x1c);
