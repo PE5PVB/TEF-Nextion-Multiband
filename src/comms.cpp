@@ -447,14 +447,14 @@ void XDRGTKRoutine(void) {
 
   if (millis() >= signalstatustimer + 66) {
     if (band == 5) {
-      XDRGTKprint("Sm");
+      XDRGTKprint("SM");
     } else {
       if (!StereoToggle ) {
         XDRGTKprint("SS");
       } else if (Stereostatus) {
         XDRGTKprint("Ss");
       } else {
-        XDRGTKprint("Sm");
+        XDRGTKprint("SM");
       }
     }
     XDRGTKprint(String(((SStatus * 100) + 10875) / 1000) + "." + String(((SStatus * 100) + 10875) / 100 % 10) + "," + String(WAM / 10) + "," + String(CN) + "," + String(BW) + "\n\n");
