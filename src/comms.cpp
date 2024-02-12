@@ -191,28 +191,29 @@ void XDRGTKprint(String string) {
 
 void XDRGTKRoutine(void) {
   if (XDRGTK) {
-    if (Serial.available()) {
-      buff[buff_pos] = Serial.read();
-      if (buff[buff_pos] != '\n' && buff_pos != 16 - 1) {
-        buff_pos++;
+    while (Serial.available() > 0) {
+      char c = Serial.read();
+      if (buff_pos < 16 && c != '\n') {
+        buff[buff_pos++] = c;
       } else {
-        buff[buff_pos] = 0;
+        buff[buff_pos] = '\0';
         buff_pos = 0;
         XDRGTKdata = true;
+        break;
       }
     }
   }
 
-  if (XDRGTKTCP) {
-    if (RemoteClient.available() > 0) {
-      buff[buff_pos] = RemoteClient.read();
-      if (buff[buff_pos] != '\n' && buff_pos != 16 - 1)
-      {
-        buff_pos++;
+  if (XDRGTKTCP && RemoteClient.available() > 0) {
+    while (RemoteClient.available() > 0) {
+      char c = RemoteClient.read();
+      if (buff_pos < 16 && c != '\n') {
+        buff[buff_pos++] = c;
       } else {
-        buff[buff_pos] = 0;
+        buff[buff_pos] = '\0';
         buff_pos = 0;
         XDRGTKdata = true;
+        break;
       }
     }
   }
@@ -325,22 +326,24 @@ void XDRGTKRoutine(void) {
       case 'T':
         unsigned int XDRfreq;
         XDRfreq = atoi(buff + 1);
-        if (XDRfreq > 27001) {
-          XDRGTKprint("M0\n");
-          XDRGTKTune(XDRfreq / 10);
-        } else if (XDRfreq > 143) {
-          frequency5 = XDRfreq;
-          if (band != 5) {
-            band = 5;
-            RF(band);
-            XDRGTKprint("M1\n");
-          } else {
-            radio.SetFreqAM(frequency5);
+        if (XDRfreq != freq * 10) {
+          if (XDRfreq > 27001) {
+            XDRGTKprint("M0\n");
+            XDRGTKTune(XDRfreq / 10);
+          } else if (XDRfreq > 143) {
+            frequency5 = XDRfreq;
+            if (band != 5) {
+              band = 5;
+              RF(band);
+              XDRGTKprint("M1\n");
+            } else {
+              radio.SetFreqAM(frequency5);
+            }
           }
+          ShowFreq();
+          XDRshowmillis = millis();
+          store = true;
         }
-        ShowFreq();
-        XDRshowmillis = millis();
-        store = true;
         break;
 
       case 'Q':
@@ -395,14 +398,8 @@ void XDRGTKRoutine(void) {
 
       case 'Y':
         VolSet = atoi(buff + 1);
-        if (VolSet == 0) {
-          radio.setMute();
-          XDRMute = true;
-          SQ = true;
-        } else {
-          radio.setVolume((VolSet - 70) / 10);
-          XDRMute = false;
-        }
+        radio.setUnMute();
+        radio.setVolume((VolSet - 70) / 10);
         XDRGTKprint("Y" + String(VolSet) + "\n");
         break;
 
