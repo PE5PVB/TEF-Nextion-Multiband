@@ -94,8 +94,8 @@ void ShowRDS(void) {
       EONold = radio.rds.hasEON;
     }
 
-    if ((RTPlus != radio.rds.hasRDSplus || displayreset) && showrdsinfo) {
-      if (RDSstatus && radio.rds.hasRDSplus) Display.writeNum("rtplus.pic", NEXTION_RTPLUSLOGO); else Display.writeNum("rtplus.pic", NEXTION_RTPLUSLOGO_GREYOUT);
+    if (RTPlus != radio.rds.hasRDSplus || displayreset) {
+      if (RDSstatus && radio.rds.hasRDSplus) Display.writeNum("rtplus.pic", (showrdsinfo ? NEXTION_RTPLUSLOGO: NEXTION_RTPLUSLOGO_SMALL)); else Display.writeNum("rtplus.pic", (showrdsinfo ? NEXTION_RTPLUSLOGO_GREYOUT : NEXTION_RTPLUSLOGO_GREYOUT_SMALL));
       RTPlus = radio.rds.hasRDSplus;
     }
   }

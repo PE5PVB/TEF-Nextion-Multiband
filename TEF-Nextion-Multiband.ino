@@ -421,8 +421,6 @@ void setup(void) {
   radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
 
   if (lowByte(device) != 0) {
-    Display.writeNum("TEFicon.pic", NEXTION_RTPLUSLOGO);
-    Display.writeStr("vis TEFicon,1");
     Display.writeNum("TEF.pco", NEXTION_COLOR_GREEN);
     if (lowByte(device) == 14) {
       Display.writeStr("TEF.txt", "TEF6686 detected!");
@@ -438,22 +436,16 @@ void setup(void) {
       fullsearchrds = true;
     }
   } else {
-    Display.writeNum("TEFicon.pic", NEXTION_RTPLUSLOGO_GREYOUT);
-    Display.writeStr("vis TEFicon,1");
     Display.writeNum("TEF.pco", NEXTION_COLOR_RED);
     Display.writeStr("TEF.txt", "Tuner NOT detected!");
   }
 
   if (digitalRead(BAND) == LOW) {
-    Display.writeNum("UHFicon.pic", NEXTION_RTPLUSLOGO);
-    Display.writeStr("vis UHFicon,1");
     Display.writeNum("UHF.pco", NEXTION_COLOR_GREEN);
     Display.writeStr("UHF.txt", "UHF Board detected!");
     Display.writeNum("uhf", 1);
     UHF = true;
   } else {
-    Display.writeNum("UHFicon.pic", NEXTION_RTPLUSLOGO_GREYOUT);
-    Display.writeStr("vis UHFicon,1");
     Display.writeNum("UHF.pco", NEXTION_COLOR_RED);
     Display.writeStr("UHF.txt", "UHF Board NOT detected!");
     UHF = false;
@@ -463,8 +455,6 @@ void setup(void) {
   delay(100);
 
   if (swSer.available()) {
-    Display.writeNum("BTicon.pic", NEXTION_RTPLUSLOGO);
-    Display.writeStr("vis BTicon,1");
     Display.writeNum("BT.pco", NEXTION_COLOR_GREEN);
     Display.writeStr("BT.txt", "Bluetooth detected!");
     Display.writeNum("btenable", 1);
