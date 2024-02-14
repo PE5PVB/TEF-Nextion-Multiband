@@ -421,11 +421,11 @@ void XDRGTKRoutine(void) {
         ANT = atol(buff + 1);
         switch (ANT) {
           case 0:
-            // Antenna A
+            if (!UHF) digitalWrite(RFC, LOW);
             break;
 
           case 1:
-            // Antenna B
+            if (!UHF) digitalWrite(RFC, HIGH);
             break;
 
           case 2:

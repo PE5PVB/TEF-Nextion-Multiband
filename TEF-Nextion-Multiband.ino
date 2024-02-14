@@ -494,7 +494,7 @@ void setup(void) {
   radio.setFMSI_Gain(fmsi_11, fmsi_21, fmsi_31, fmsi_41);
   radio.setFMSI_Bias(fmsi_12, fmsi_22, fmsi_32, fmsi_42);
   radio.rds.rtbuffer = true;
-  radio.rds.underscore = false;
+  radio.underscore = false;
   radio.rds.filter = false;
   radio.rds.pierrors = true;
   radio.rds.sortaf = true;
