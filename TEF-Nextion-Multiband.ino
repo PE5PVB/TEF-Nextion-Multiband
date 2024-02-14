@@ -612,59 +612,57 @@ void loop(void) {
 }
 
 void BandSet(void) {
-  if (!XDRGTK && !XDRGTKTCP) {
-    unsigned long counterold = millis();
-    unsigned long counter = millis();
+  unsigned long counterold = millis();
+  unsigned long counter = millis();
 
-    while (digitalRead(BAND) == LOW && counter - counterold <= 1000) counter = millis();
+  while (digitalRead(BAND) == LOW && counter - counterold <= 1000) counter = millis();
 
-    if (counter - counterold < 1000 || power) {
-      if (power) {
-        Display.writeNum("sleep", 0);
-        Display.writeStr("page 0");
-        ESP.restart();
-      }
-
-      seek = false;
-      tunemode = 0;
-      ShowTuneMode();
-
-      if (UHF) {
-        band ++;
-        if (band > 5) band = 0;
-        switch (band) {
-          case 0: RF(0); break;
-          case 1: RF(1); break;
-          case 2: RF(2); break;
-          case 3: RF(3); break;
-          case 4: RF(4); break;
-          case 5: RF(5); break;
-        }
-      } else {
-        band ++;
-        if (band > 6) band = 0;
-        if (band == 1) band = 5;
-        if (band == 0) RF(0);
-        if (band == 5) RF(5);
-        if (band == 6) RF(6);
-      }
-      EEPROM.writeByte(EE_UINT8T_BAND, band);
-      EEPROM.commit();
-      ShowFreq();
-    } else {
-      power = true;
-      Display.writeNum("sleep", 1);
-      Frontend.Power(0);
-      radio.power(1);
-      analogWrite(SMETERPIN, 0);
-      if (wifienable == 1) {
-        Server.end();
-        Udp.stop();
-        WiFi.mode(WIFI_OFF);
-      }
+  if (counter - counterold < 1000 || power) {
+    if (power) {
+      Display.writeNum("sleep", 0);
+      Display.writeStr("page 0");
+      ESP.restart();
     }
-    while (digitalRead(BAND) == LOW) delay(10);
+
+    seek = false;
+    tunemode = 0;
+    ShowTuneMode();
+
+    if (UHF) {
+      band ++;
+      if (band > 5) band = 0;
+      switch (band) {
+        case 0: RF(0); break;
+        case 1: RF(1); break;
+        case 2: RF(2); break;
+        case 3: RF(3); break;
+        case 4: RF(4); break;
+        case 5: RF(5); break;
+      }
+    } else {
+      band ++;
+      if (band > 6) band = 0;
+      if (band == 1) band = 5;
+      if (band == 0) RF(0);
+      if (band == 5) RF(5);
+      if (band == 6) RF(6);
+    }
+    EEPROM.writeByte(EE_UINT8T_BAND, band);
+    EEPROM.commit();
+    ShowFreq();
+  } else if (!XDRGTK && !XDRGTKTCP) {
+    power = true;
+    Display.writeNum("sleep", 1);
+    Frontend.Power(0);
+    radio.power(1);
+    analogWrite(SMETERPIN, 0);
+    if (wifienable == 1) {
+      Server.end();
+      Udp.stop();
+      WiFi.mode(WIFI_OFF);
+    }
   }
+  while (digitalRead(BAND) == LOW) delay(10);
 }
 
 void RF(byte RFset) {
@@ -776,7 +774,7 @@ void RF(byte RFset) {
       digitalWrite(RFA, HIGH);
       digitalWrite(RFB, HIGH);
       radio.power(0);
-      delay(10);
+      delay(50);
       radio.SetFreq(frequency0);
       if (!displayreset) radio.clearRDS(fullsearchrds);
       radio.setOffset(LevelOffset0);
@@ -791,6 +789,7 @@ void RF(byte RFset) {
       digitalWrite(RFA, LOW);
       digitalWrite(RFB, LOW);
       radio.power(0);
+      delay(50);
       radio.SetFreq(IF * 100);
       if (!displayreset) radio.clearRDS(fullsearchrds);
       radio.setOffset(LevelOffset1 - 7);
@@ -804,6 +803,7 @@ void RF(byte RFset) {
       digitalWrite(RFA, HIGH);
       digitalWrite(RFB, LOW);
       radio.power(0);
+      delay(50);
       radio.SetFreq(IF * 100);
       if (!displayreset) radio.clearRDS(fullsearchrds);
       radio.setOffset(LevelOffset2 - 4);
@@ -816,6 +816,7 @@ void RF(byte RFset) {
       digitalWrite(RFA, LOW);
       digitalWrite(RFB, HIGH);
       radio.power(0);
+      delay(50);
       radio.SetFreq(IF * 100);
       if (!displayreset) radio.clearRDS(fullsearchrds);
       radio.setOffset(LevelOffset3);
@@ -828,6 +829,7 @@ void RF(byte RFset) {
       digitalWrite(RFA, HIGH);
       digitalWrite(RFB, HIGH);
       radio.power(0);
+      delay(50);
       radio.SetFreq(IF * 100);
       if (!displayreset) radio.clearRDS(fullsearchrds);
       radio.setOffset(LevelOffset4 + 2);
@@ -858,8 +860,9 @@ void RF(byte RFset) {
       digitalWrite(RFA, HIGH);
       digitalWrite(RFB, HIGH);
       radio.power(0);
-      radio.setOffset(LevelOffset6);
+      delay(50);
       radio.SetFreq(frequency6 - converteroffset * 100);
+      radio.setOffset(LevelOffset6);
       Display.writeNum("offsettouch", 0);
       Wire.beginTransmission(0x12);
       Wire.write(converteroffset >> 8);
