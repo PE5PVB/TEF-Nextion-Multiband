@@ -95,7 +95,7 @@ void ShowRDS(void) {
     }
 
     if (RTPlus != radio.rds.hasRDSplus || displayreset) {
-      if (RDSstatus && radio.rds.hasRDSplus) Display.writeNum("rtplus.pic", (showrdsinfo ? NEXTION_RTPLUSLOGO: NEXTION_RTPLUSLOGO_SMALL)); else Display.writeNum("rtplus.pic", (showrdsinfo ? NEXTION_RTPLUSLOGO_GREYOUT : NEXTION_RTPLUSLOGO_GREYOUT_SMALL));
+      if (RDSstatus && radio.rds.hasRDSplus) Display.writeNum("rtplus.pic", (showrdsinfo ? NEXTION_RTPLUSLOGO : NEXTION_RTPLUSLOGO_SMALL)); else Display.writeNum("rtplus.pic", (showrdsinfo ? NEXTION_RTPLUSLOGO_GREYOUT : NEXTION_RTPLUSLOGO_GREYOUT_SMALL));
       RTPlus = radio.rds.hasRDSplus;
     }
   }
@@ -509,7 +509,16 @@ void ShowFreq(void) {
 void ShowModLevel(void) {
   if (!showrdsinfo) {
     if (!seek) {
-      if (!SQ) Display.writeNum("vu.val", MStatus / 2); else Display.writeNum("vu.val", 0);
+      if (!SQ) {
+        if (displaysize != 35) {
+          int vuval = map(MStatus, 0, 120, 0, 74);
+          Display.writeNum("vu.val", vuval);
+        } else {
+          Display.writeNum("vu.val", MStatus / 2);
+        }
+      } else {
+        Display.writeNum("vu.val", 0);
+      }
     } else {
       Display.writeNum("vu.val", 0);
     }
