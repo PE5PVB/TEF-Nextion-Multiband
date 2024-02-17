@@ -2062,14 +2062,17 @@ void read_encoder(void) {
   encval += enc_states[( old_AB & 0x0f )];
 
   if (optrot) {
-    if (encval > 2) {
+    // Adjust threshold based on speed only if optrot is true
+    int threshold = 2; // Adjust this threshold as needed for slower speed
+    if (encval > threshold) {
       if (rotarymode) rotary = -1; else rotary = 1;
       encval = 0;
-    } else if (encval < -2) {
+    } else if (encval < -threshold) {
       if (rotarymode) rotary = 1; else rotary = -1;
       encval = 0;
     }
   } else {
+    // Keep the original behavior when optrot is false
     if (encval > 3) {
       if (rotarymode) rotary = -1; else rotary = 1;
       encval = 0;

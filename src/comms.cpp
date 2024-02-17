@@ -454,7 +454,7 @@ void XDRGTKRoutine(void) {
         XDRGTKprint("Sm");
       }
     }
-    XDRGTKprint(String(((SStatus * 100) + 10875) / 1000) + "." + String(((SStatus * 100) + 10875) / 100 % 10) + "," + String(WAM / 10) + ",-1\n\n");
+    XDRGTKprint(String(((SStatus * 100) + 10875) / 1000) + "." + String(abs(((SStatus * 100) + 10875) / 100 % 10)) + "," + String(WAM / 10) + ",-1\n\n");
     signalstatustimer = millis();
   }
 }

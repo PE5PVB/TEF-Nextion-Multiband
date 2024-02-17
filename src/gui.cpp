@@ -610,15 +610,10 @@ void ShowSignalLevel(void) {
 
     if ((SStatus > (SStatusold + 3) || SStatus < (SStatusold - 3)) || displayreset) {
       Display.writeNum("signal.val", SStatus / 10);
+	  Display.writeNum("signaldec.val", abs(SStatus % 10));
       analogWrite(SMETERPIN, smeter);
-      if (SStatus < 0) {
-        analogWrite(SMETERPIN, 0);
-        String negative = String (SStatus % 10, DEC);
-        Display.writeNum("signaldec.val", negative[1]);
-      } else {
-        Display.writeNum("signaldec.val", SStatus % 10);
-      }
       SStatusold = SStatus;
+
       if (stationlist == 1 && wifienable == 2) {
         Udp.beginPacket(remoteip, 9030);
         Udp.print("from=TEF tuner " + showsoftwareversion + ";RcvLevel=");
