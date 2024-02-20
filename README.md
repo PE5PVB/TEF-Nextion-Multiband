@@ -1,23 +1,14 @@
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/PE5PVB/TEF6686_ESP32#contributing)
-[![HitCount](https://hits.dwyl.com/PE5PVB/TEF6686_ESP32.svg)](https://hits.dwyl.com/PE5PVB/TEF6686_ESP32)
-[![License](https://img.shields.io/badge/license%20-%20GNU_GPLv3-GPLv3?color=blue)](https://github.com/PE5PVB/TEF6686_ESP32/blob/main/LICENSE)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/PE5PVB/TEF-Nextion-Multiband#contributing)
+[![License](https://img.shields.io/badge/license%20-%20GNU_GPLv3-GPLv3?color=blue)](https://github.com/PE5PVB/TEF-Nextion-Multiband/blob/main/LICENSE)
 
 # Note:
 The version in the repository is an ongoing development. It could and will contain bugs. To make sure you use the latest fully tested firmware, check the releases!
-
-
 
 # TEF NEXTION MULTIBAND
 Advanced Tuner software for NXP TEF668x tuners with ESP32 board and a Nextion LCD\
 Based on Catena / NXP semiconductors API
 
 More information: https://www.pe5pvb.nl/tef-dsp-fm-tuner-v2/
-
-## Wiki
-- [About the software & features](https://github.com/PE5PVB/TEF6686_ESP32/wiki)
-- [Getting started](https://github.com/PE5PVB/TEF6686_ESP32/wiki#getting-started)
-- [How to install the software](https://github.com/PE5PVB/TEF6686_ESP32/wiki/Installing-the-software)
-- [Menu options explained](https://github.com/PE5PVB/TEF6686_ESP32/wiki/Menu-options-explained)
 
 ## Contributing
 I'm open for a new ideas in our project. Feel free to share your thoughts in [Discussions](https://github.com/PE5PVB/TEF-Nextion-Multiband/discussions/).\
