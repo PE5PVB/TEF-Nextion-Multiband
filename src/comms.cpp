@@ -225,7 +225,12 @@ void XDRGTKRoutine(void) {
         int AGC;
         AGC = atol(buff + 1);
         XDRGTKprint("A" + String(AGC) + "\n");
-        radio.setAGC(AGC);
+        switch (AGC) {
+          case 0: if (band != 5) radio.setAGC(92); else radio.setAMAGC(102); break;
+          case 1: if (band != 5) radio.setAGC(90); else radio.setAMAGC(99); break;
+          case 2: if (band != 5) radio.setAGC(87); else radio.setAMAGC(96); break;
+          case 3: if (band != 5) radio.setAGC(84); else radio.setAMAGC(94); break;
+        }
         break;
 
       case 'C':

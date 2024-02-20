@@ -426,6 +426,9 @@ void trigger21(void) {  // Show Wifi configurator
   String SSID_AP = String ("SSID: " + ssid);
   Display.writeStr("SSID_AP.txt", SSID_AP);
   wc.startConfigurationPortal(AP_WAIT);
+  wifienable = 2;
+  EEPROM.writeByte(EE_UINT8T_WIFIENABLE, wifienable);
+  EEPROM.commit();
   ESP.restart();
 }
 

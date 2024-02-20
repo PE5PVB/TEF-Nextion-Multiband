@@ -8,9 +8,9 @@
 #include <Hash.h>                   // https://github.com/bbx10/Hash_tng
 #include <TimeLib.h>                // https://github.com/PaulStoffregen/Time
 #include "src/constants.h"
-#include "src/TEF6686.h"            // Included with this file
-#include "src/ADF4351.h"            // Included with this file
-#include "src/WiFiConnect.h"        // Included with this file
+#include "src/TEF6686.h"
+#include "src/ADF4351.h"
+#include "src/WiFiConnect.h"
 #include "src/gui.h"
 #include "src/comms.h"
 #include "src/scanner.h"
@@ -2062,8 +2062,7 @@ void read_encoder(void) {
   encval += enc_states[( old_AB & 0x0f )];
 
   if (optrot) {
-    // Adjust threshold based on speed only if optrot is true
-    int threshold = 2; // Adjust this threshold as needed for slower speed
+    int threshold = 2;
     if (encval > threshold) {
       if (rotarymode) rotary = -1; else rotary = 1;
       encval = 0;
@@ -2072,7 +2071,6 @@ void read_encoder(void) {
       encval = 0;
     }
   } else {
-    // Keep the original behavior when optrot is false
     if (encval > 3) {
       if (rotarymode) rotary = -1; else rotary = 1;
       encval = 0;

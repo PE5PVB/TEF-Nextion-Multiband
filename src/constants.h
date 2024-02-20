@@ -14,7 +14,7 @@
 #define SMETERPIN                       	2
 #define SOFTWAREVER                     	209
 #define DISPLAYVER                      	106
-#define BETA                            	1
+#define BETA                            	0
 
 #define XTAL_0V_ADC                     	0
 #define XTAL_1V_ADC                     	1050
