@@ -714,7 +714,7 @@ void RF(byte RFset) {
       Display.writeStr("vis m0,0");
     }
 
-    if (scopeview == false && !manfreq) {
+    if (!showrdsinfo && !scopeview && !manfreq) {
       Display.writeStr("vis U_disp,0");
       Display.writeStr("vis W_disp,0");
       Display.writeNum("tm4.en", 0);
@@ -724,10 +724,12 @@ void RF(byte RFset) {
       Display.writeNum("scopeview", 1);
     }
     if (!manfreq) {
+      if (!showrdsinfo) {
+        Display.writeNum("autobwlogo.pic", NEXTION_AUTOBWLOGO_GREYOUT);
+        Display.writeNum("imslogo.pic", NEXTION_IMSLOGO_GREYOUT);
+        Display.writeNum("eqlogo.pic", NEXTION_EQLOGO_GREYOUT);
+      }
       Display.writeNum("BW.pco", NEXTION_COLOR_YELLOW);
-      Display.writeNum("autobwlogo.pic", NEXTION_AUTOBWLOGO_GREYOUT);
-      Display.writeNum("imslogo.pic", NEXTION_IMSLOGO_GREYOUT);
-      Display.writeNum("eqlogo.pic", NEXTION_EQLOGO_GREYOUT);
       Display.writeNum("stereo.pic", NEXTION_STEREOLOGO_GREYOUT);
       Display.writeNum("ber.pic", NEXTION_RDSBAR_0);
       Display.writeNum("t4.pco", NEXTION_COLOR_GREY);
@@ -738,10 +740,10 @@ void RF(byte RFset) {
       String count = String(frequency5, DEC);
       if (count.length() > 3) {
         Display.writeNum("freq.vvs1", 3);
-        Display.writeStr("t2.txt", "MHz");
+        if (!showrdsinfo) Display.writeStr("t2.txt", "MHz");
       } else {
         Display.writeNum("freq.vvs1", 0);
-        Display.writeStr("t2.txt", "kHz");
+        if (!showrdsinfo) Display.writeStr("t2.txt", "kHz");
       }
     }
   } else {
@@ -749,17 +751,19 @@ void RF(byte RFset) {
       ShowiMS();
       ShowEQ();
       Display.writeStr("vis m0,1");
-      if (scopeview == false) {
-        Display.writeStr("vis U_disp,1");
-        Display.writeStr("vis W_disp,1");
-        Display.writeNum("tm4.en", 1);
-        Display.writeStr("vis m1,1");
-        Display.writeStr("vis signalform,0");
-        Display.writeStr("vis modpos,0");
-        Display.writeNum("scopeview", 0);
+      if (!showrdsinfo) {
+        if (!scopeview) {
+          Display.writeStr("vis U_disp,1");
+          Display.writeStr("vis W_disp,1");
+          Display.writeNum("tm4.en", 1);
+          Display.writeStr("vis m1,1");
+          Display.writeStr("vis signalform,0");
+          Display.writeStr("vis modpos,0");
+          Display.writeNum("scopeview", 0);
+        }
+        Display.writeStr("t2.txt", "MHz");
       }
       Display.writeNum("freq.vvs1", 2);
-      Display.writeStr("t2.txt", "MHz");
       Display.writeNum("t4.pco", NEXTION_COLOR_WHITE);
       Display.writeNum("t5.pco", NEXTION_COLOR_WHITE);
       Display.writeNum("t6.pco", NEXTION_COLOR_WHITE);
