@@ -314,7 +314,7 @@ void setup(void) {
       optrot = true;
       Display.writeStr("version2.txt", "optical encoder");
     }
-    EEPROM.writeByte(184, EE_UINT8T_OPTROT);
+    EEPROM.writeByte(EE_UINT8T_OPTROT, optrot);
     EEPROM.commit();
     Display.writeStr("version.txt", "Changed to: ");
     delay(2000);
