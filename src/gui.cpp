@@ -298,9 +298,8 @@ void ShowErrors(void) {
 
   SAvg3 = (((SAvg3 * 9) + 5) / 10) + calc;
   calc = SAvg3 / 10;
-  if (!RDSstatus) calc = 0;
 
-  if (calc != RDSerrorsold || displayreset) {
+  if (calc != RDSerrorsold || (displayreset || tunereset)) {
     if (RDSstatus) {
       switch (calc) {
         case 0: Display.writeNum("ber.pic", NEXTION_RDSBAR_4); break;
