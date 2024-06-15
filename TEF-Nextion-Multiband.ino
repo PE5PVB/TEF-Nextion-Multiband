@@ -544,7 +544,7 @@ void loop(void) {
 
     if (!menu && !manfreq && !spec) {
       if (band == 5) radio.getStatusAM(SStatus, USN, WAM, OStatus, BW, MStatus, CN); else radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
-      if (millis() > tuneresetcounter + 250) readRds();
+      readRds();
 
       if (XDRGTKTCP || XDRGTK) {
         if (millis() > XDRshowmillis + 70) {

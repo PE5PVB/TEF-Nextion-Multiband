@@ -12,8 +12,8 @@
 #define RFC                             	4
 #define BAND                            	27
 #define SMETERPIN                       	2
-#define SOFTWAREVER                     	209
-#define DISPLAYVER                      	106
+#define SOFTWAREVER                     	210
+#define DISPLAYVER                      	107
 #define BETA                            	0
 
 #define XTAL_0V_ADC                     	0

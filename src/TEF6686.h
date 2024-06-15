@@ -281,14 +281,14 @@ static const char* const ECCtext[] {
   "Virgin UK", // 176
   "Virgin USA", // 177
   "Afganist.", // 178
-  "AU C.T.", // 179
-  "AU N.S.W.", // 180
-  "AU Vict.", // 181
-  "AU Queen", // 182
-  "AU S. Au.", // 183
-  "AU W. Au.", // 184
-  "AU Tasma.", // 185
-  "AU N. T.", // 186
+  "Aus. ACT", // 179
+  "Aus. NSW", // 180
+  "Aus. VIC", // 181
+  "Aus. QLD", // 182
+  "Aus. SA", // 183
+  "Aus. WA", // 184
+  "Aus. TAS", // 185
+  "Aus. NT", // 186
   "Bhutan", // 187
   "Brunei D.", // 188
   "Cambodia", // 189
@@ -568,10 +568,13 @@ typedef struct _rds_ {
   String ECCtext;
   String LICtext;
   String stationIDtext;
+  String stationNameLong;
   String stationStatetext;
+  String enhancedRTtext;
   char stationType[18];
   char picode[7];
   char stationID[9];
+  char stationLongID[33];
   char stationState[3];
   char dabafeid[5];
   char dabafchannel[4];
@@ -579,6 +582,7 @@ typedef struct _rds_ {
   uint16_t aid[10];
   uint32_t dabaffreq;
   byte aid_counter;
+  byte fastps;
   int8_t offset;
   unsigned int ECC;
   unsigned int LIC;
@@ -598,7 +602,9 @@ typedef struct _rds_ {
   bool hasECC;
   bool hasLIC;
   bool hasDABAF;
+  bool hasLongPS;
   bool hasRT;
+  bool hasEnhancedRT;
   bool hasTP;
   bool hasTA;
   bool hasEON;
@@ -606,6 +612,7 @@ typedef struct _rds_ {
   bool hasTMC;
   bool hasAF;
   bool hasCT;
+  bool hasPTYN;
   bool rtAB;
   bool rtAB32;
   bool hasRDSplus;
@@ -613,7 +620,6 @@ typedef struct _rds_ {
   bool rdsreset;
   bool pierrors;
   bool sortaf;
-  bool fastps;
   bool rtbuffer = true;
   bool afreg;
   RdsPiBuffer piBuffer;
@@ -660,6 +666,7 @@ class TEF6686 {
     void readRDS(byte showrdserrors);
     void SetFreq(uint16_t frequency);
     void SetFreqAM(uint16_t frequency);
+    void SetFreqAIR(uint16_t frequency);
     bool getProcessing(uint16_t &highcut, uint16_t &stereo, uint16_t &sthiblend, uint8_t &stband_1, uint8_t &stband_2, uint8_t &stband_3, uint8_t &stband_4);
     bool getStatus(int16_t &level, uint16_t &USN, uint16_t &WAM, int16_t &offset, uint16_t &bandwidth, uint16_t &modulation, int8_t &snr);
     bool getStatusAM(int16_t &level, uint16_t &noise, uint16_t &cochannel, int16_t &offset, uint16_t &bandwidth, uint16_t &modulation, int8_t &snr);
@@ -701,6 +708,7 @@ class TEF6686 {
     void setUnMute();
     void setVolume(int8_t volume);
     void tone(uint16_t time, int16_t amplitude, uint16_t frequency);
+    String trimTrailingSpaces(String str);
     uint8_t af_counter;
     uint8_t eon_counter;
     uint8_t logbook_counter;
@@ -714,24 +722,32 @@ class TEF6686 {
     void RDScharConverter(const char* input, wchar_t* output, size_t size, bool under);
     String convertToUTF8(const wchar_t* input);
     String extractUTF8Substring(const String& utf8String, size_t start, size_t length, bool under);
+    String eRTconverter(const wchar_t* input);
+    String ucs2ToUtf8(const char* ucs2Input);
     char ps_buffer[9];
     char ps_buffer2[9];
     char ptyn_buffer[9];
     char eon_buffer[20][9];
     bool ps_process;
+    bool pslong_process;
+    char eRT_buffer[129];
     bool rt_process;
     char rt_buffer[65];
     char rt_buffer2[65];
     char rt_buffer32[33];
+    char pslong_buffer[33];
+    char pslong_buffer2[33];
     bool useRTPlus = true;
     bool ABold;
     bool afreset;
     bool mpxmode;
+    bool _hasEnhancedRT;
     char stationTextBuffer[65];
     uint16_t piold;
     bool rtABold;
     bool rtAB32old;
     wchar_t PStext[9] = L"";
+    wchar_t PSLongtext[33] = L"";
     wchar_t EONPStext[20][9];
     wchar_t PTYNtext[9] = L"";
     char RDSplus1[45];
@@ -744,15 +760,11 @@ class TEF6686 {
     bool initab;
     bool afinit;
     bool errorfreepi;
-    bool rdsAerrorThreshold;
-    bool rdsBerrorThreshold;
-    bool rdsCerrorThreshold;
-    bool rdsDerrorThreshold;
-    bool packet0;
-    bool packet1;
-    bool packet2;
-    bool packet3;
+    bool rdsAerrorThreshold, rdsBerrorThreshold, rdsCerrorThreshold, rdsDerrorThreshold;
+    bool packet0, packet1, packet2, packet3, packet0long, packet1long, packet2long, packet3long;
+    uint16_t previous_rdsA, previous_rdsB, previous_rdsC, previous_rdsD;
     bool afmethodBprobe;
+    bool eRTcoding;
     uint16_t rdsCold;
     uint8_t af_counterb;
     uint8_t af_number;
@@ -761,6 +773,7 @@ class TEF6686 {
     uint16_t correctPIold;
     uint8_t rtplusblock;
     uint8_t DABAFblock;
+    uint8_t eRTblock;
     uint8_t doublecounter;
     uint16_t doubletestfreq;
 };
