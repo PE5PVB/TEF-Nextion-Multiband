@@ -2066,11 +2066,10 @@ void read_encoder(void) {
   encval += enc_states[( old_AB & 0x0f )];
 
   if (optrot) {
-    int threshold = 2;
-    if (encval > threshold) {
+    if (encval > 4) {
       if (rotarymode) rotary = -1; else rotary = 1;
       encval = 0;
-    } else if (encval < -threshold) {
+    } else if (encval < -4) {
       if (rotarymode) rotary = 1; else rotary = -1;
       encval = 0;
     }

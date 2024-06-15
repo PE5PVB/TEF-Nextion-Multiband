@@ -298,6 +298,7 @@ void ShowErrors(void) {
 
   SAvg3 = (((SAvg3 * 9) + 5) / 10) + calc;
   calc = SAvg3 / 10;
+  if (!RDSstatus) calc = 0;
 
   if (calc != RDSerrorsold || displayreset) {
     if (RDSstatus) {
@@ -610,7 +611,7 @@ void ShowSignalLevel(void) {
 
     if ((SStatus > (SStatusold + 3) || SStatus < (SStatusold - 3)) || displayreset) {
       Display.writeNum("signal.val", SStatus / 10);
-	  Display.writeNum("signaldec.val", abs(SStatus % 10));
+      Display.writeNum("signaldec.val", abs(SStatus % 10));
       analogWrite(SMETERPIN, smeter);
       SStatusold = SStatus;
 
