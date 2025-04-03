@@ -3,10 +3,10 @@
 #include <Wire.h>                   // Included in Boardmanager
 #include <WiFiClient.h>             // Included in Boardmanager
 #include <EEPROM.h>                 // Included in Boardmanager
+#include <TimeLib.h>                // Included in Boardmanager
 #include <SoftwareSerial.h>         // https://github.com/plerup/espsoftwareserial/
 #include <EasyNextionLibrary.h>     // https://github.com/Seithan/EasyNextionLibrary
 #include <Hash.h>                   // https://github.com/bbx10/Hash_tng
-#include <TimeLib.h>                // https://github.com/PaulStoffregen/Time
 #include "src/constants.h"
 #include "src/TEF6686.h"
 #include "src/ADF4351.h"
@@ -883,7 +883,7 @@ void RF(byte RFset) {
 }
 
 void readRds(void) {
-  if (band == 5) RDSstatus = false; else radio.readRDS(showrdserrors ? 3 : 1);
+  if (band == 5) RDSstatus = false; else radio.readRDS(showrdserrors ? 2 : 1);
   RDSstatus = radio.rds.hasRDS;
   ShowRDS();
 
@@ -2064,6 +2064,7 @@ void read_encoder(void) {
   if (digitalRead(ROTARY_PIN_A)) old_AB |= 0x02;
   if (digitalRead(ROTARY_PIN_B)) old_AB |= 0x01;
   encval += enc_states[( old_AB & 0x0f )];
+  if (!(255 - old_AB)) encval = 0; // Unstick -2 or 2
 
   if (optrot) {
     if (encval > 4) {

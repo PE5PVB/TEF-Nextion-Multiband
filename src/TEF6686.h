@@ -12,12 +12,19 @@ extern const unsigned char tuner_init_tab4000[] PROGMEM;
 extern const unsigned char tuner_init_tab12000[] PROGMEM;
 extern const unsigned char tuner_init_tab55000[] PROGMEM;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
 enum RDS_GROUPS {
   RDS_GROUP_0A,  RDS_GROUP_0B,  RDS_GROUP_1A,  RDS_GROUP_1B,  RDS_GROUP_2A,  RDS_GROUP_2B,  RDS_GROUP_3A,  RDS_GROUP_3B,
   RDS_GROUP_4A,  RDS_GROUP_4B,  RDS_GROUP_5A,  RDS_GROUP_5B,  RDS_GROUP_6A,  RDS_GROUP_6B,  RDS_GROUP_7A,  RDS_GROUP_7B,
   RDS_GROUP_8A,  RDS_GROUP_8B,  RDS_GROUP_9A,  RDS_GROUP_9B,  RDS_GROUP_10A, RDS_GROUP_10B, RDS_GROUP_11A, RDS_GROUP_11B,
   RDS_GROUP_12A, RDS_GROUP_12B, RDS_GROUP_13A, RDS_GROUP_13B, RDS_GROUP_14A, RDS_GROUP_14B, RDS_GROUP_15A, RDS_GROUP_15B
 };
+
+// Fixed PI/callsign combinations for Canada
+static const uint16_t fixedPI[] = {0x4C10, 0x4C11, 0x4C12};
+static const char* fixedCalls[] = {"CBLA", "CBFM", "CBOT"};
 
 static const char* const PTY_EU[] {
   "None",
@@ -95,10 +102,10 @@ static const uint16_t oda_app_ids[] {
   0x0000, 0x0093, 0x0BCB, 0x0C24, 0x0CC1, 0x0D45, 0x0D8B, 0x0E2C, 0x0E31, 0x0F87,
   0x125F, 0x1BDA, 0x1C5E, 0x1C68, 0x1CB1, 0x1D47, 0x1DC2, 0x1DC5, 0x1E8F, 0x4400,
   0x4AA1, 0x4AB7, 0x4BA2, 0x4BD7, 0x4BD8, 0x4C59, 0x4D87, 0x4D95, 0x4D9A, 0x50DD,
-  0x5757, 0x6363, 0x6365, 0x6552, 0x6A7A, 0x7373, 0xA112, 0xA911, 0xABCF, 0xC350,
-  0xC3A1, 0xC3B0, 0xC3C3, 0xC4D4, 0xC549, 0xC563, 0xC6A7, 0xC737, 0xCB73, 0xCB97,
-  0xCC21, 0xCD46, 0xCD47, 0xCD9E, 0xCE6B, 0xE123, 0xE1C1, 0xE319, 0xE411, 0xE440,
-  0xE4A6, 0xE5D7, 0xE911, 0xFF7F, 0xFF80
+  0x5757, 0x6363, 0x6365, 0x6552, 0x6A7A, 0x7373, 0xA112, 0xA911, 0xABCE, 0xABCF,
+  0xBE22, 0xC350, 0xC3A1, 0xC3B0, 0xC3C3, 0xC4D4, 0xC549, 0xC563, 0xC6A7, 0xC737,
+  0xCB73, 0xCB97, 0xCC21, 0xCD19, 0xCD46, 0xCD47, 0xCD9E, 0xCE6B, 0xE123, 0xE1C1,
+  0xE319, 0xE411, 0xE440, 0xE4A6, 0xE5D7, 0xE911, 0xFF70, 0xFF7F, 0xFF80, 0xFF81
 };
 
 static const char* const ECCtext[] {
@@ -468,57 +475,60 @@ static const char* const oda_app_names[] {
   "Cross referencing DAB within RDS",
   "Leisure & Practical Info for Drivers",
   "ELECTRABEL-DSM 7",
-  "Wireless Playground broadcast control signal",
-  "RDS-TMC: ALERT-C / EN ISO 14819-1",
+  "WiPla Broadcast Control Signal",
+  "RDS-TMC: ALERT-C / EN ISO 14819-1 (for testing use, only)",
   "ELECTRABEL-DSM 18",
   "ELECTRABEL-DSM 3",
   "ELECTRABEL-DSM 13",
   "ELECTRABEL-DSM 2",
-  "I-FM-RDS for fixed and mobile devices",
+  "I-FM-RDS for Fixed and Mobile devices",
   "ELECTRABEL-DSM 1",
   "ELECTRABEL-DSM 20",
-  "ITIS In-vehicle data base",
+  "ITIS In-vehicle database",
   "ELECTRABEL-DSM 10",
   "ELECTRABEL-DSM 4",
   "CITIBUS 4",
-  "Encrypted TTI using ALERT-Plus",
+  "Encrypted TTI using ALERT-Plus only (for testing use, only)",
   "ELECTRABEL-DSM 17",
   "RDS-Light",
   "RASANT",
   "ELECTRABEL-DSM 9",
   "ELECTRABEL-DSM 5",
-  "RadioText+ (RT+)",
-  "RadioText Plus / RT+for eRT",
+  "RadioText Plus / RT+ for group 2A RT",
+  "RadioText Plus / RT+ for eRT",
   "CITIBUS 2",
   "Radio Commerce System (RCS)",
   "ELECTRABEL-DSM 16",
   "ELECTRABEL-DSM 11",
   "To warn people in case of disasters or emergency",
   "Personal weather station",
-  "Hybradio RDS-Net(for testing use, only)",
+  "Hybradio RDS-Net (for testing use, only)",
   "RDS2 – 9 bit AF lists ODA",
-  "Enhanced RadioText (eRT)",
+  "Enhanced RadioText / eRT",
   "Warning receiver",
   "Enhanced early warning system",
   "NL _ Alert system",
   "Data FM Selective Multipoint Messaging",
+  "Fleximax",
   "RF Power Monitoring",
-  "NRSC Song Title and Artist",
+  "Push-Ad",
+  "NRSC Song title and artist",
   "Personal Radio Service",
-  "iTunes Tagging",
-  "NAVTEQ Traffic Plus",
+  "iTunes tagging",
+  "Traffic Plus",
   "eEAS",
   "Smart Grid Broadcast Channel",
   "ID Logic",
   "Veil Enabled Interactive Device",
-  "Utility Message Channel (UMC)",
+  "UMC - Utility Message Channel",
   "CITIBUS 1",
   "ELECTRABEL-DSM 14",
   "CITIBUS 3",
+  "TokenMe",
   "RDS-TMC: ALERT-C",
   "RDS-TMC: ALERT-C",
   "ELECTRABEL-DSM 8",
-  "Encrypted TTI using ALERT-Plus",
+  "Encrypted TTI using ALERT-Plus only (for service use, only)",
   "APS Gateway",
   "Action code",
   "ELECTRABEL-DSM 12",
@@ -527,8 +537,10 @@ static const char* const oda_app_names[] {
   "ELECTRABEL-DSM 19",
   "ELECTRABEL-DSM 6",
   "EAS open protocol",
+  "Internet connection",
   "RFT: Station logo",
-  "RFT+ (work title)"
+  "RFT: Slideshow",
+  "RFT: Journaline (work title)"
 };
 
 struct DABFrequencyLabel {
@@ -555,6 +567,8 @@ const DABFrequencyLabel DABfrequencyTable[] = {
   {1490624,  "LW"}
 };
 
+#pragma GCC diagnostic pop
+
 typedef struct _rds_ {
   byte region;
   byte stationTypeCode;
@@ -578,12 +592,14 @@ typedef struct _rds_ {
   char stationState[3];
   char dabafeid[5];
   char dabafchannel[4];
-  uint16_t hour, minute, day, month, year, rdsA, rdsB, rdsC, rdsD, rdsErr, rdsStat, correctPI, rdsplusTag1, rdsplusTag2;
+  uint16_t rdsA, rdsB, rdsC, rdsD, rdsErr, rdsStat, correctPI, rdsplusTag1, rdsplusTag2, PICTlock = 0;
+  bool ps12error, ps34error, ps56error, ps78error;
+  time_t time;
+  int32_t offset;
   uint16_t aid[10];
   uint32_t dabaffreq;
   byte aid_counter;
   byte fastps;
-  int8_t offset;
   unsigned int ECC;
   unsigned int LIC;
   byte pinMin;
@@ -619,6 +635,7 @@ typedef struct _rds_ {
   bool filter;
   bool rdsreset;
   bool pierrors;
+  bool ctupdate = true;
   bool sortaf;
   bool rtbuffer = true;
   bool afreg;
@@ -645,6 +662,7 @@ typedef struct _eon_ {
   bool tp;
   bool taset;
   uint8_t pty;
+  bool ptyset;
 } eon_;
 
 typedef struct _logbook_ {
@@ -708,6 +726,7 @@ class TEF6686 {
     void setUnMute();
     void setVolume(int8_t volume);
     void tone(uint16_t time, int16_t amplitude, uint16_t frequency);
+    uint16_t getBlockA(void);
     String trimTrailingSpaces(String str);
     uint8_t af_counter;
     uint8_t eon_counter;
@@ -715,20 +734,21 @@ class TEF6686 {
     uint8_t rdsblock;
     bool mute;
     bool afmethodB;
-    bool underscore;
+    byte underscore;
+    bool ps_process;
     byte af_updatecounter;
 
   private:
     void RDScharConverter(const char* input, wchar_t* output, size_t size, bool under);
     String convertToUTF8(const wchar_t* input);
     String extractUTF8Substring(const String& utf8String, size_t start, size_t length, bool under);
-    String eRTconverter(const wchar_t* input);
     String ucs2ToUtf8(const char* ucs2Input);
+    bool isFixedCallsign(uint16_t stationID, char* stationIDStr);
+    String PSLongtext;
     char ps_buffer[9];
     char ps_buffer2[9];
     char ptyn_buffer[9];
     char eon_buffer[20][9];
-    bool ps_process;
     bool pslong_process;
     char eRT_buffer[129];
     bool rt_process;
@@ -747,7 +767,6 @@ class TEF6686 {
     bool rtABold;
     bool rtAB32old;
     wchar_t PStext[9] = L"";
-    wchar_t PSLongtext[33] = L"";
     wchar_t EONPStext[20][9];
     wchar_t PTYNtext[9] = L"";
     char RDSplus1[45];
@@ -776,5 +795,7 @@ class TEF6686 {
     uint8_t eRTblock;
     uint8_t doublecounter;
     uint16_t doubletestfreq;
+    time_t lastrdstime;
+    int32_t lasttimeoffset;
 };
 #endif

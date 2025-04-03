@@ -185,26 +185,38 @@ void ShowAF(void) {
 }
 
 void ShowCT(void) {
-  if ((radio.rds.hasCT && !dropout) || displayreset) {
-    rds_clock = ((radio.rds.hour < 10 ? "0" : "") + String(radio.rds.hour) + ":" + (radio.rds.minute < 10 ? "0" : "") + String(radio.rds.minute));
-  } else if (!radio.rds.hasCT || dropout) {
-    rds_clock = ((rtc.getHour(true) < 10 ? "0" : "") + String(rtc.getHour(true)) + ":" + (rtc.getMinute() < 10 ? "0" : "") + String(rtc.getMinute()));
-    if (dropout) {
-      radio.rds.hour = rtc.getHour(true);
-      radio.rds.minute = rtc.getMinute();
-    }
-  }
-  if (rds_clock != rds_clockold || hasCTold != radio.rds.hasCT) {
-    if (radio.rds.hasCT && RDSstatus) {
-      rtcset = true;
-      rtc.setTime(0, radio.rds.minute, radio.rds.hour, radio.rds.day, radio.rds.month, radio.rds.year);
-      Display.writeNum("tm3.en", 1);
-      Display.writeStr("CT.txt", String(radio.rds.day) + "-" + String(radio.rds.month) + "-" + String(radio.rds.year) + " " + rds_clock);
-    }
-    rds_clockold = rds_clock;
+  if (radio.rds.hasCT || displayreset) {
+    char timeStr[16];
+    char dateStr[11];
+    time_t t;
 
+    if (radio.rds.hasCT && !dropout) {
+      t = radio.rds.time + radio.rds.offset;
+    } else {
+      t = rtc.getEpoch() + radio.rds.offset;
+
+      if (dropout) {
+        radio.rds.time = static_cast<time_t>(rtc.getEpoch());
+      }
+    }
+
+    int hour = localtime(&t)->tm_hour;
+
+    if (hour < 0 || hour > 23) hour = 0;
+    snprintf(timeStr, sizeof(timeStr), "%02d:%02d", hour, localtime(&t)->tm_min);
+    strftime(dateStr, sizeof(dateStr), "%d-%m-%Y", localtime(&t));
+    rds_clock = String(dateStr) + " " + String(timeStr);
+
+    if (rds_clock != rds_clockold || hasCTold != radio.rds.hasCT) {
+      if (radio.rds.hasCT && RDSstatus) {
+        Display.writeNum("tm3.en", 1);
+        Display.writeStr("CT.txt", rds_clock);
+      }
+      rds_clockold = rds_clock;
+
+    }
+    hasCTold = radio.rds.hasCT;
   }
-  hasCTold = radio.rds.hasCT;
 }
 
 void ShowPI(void) {
