@@ -233,6 +233,14 @@ void XDRGTKRoutine(void) {
         }
         break;
 
+      case 'B':
+        byte stmo;
+        stmo = atol(buff + 1);
+        XDRGTKprint("B" + String(stmo) + "\n");
+        if (stmo == 0) StereoToggle = false; else StereoToggle = true;
+        doStereoToggle();
+        break;
+
       case 'C':
         byte scanmethod;
         scanmethod = atol(buff + 1);
@@ -249,10 +257,6 @@ void XDRGTKRoutine(void) {
           ShowFreq();
         }
         XDRGTKprint("C0\n");
-        break;
-
-      case 'N':
-        doStereoToggle();
         break;
 
       case 'D':
@@ -363,42 +367,115 @@ void XDRGTKRoutine(void) {
         break;
 
       case 'S':
-        radio.setMute();
-        if (buff[1] == 'a') {
-          XDRscanner_start = (atol(buff + 2) + 5) / 10;
-        } else if (buff[1] == 'b') {
-          XDRscanner_end = (atol(buff + 2) + 5) / 10;
-        } else if (buff[1] == 'c') {
-          XDRscanner_step = (atol(buff + 2) + 5) / 10;
-        } else if (buff[1] == 'f') {
-          XDRscanner_filter = atol(buff + 2);
-        } else if (XDRscanner_start > 0 && XDRscanner_end > 0 && XDRscanner_step > 0 && XDRscanner_filter >= 0) {
-          XDRscanner_old = frequency0;
-          if (XDRscanner_filter < 0) {
-            BWset = 1;
-          } else if (XDRscanner_filter < 16) {
-            BWset = XDRscanner_filter + 1;
-          }
-          doBW();
-          XDRGTKprint("U");
-          for (XDRfreq_scan = XDRscanner_start; XDRfreq_scan <= XDRscanner_end; XDRfreq_scan += XDRscanner_step)
-          {
-            radio.SetFreq(XDRfreq_scan);
-            Display.writeNum("freq.val", XDRfreq_scan);
-            XDRGTKprint(String(XDRfreq_scan * 10, DEC));
-            XDRGTKprint("=");
-            delay(10);
-            radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
-            XDRGTKprint(String((SStatus / 10) + 10, DEC));
-            XDRGTKprint(",");
-          }
-          XDRGTKprint("\n");
+        if (!XDRScan) BWsetRecall = BWset;
+        XDRScan = true;
+        Data_Accelerator = true;
+
+        switch (buff[1]) {
+          case 'a': XDRscanner_start = (atol(buff + 2) + 5) / 10; break;
+          case 'b': XDRscanner_end = (atol(buff + 2) + 5) / 10; return;
+          case 'c': XDRscanner_step = (atol(buff + 2) + 5) / 10; break;
+          case 'f':
+            XDRscanner_filter = atol(buff + 2);
+            switch (XDRscanner_filter) {
+              case 0: BWset = 1; break;
+              case 26: BWset = 2; break;
+              case 1: BWset = 3; break;
+              case 28: BWset = 4; break;
+              case 29: BWset = 5; break;
+              case 3: BWset = 6; break;
+              case 4: BWset = 7; break;
+              case 5: BWset = 8; break;
+              case 7: BWset = 9; break;
+              case 8: BWset = 10; break;
+              case 9: BWset = 11; break;
+              case 10: BWset = 12; break;
+              case 11: BWset = 13; break;
+              case 12: BWset = 14; break;
+              case 13: BWset = 15; break;
+              case 15: BWset = 16; break;
+            }
+            doBW();
+            break;
+          case 'w':
+            unsigned int bwtemp;
+            bwtemp = atoi(buff + 2);
+            switch (bwtemp) {
+              case 0: BWset = 0; break;
+              case 56000: BWset = 1; break;
+              case 64000: BWset = 2; break;
+              case 72000: BWset = 3; break;
+              case 84000: BWset = 4; break;
+              case 97000: BWset = 5; break;
+              case 114000: BWset = 6; break;
+              case 133000: BWset = 7; break;
+              case 151000: BWset = 8; break;
+              case 168000: BWset = 9; break;
+              case 184000: BWset = 10; break;
+              case 200000: BWset = 11; break;
+              case 217000: BWset = 12; break;
+              case 236000: BWset = 13; break;
+              case 254000: BWset = 14; break;
+              case 287000: BWset = 15; break;
+              case 311000: BWset = 16; break;
+            }
+            doBW();
+            break;
+
+          case '\0':
+            radio.setMute();
+
+            XDRGTKprint("U");
+            unsigned int frequencyold = frequency0;
+
+            for (XDRfreq_scan = XDRscanner_start; XDRfreq_scan <= XDRscanner_end; XDRfreq_scan += XDRscanner_step) {
+              radio.SetFreq(XDRfreq_scan);
+              delay(5);
+              XDRGTKprint(String(XDRfreq_scan * 10, DEC));
+              XDRGTKprint(" = ");
+              if (band != 5) radio.getStatus(SStatus, USN, WAM, OStatus, BW, MStatus, CN); else  radio.getStatusAM(SStatus, USN, WAM, OStatus, BW, MStatus, CN);
+              XDRGTKprint(String((SStatus / 10) + 10, DEC));
+              XDRGTKprint(", ");
+            }
+            XDRGTKprint("\n");
+
+            radio.SetFreq(frequencyold);
+            BWset = BWsetRecall;
+            doBW();
+            XDRScan = false;
+            if (VolSet != 0) {
+              radio.setUnMute();
+              radio.setVolume(((VolSet * 10) - 40) / 10);
+            }
+            break;
         }
-        radio.SetFreq(XDRscanner_old);
-        ShowFreq();
-        BWset = XDRBWsetold;
+        Data_Accelerator = false;
+        break;
+
+      case 'W':
+        unsigned int bwtemp;
+        bwtemp = atoi(buff + 1);
+        switch (bwtemp) {
+          case 0: BWset = 0; break;
+          case 56000: BWset = 1; break;
+          case 64000: BWset = 2; break;
+          case 72000: BWset = 3; break;
+          case 84000: BWset = 4; break;
+          case 97000: BWset = 5; break;
+          case 114000: BWset = 6; break;
+          case 133000: BWset = 7; break;
+          case 151000: BWset = 8; break;
+          case 168000: BWset = 9; break;
+          case 184000: BWset = 10; break;
+          case 200000: BWset = 11; break;
+          case 217000: BWset = 12; break;
+          case 236000: BWset = 13; break;
+          case 254000: BWset = 14; break;
+          case 287000: BWset = 15; break;
+          case 311000: BWset = 16; break;
+        }
         doBW();
-        radio.setUnMute();
+        XDRGTKprint("W" + String(bwtemp) + "\n");
         break;
 
       case 'Y':
@@ -424,22 +501,24 @@ void XDRGTKRoutine(void) {
       case 'Z':
         byte ANT;
         ANT = atol(buff + 1);
-        switch (ANT) {
-          case 0:
-            if (!UHF) digitalWrite(RFC, LOW);
-            break;
+        if (!UHF) {
+          switch (ANT) {
+            case 0:
+              if (CoaxSwitch == 0) digitalWrite(RFC, HIGH); else digitalWrite(RFC, LOW);
+              break;
 
-          case 1:
-            if (!UHF) digitalWrite(RFC, HIGH);
-            break;
+            case 1:
+              if (CoaxSwitch == 0) digitalWrite(RFC, LOW); else digitalWrite(RFC, HIGH);
+              break;
 
-          case 2:
-            // Antenna C
-            break;
+            case 2:
+              // Antenna C
+              break;
 
-          case 3:
-            // Antenna D
-            break;
+            case 3:
+              // Antenna D
+              break;
+          }
         }
         XDRGTKprint("Z" + String(ANT) + "\n");
         break;
@@ -459,7 +538,7 @@ void XDRGTKRoutine(void) {
         XDRGTKprint("Sm");
       }
     }
-    XDRGTKprint(String(((SStatus * 100) + 10875) / 1000) + "." + String(abs(((SStatus * 100) + 10875) / 100 % 10)) + "," + String(WAM / 10) + ",-1\n\n");
+    XDRGTKprint(String(((SStatus * 100) + 10875) / 1000) + "." + String(abs(((SStatus * 100) + 10875) / 100 % 10)) + "," + String(WAM / 10) + "," + String(USN / 10) + "," + String(BW) + "\n\n");
     signalstatustimer = millis();
   }
 }

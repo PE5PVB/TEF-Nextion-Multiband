@@ -12,7 +12,7 @@
 #define RFC                             	4
 #define BAND                            	27
 #define SMETERPIN                       	2
-#define SOFTWAREVER                     	210
+#define SOFTWAREVER                     	220
 #define DISPLAYVER                      	107
 #define BETA                            	0
 

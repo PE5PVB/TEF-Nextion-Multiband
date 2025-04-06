@@ -84,6 +84,7 @@ bool XDRGTK;
 bool XDRGTKdata;
 bool XDRGTKTCP;
 bool XDRMute;
+bool XDRScan;
 byte af_counterold;
 byte af_scan;
 byte am;
@@ -92,6 +93,7 @@ byte btselect;
 byte BWset;
 byte BWsetAM = 2;
 byte BWsetOld = 254;
+byte BWsetRecall;
 byte change;
 byte coaxmode;
 byte CoaxSwitch;
@@ -275,8 +277,8 @@ unsigned long showmillis;
 unsigned long signalstatustimer;
 unsigned long stlmillis;
 unsigned long time_now;
-unsigned long XDRshowmillis;
 unsigned long tuneresetcounter;
+unsigned long XDRshowmillis;
 
 void setup(void) {
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
@@ -495,8 +497,8 @@ void setup(void) {
   radio.setFMSI_Bias(fmsi_12, fmsi_22, fmsi_32, fmsi_42);
   radio.rds.rtbuffer = true;
   radio.underscore = false;
-  radio.rds.filter = false;
-  radio.rds.pierrors = true;
+  radio.rds.filter = true;
+  radio.rds.pierrors = false;
   radio.rds.sortaf = true;
   radio.rds.fastps = true;
 
@@ -1357,6 +1359,28 @@ void doBW(void) {
       case 14: radio.setFMBandw(254); break;
       case 15: radio.setFMBandw(287); break;
       case 16: radio.setFMBandw(311); break;
+    }
+
+    if ((XDRGTK || XDRGTKTCP) && !XDRScan) {
+      switch (BWset) {
+        case 0: XDRGTKprint("W0\n"); break;
+        case 1: XDRGTKprint("W56000\n"); break;
+        case 2: XDRGTKprint("W64000\n"); break;
+        case 3: XDRGTKprint("W72000\n"); break;
+        case 4: XDRGTKprint("W84000\n"); break;
+        case 5: XDRGTKprint("W97000\n"); break;
+        case 6: XDRGTKprint("W114000\n"); break;
+        case 7: XDRGTKprint("W133000\n"); break;
+        case 8: XDRGTKprint("W151000\n"); break;
+        case 9: XDRGTKprint("W168000\n"); break;
+        case 10: XDRGTKprint("W184000\n"); break;
+        case 11: XDRGTKprint("W200000\n"); break;
+        case 12: XDRGTKprint("W217000\n"); break;
+        case 13: XDRGTKprint("W236000\n"); break;
+        case 14: XDRGTKprint("W254000\n"); break;
+        case 15: XDRGTKprint("W287000\n"); break;
+        case 16: XDRGTKprint("W311000\n"); break;
+      }
     }
   }
 }
