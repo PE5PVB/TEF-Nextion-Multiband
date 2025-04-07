@@ -798,7 +798,7 @@ void RF(byte RFset) {
       delay(50);
       radio.SetFreq(IF * 100);
       if (!displayreset) radio.clearRDS(fullsearchrds);
-      radio.setOffset(LevelOffset1 - 7);
+      radio.setOffset(LevelOffset1 - 10);
       Frontend.Power(1);
       Frontend.SetFreq(frequency1 - (IF * 100), offset);
       Display.writeNum("offsettouch", 1);
@@ -812,7 +812,7 @@ void RF(byte RFset) {
       delay(50);
       radio.SetFreq(IF * 100);
       if (!displayreset) radio.clearRDS(fullsearchrds);
-      radio.setOffset(LevelOffset2 - 4);
+      radio.setOffset(LevelOffset2 - 17);
       Frontend.SetFreq(frequency2 - (IF * 100), offset);
       Display.writeNum("offsettouch", 1);
       break;
@@ -825,7 +825,7 @@ void RF(byte RFset) {
       delay(50);
       radio.SetFreq(IF * 100);
       if (!displayreset) radio.clearRDS(fullsearchrds);
-      radio.setOffset(LevelOffset3);
+      radio.setOffset(LevelOffset3 - 14);
       Frontend.SetFreq(frequency3 - (IF * 100), offset);
       Display.writeNum("offsettouch", 1);
       break;
@@ -838,7 +838,7 @@ void RF(byte RFset) {
       delay(50);
       radio.SetFreq(IF * 100);
       if (!displayreset) radio.clearRDS(fullsearchrds);
-      radio.setOffset(LevelOffset4 + 2);
+      radio.setOffset(LevelOffset4 + 7);
       Frontend.SetFreq(frequency4 - (IF * 100), offset);
       Display.writeNum("offsettouch", 1);
       break;
