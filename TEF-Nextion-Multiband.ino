@@ -375,26 +375,22 @@ void setup(void) {
   String softwareversionext;
   displayversion = Display.readNumber("versie");
 
-  if (displayversion % 10 < 10 && displayversion % 10 > 0) {
-    displayversionext = ".0" + String (displayversion % 10);
-  } else if (displayversion % 10 == 0) {
-    displayversionext = ".00";
+  if (displayversion % 100 < 10) {
+    displayversionext = "0" + String(displayversion % 100);
   } else {
-    displayversionext = "." + String (displayversion % 10);
+    displayversionext = String(displayversion % 100);
   }
 
-  if (SOFTWAREVER % 10 < 10 && SOFTWAREVER % 10 > 0) {
-    softwareversionext = ".0" + String (SOFTWAREVER % 10);
-  } else if (SOFTWAREVER % 10 == 0) {
-    softwareversionext = ".00";
+  if (SOFTWAREVER % 100 < 10) {
+    softwareversionext = "0" + String(SOFTWAREVER % 100);
   } else {
-    softwareversionext = "." + String (SOFTWAREVER % 10);
+    softwareversionext = String(SOFTWAREVER % 100);
   }
 
-  showsoftwareversion = String ("v" + String (SOFTWAREVER / 100) + String(softwareversionext));
+  showsoftwareversion = String ("v" + String (SOFTWAREVER / 100) + "." + String(softwareversionext));
   if (BETA > 0) showsoftwareversion += String(" beta ");
   if (BETA > 1) showsoftwareversion += String(BETA);
-  String showdisplayversion = String ("Display v" + String (displayversion / 100) + String(displayversionext));
+  String showdisplayversion = String ("Display v" + String (displayversion / 100) + "." + String(displayversionext));
   Display.writeStr("page 0");
   Display.writeStr("version.txt", "Version " + String(showsoftwareversion));
   Display.writeStr("version2.txt", showdisplayversion);
