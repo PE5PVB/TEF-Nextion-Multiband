@@ -337,14 +337,12 @@ void XDRGTKRoutine(void) {
         XDRfreq = atoi(buff + 1);
         if (XDRfreq != freq * 10) {
           if (XDRfreq > 27001) {
-            XDRGTKprint("M0\n");
             XDRGTKTune(XDRfreq / 10);
           } else if (XDRfreq > 143) {
             frequency5 = XDRfreq;
             if (band != 5) {
               band = 5;
               RF(band);
-              XDRGTKprint("M1\n");
             } else {
               radio.SetFreqAM(frequency5);
             }

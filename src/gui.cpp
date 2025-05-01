@@ -495,25 +495,25 @@ void ShowFreq(void) {
 
   if (XDRGTK) {
     switch (band) {
-      case 0: Serial.print("T" + String(frequency0 * 10) + "\n"); break;
-      case 1: Serial.print("T" + String(frequency1 * 10) + "\n"); break;
-      case 2: Serial.print("T" + String(frequency2 * 10) + "\n"); break;
-      case 3: Serial.print("T" + String(frequency3 * 10) + "\n"); break;
-      case 4: Serial.print("T" + String(frequency4 * 10) + "\n"); break;
-      case 5: Serial.print("T" + String(frequency5) + "\n"); break;
-      case 6: Serial.print("T" + String(frequency6 * 10) + "\n"); break;
+      case 0: Serial.print("M0\nT" + String(frequency0 * 10) + "\n"); break;
+      case 1: Serial.print("M0\nT" + String(frequency1 * 10) + "\n"); break;
+      case 2: Serial.print("M0\nT" + String(frequency2 * 10) + "\n"); break;
+      case 3: Serial.print("M0\nT" + String(frequency3 * 10) + "\n"); break;
+      case 4: Serial.print("M0\nT" + String(frequency4 * 10) + "\n"); break;
+      case 5: Serial.print("M1\nT" + String(frequency5) + "\n"); break;
+      case 6: Serial.print("M0\nT" + String(frequency6 * 10) + "\n"); break;
     }
   }
 
   if (XDRGTKTCP) {
     switch (band) {
-      case 0: RemoteClient.print("T" + String(frequency0 * 10) + "\n"); break;
-      case 1: RemoteClient.print("T" + String(frequency1 * 10) + "\n"); break;
-      case 2: RemoteClient.print("T" + String(frequency2 * 10) + "\n"); break;
-      case 3: RemoteClient.print("T" + String(frequency3 * 10) + "\n"); break;
-      case 4: RemoteClient.print("T" + String(frequency4 * 10) + "\n"); break;
-      case 5: RemoteClient.print("T" + String(frequency5) + "\n"); break;
-      case 6: RemoteClient.print("T" + String(frequency6 * 10) + "\n"); break;
+      case 0: RemoteClient.print("M0\nT" + String(frequency0 * 10) + "\n"); break;
+      case 1: RemoteClient.print("M0\nT" + String(frequency1 * 10) + "\n"); break;
+      case 2: RemoteClient.print("M0\nT" + String(frequency2 * 10) + "\n"); break;
+      case 3: RemoteClient.print("M0\nT" + String(frequency3 * 10) + "\n"); break;
+      case 4: RemoteClient.print("M0\nT" + String(frequency4 * 10) + "\n"); break;
+      case 5: RemoteClient.print("M1\nT" + String(frequency5) + "\n"); break;
+      case 6: RemoteClient.print("M0\nT" + String(frequency6 * 10) + "\n"); break;
     }
   }
 }
