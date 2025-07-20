@@ -467,10 +467,10 @@ void setup(void) {
 
   Display.writeNum("smeterold", 0);
 
-  if (iMSset == 1 && EQset == 1) iMSEQ = 2;
-  if (iMSset == 0 && EQset == 1) iMSEQ = 3;
-  if (iMSset == 1 && EQset == 0) iMSEQ = 4;
-  if (iMSset == 0 && EQset == 0) iMSEQ = 1;
+  if (iMSset == 1 && EQset == 1) iMSEQ = 3;
+  if (iMSset == 0 && EQset == 1) iMSEQ = 2;
+  if (iMSset == 1 && EQset == 0) iMSEQ = 1;
+  if (iMSset == 0 && EQset == 0) iMSEQ = 0;
 
   if (wifienable == 2) tryWiFi(); else WiFi.mode(WIFI_OFF);
 
@@ -794,7 +794,7 @@ void RF(byte RFset) {
       delay(50);
       radio.SetFreq(IF * 100);
       if (!displayreset) radio.clearRDS(fullsearchrds);
-      radio.setOffset(LevelOffset1 - 10);
+      radio.setOffset(LevelOffset1 - 26);
       Frontend.Power(1);
       Frontend.SetFreq(frequency1 - (IF * 100), offset);
       Display.writeNum("offsettouch", 1);
@@ -808,7 +808,7 @@ void RF(byte RFset) {
       delay(50);
       radio.SetFreq(IF * 100);
       if (!displayreset) radio.clearRDS(fullsearchrds);
-      radio.setOffset(LevelOffset2 - 17);
+      radio.setOffset(LevelOffset2 - 9);
       Frontend.SetFreq(frequency2 - (IF * 100), offset);
       Display.writeNum("offsettouch", 1);
       break;
@@ -821,7 +821,7 @@ void RF(byte RFset) {
       delay(50);
       radio.SetFreq(IF * 100);
       if (!displayreset) radio.clearRDS(fullsearchrds);
-      radio.setOffset(LevelOffset3 - 14);
+      radio.setOffset(LevelOffset3 - 10);
       Frontend.SetFreq(frequency3 - (IF * 100), offset);
       Display.writeNum("offsettouch", 1);
       break;
@@ -834,7 +834,7 @@ void RF(byte RFset) {
       delay(50);
       radio.SetFreq(IF * 100);
       if (!displayreset) radio.clearRDS(fullsearchrds);
-      radio.setOffset(LevelOffset4 + 7);
+      radio.setOffset(LevelOffset4 + 20);
       Frontend.SetFreq(frequency4 - (IF * 100), offset);
       Display.writeNum("offsettouch", 1);
       break;
